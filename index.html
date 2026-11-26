@@ -1043,6 +1043,11 @@
                                     class="w-6 h-6 rounded-full bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] font-black flex items-center justify-center transition">
                                     A+
                                 </button>
+                                <button type="button" id="letterCopyLinkBtn" title="Salva e copia link con la lettera"
+                                    class="px-2 h-6 rounded-full bg-[#D42F58] hover:bg-[#B82248] text-white text-[10px] font-extrabold flex items-center gap-1 transition active:scale-95">
+                                    <i class="fa-solid fa-link text-[9px]"></i>
+                                    <span>Link</span>
+                                </button>
                             </div>
                         </div>
 
@@ -2537,31 +2542,129 @@
         let letterFontSize = 20;
         const FONT_CLASSES = ['font-caveat', 'font-script', 'font-quicksand', 'font-playfair', 'font-sans'];
 
-        // Ripristina testo, font e dimensione della lettera salvati
-        try {
-            const savedLetter = JSON.parse(localStorage.getItem('loveGiftLetter_v1') || '{}');
-            if (typeof savedLetter.text === 'string') {
-                letterTextarea.value = savedLetter.text;
+        const LETTER_STORAGE_KEY = 'loveGiftLetter_v1';
+
+        function encodeLetterToHash(payload) {
+            try {
+                const json = JSON.stringify(payload);
+                const bytes = new TextEncoder().encode(json);
+                let bin = '';
+                for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+                return '#letter=' + encodeURIComponent(btoa(bin));
+            } catch (e) {
+                return '';
             }
-            if (savedLetter.font && FONT_CLASSES.includes(savedLetter.font)) {
-                letterFontSelect.value = savedLetter.font;
-                applyLetterFont(savedLetter.font);
+        }
+
+        function decodeLetterFromHash() {
+            try {
+                const h = window.location.hash || '';
+                if (!h.startsWith('#letter=')) return null;
+                const b64 = decodeURIComponent(h.slice('#letter='.length));
+                const bin = atob(b64);
+                const bytes = new Uint8Array(bin.length);
+                for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                const json = new TextDecoder().decode(bytes);
+                return JSON.parse(json);
+            } catch (e) {
+                return null;
             }
-            if (savedLetter.size) {
-                letterFontSize = savedLetter.size;
-                applyLetterSize(letterFontSize);
+        }
+
+        function readLocalFallbackLetterState() {
+            try {
+                const rawLocal = localStorage.getItem(LETTER_STORAGE_KEY);
+                if (rawLocal) {
+                    const parsed = JSON.parse(rawLocal);
+                    if (parsed && typeof parsed.text === 'string' && parsed.text.length > 0) return parsed;
+                }
+            } catch (e) {}
+            try {
+                const rawSess = sessionStorage.getItem(LETTER_STORAGE_KEY);
+                if (rawSess) {
+                    const parsed = JSON.parse(rawSess);
+                    if (parsed && typeof parsed.text === 'string' && parsed.text.length > 0) return parsed;
+                }
+            } catch (e) {}
+            try {
+                if (window.name && window.name.startsWith('LOVE_LETTER_V1:')) {
+                    const parsed = JSON.parse(window.name.slice('LOVE_LETTER_V1:'.length));
+                    if (parsed && typeof parsed.text === 'string' && parsed.text.length > 0) return parsed;
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        async function loadLetterFromGitHubOrStorage() {
+            // 1. Se il link contiene una lettera condivisa (#letter=...), usa quella
+            const fromHash = decodeLetterFromHash();
+            if (fromHash && typeof fromHash.text === 'string') {
+                letterTextarea.value = fromHash.text;
+                if (fromHash.font && FONT_CLASSES.includes(fromHash.font)) {
+                    letterFontSelect.value = fromHash.font;
+                    applyLetterFont(fromHash.font);
+                }
+                if (fromHash.size) {
+                    letterFontSize = fromHash.size;
+                    applyLetterSize(letterFontSize);
+                }
+                return;
             }
-        } catch (e) {}
+
+            // Ripristina eventuali preferenze salvate (font/dimensione)
+            const localSaved = readLocalFallbackLetterState();
+            if (localSaved) {
+                if (localSaved.font && FONT_CLASSES.includes(localSaved.font)) {
+                    letterFontSelect.value = localSaved.font;
+                    applyLetterFont(localSaved.font);
+                }
+                if (localSaved.size) {
+                    letterFontSize = localSaved.size;
+                    applyLetterSize(letterFontSize);
+                }
+            }
+
+            // 2. Carica il testo direttamente dal file `lettera.txt` su GitHub!
+            const txtCandidates = ['lettera.txt', './lettera.txt', 'Lettera.txt', 'LETTERA.TXT'];
+            for (const url of txtCandidates) {
+                try {
+                    const resp = await fetch(url + '?t=' + Date.now(), { cache: 'no-store' });
+                    if (resp.ok) {
+                        const txt = await resp.text();
+                        if (txt && txt.trim().length > 0 && !txt.trim().startsWith('<!DOCTYPE')) {
+                            letterTextarea.value = txt;
+                            return;
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            // 3. Se `lettera.txt` non è ancora su GitHub, usa l'eventuale bozza salvata sul browser
+            if (localSaved && typeof localSaved.text === 'string') {
+                letterTextarea.value = localSaved.text;
+            }
+        }
+
+        loadLetterFromGitHubOrStorage();
 
         function saveLetterState() {
-            try {
-                localStorage.setItem('loveGiftLetter_v1', JSON.stringify({
-                    text: letterTextarea.value,
-                    font: letterFontSelect.value,
-                    size: letterFontSize
-                }));
-            } catch (e) {}
+            const payload = {
+                text: letterTextarea.value,
+                font: letterFontSelect.value,
+                size: letterFontSize
+            };
+            const serialized = JSON.stringify(payload);
+            try { localStorage.setItem(LETTER_STORAGE_KEY, serialized); } catch (e) {}
+            try { sessionStorage.setItem(LETTER_STORAGE_KEY, serialized); } catch (e) {}
+            try { window.name = 'LOVE_LETTER_V1:' + serialized; } catch (e) {}
         }
+
+        window.addEventListener('pagehide', saveLetterState);
+        window.addEventListener('beforeunload', saveLetterState);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') saveLetterState();
+        });
+        letterTextarea.addEventListener('blur', saveLetterState);
 
         function applyLetterFont(fontClass) {
             FONT_CLASSES.forEach(cls => letterTextarea.classList.remove(cls));
@@ -2591,6 +2694,31 @@
             applyLetterSize(letterFontSize);
             saveLetterState();
         });
+
+        const letterCopyLinkBtn = document.getElementById('letterCopyLinkBtn');
+        if (letterCopyLinkBtn) {
+            letterCopyLinkBtn.addEventListener('click', async () => {
+                saveLetterState();
+                const payload = {
+                    text: letterTextarea.value,
+                    font: letterFontSelect.value,
+                    size: letterFontSize
+                };
+                const hash = encodeLetterToHash(payload);
+                const shareUrl = window.location.origin + window.location.pathname + hash;
+                try {
+                    history.replaceState(null, '', hash);
+                } catch (e) {}
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(shareUrl);
+                        showToast("Lettera salvata e link copiato!");
+                        return;
+                    }
+                } catch (e) {}
+                showToast("Lettera salvata! Puoi copiare il link dalla barra in alto.");
+            });
+        }
     </script>
 </body>
 </html>
