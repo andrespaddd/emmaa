@@ -1,0 +1,2350 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>How much do you love me?</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Nunito, Dancing Script, Caveat, Quicksand, Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Dancing+Script:wght@600;700&family=Nunito:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome per icone discrete -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-pink: #FDF0F2;
+            --text-burgundy: #6E1E3B;
+            --accent-crimson: #9E0B3D;
+            --percentage-red: #A61C45;
+            --slider-track: #EED5DA;
+            --slider-thumb: #B82952;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-pink);
+            color: var(--text-burgundy);
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .font-script {
+            font-family: 'Dancing Script', cursive;
+        }
+        .font-caveat {
+            font-family: 'Caveat', cursive;
+        }
+        .font-quicksand {
+            font-family: 'Quicksand', sans-serif;
+        }
+        .font-playfair {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* ===================================================================== */
+        /* STILI SPECIFICI PER SCHERMATA CANZONE & POLAROID (REGALO CENTRALE)     */
+        /* ===================================================================== */
+        .song-collage-bg {
+            background-color: #F6C5D0;
+            background-image:
+                radial-gradient(circle at 18% 15%, rgba(255, 240, 245, 0.78) 0%, transparent 45%),
+                radial-gradient(circle at 85% 22%, rgba(242, 162, 182, 0.65) 0%, transparent 50%),
+                radial-gradient(circle at 25% 82%, rgba(247, 179, 196, 0.7) 0%, transparent 48%),
+                radial-gradient(circle at 82% 85%, rgba(255, 228, 236, 0.75) 0%, transparent 50%),
+                linear-gradient(155deg, #F8CED8 0%, #F3B6C5 52%, #F6C6D2 100%);
+        }
+
+        .polaroid-card {
+            background: linear-gradient(180deg, #FFFFFF 0%, #FAF5F6 100%);
+            box-shadow: 0 14px 34px rgba(132, 42, 72, 0.18), 0 2px 8px rgba(132, 42, 72, 0.08);
+            transform: rotate(1.2deg);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .polaroid-card:hover {
+            transform: rotate(0deg) scale(1.015);
+        }
+
+        .music-widget-card {
+            background: rgba(248, 217, 225, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(255, 255, 255, 0.65);
+            box-shadow: 0 12px 28px rgba(138, 43, 74, 0.18);
+        }
+
+        @keyframes butterflyFlutter {
+            0%, 100% { transform: rotate(-6deg) scale(1); }
+            50% { transform: rotate(-2deg) scale(1.04, 0.94); }
+        }
+
+        .anim-butterfly {
+            animation: butterflyFlutter 2.4s ease-in-out infinite;
+            transform-origin: bottom left;
+        }
+
+        /* ===================================================================== */
+        /* STILI SPECIFICI PER SCHERMATA LETTERA (REGALO DESTRO)                 */
+        /* ===================================================================== */
+        .letter-watercolor-bg {
+            background-color: #FCE2EC;
+            background-image:
+                radial-gradient(ellipse at 18% 10%, rgba(255, 255, 255, 0.92) 0%, transparent 46%),
+                radial-gradient(ellipse at 85% 16%, rgba(244, 168, 200, 0.72) 0%, transparent 48%),
+                radial-gradient(ellipse at 12% 52%, rgba(247, 178, 207, 0.65) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 68%, rgba(255, 245, 249, 0.9) 0%, transparent 48%),
+                radial-gradient(ellipse at 48% 96%, rgba(242, 158, 194, 0.68) 0%, transparent 52%),
+                linear-gradient(165deg, #FAD4E4 0%, #FDECF3 48%, #F8CBE0 100%);
+        }
+
+        @keyframes petalDrift {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(6px) rotate(8deg); }
+        }
+
+        .anim-petal {
+            animation: petalDrift 4.5s ease-in-out infinite;
+        }
+
+        .notebook-paper {
+            background-color: #F6EDD9;
+            background-image:
+                linear-gradient(90deg, transparent 36px, rgba(214, 128, 128, 0.45) 36px, rgba(214, 128, 128, 0.45) 37.5px, transparent 37.5px),
+                repeating-linear-gradient(
+                    to bottom,
+                    transparent 0px,
+                    transparent 27px,
+                    rgba(176, 160, 134, 0.42) 27px,
+                    rgba(176, 160, 134, 0.42) 28px
+                );
+            box-shadow: 0 14px 32px rgba(136, 48, 78, 0.16), 0 2px 6px rgba(136, 48, 78, 0.08);
+            position: relative;
+            clip-path: polygon(
+                0% 1.2%, 3% 0.4%, 7% 1.1%, 12% 0.2%, 18% 1%, 24% 0.3%, 31% 1.2%, 38% 0.4%, 45% 1.1%, 52% 0.2%, 59% 1%, 66% 0.3%, 73% 1.1%, 80% 0.3%, 87% 1%, 94% 0.4%, 100% 1.2%,
+                99.3% 8%, 100% 16%, 99.2% 24%, 100% 32%, 99.4% 40%, 100% 48%, 99.2% 56%, 100% 64%, 99.4% 72%, 100% 80%, 99.2% 88%, 100% 96%, 99.5% 99.2%,
+                94% 99.8%, 87% 98.9%, 80% 99.7%, 73% 99%, 66% 99.8%, 59% 98.9%, 52% 99.7%, 45% 99%, 38% 99.8%, 31% 98.9%, 24% 99.7%, 18% 99%, 12% 99.8%, 6% 99%, 0% 99.6%,
+                0.6% 92%, 0% 84%, 0.7% 76%, 0% 68%, 0.6% 60%, 0% 52%, 0.7% 44%, 0% 36%, 0.6% 28%, 0% 20%, 0.7% 12%, 0% 5%
+            );
+        }
+
+        .washi-tape-top {
+            background: linear-gradient(90deg, rgba(244, 152, 182, 0.55) 0%, rgba(250, 182, 204, 0.68) 50%, rgba(244, 152, 182, 0.55) 100%);
+            backdrop-filter: blur(2px);
+            box-shadow: 0 2px 5px rgba(136, 48, 78, 0.08);
+        }
+
+        .notebook-paper {
+            background-color: #F4EAD3;
+            background-image:
+                linear-gradient(90deg, transparent 36px, rgba(214, 128, 128, 0.48) 36px, rgba(214, 128, 128, 0.48) 37.5px, transparent 37.5px),
+                repeating-linear-gradient(
+                    to bottom,
+                    transparent 0px,
+                    transparent 27px,
+                    rgba(176, 160, 134, 0.45) 27px,
+                    rgba(176, 160, 134, 0.45) 28px
+                );
+            box-shadow: 0 12px 30px rgba(136, 48, 78, 0.14);
+            position: relative;
+        }
+
+        .notebook-textarea {
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            width: 100%;
+            height: 100%;
+            color: #5C2338;
+            line-height: 28px;
+            padding: 16px 18px 44px 48px;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .notebook-textarea::placeholder {
+            color: rgba(110, 30, 59, 0.36);
+            font-style: italic;
+        }
+
+        /* ===================================================================== */
+        /* 3D BOOK PAGE-TURN SYSTEM (Pages 1 -> 2 -> 3)                          */
+        /* ===================================================================== */
+        .book-viewport {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            perspective: 1800px;
+            overflow: hidden;
+            background-color: var(--bg-pink);
+        }
+
+        .book-page {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-pink);
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            transition: transform 0.95s cubic-bezier(0.645, 0.045, 0.355, 1),
+                        box-shadow 0.95s cubic-bezier(0.645, 0.045, 0.355, 1),
+                        opacity 0.4s ease;
+            will-change: transform;
+        }
+
+        /* Ombra dinamica sulla pagina che gira e su quella sottostante */
+        .book-page::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(90deg, rgba(110, 30, 59, 0.14) 0%, rgba(110, 30, 59, 0.03) 18%, rgba(255, 255, 255, 0) 50%);
+            opacity: 0;
+            transition: opacity 0.85s ease;
+            z-index: 45;
+        }
+
+        .book-page.page-active {
+            transform: rotateY(0deg);
+            z-index: 20;
+            pointer-events: auto;
+        }
+
+        .book-page.page-turned {
+            transform: rotateY(-108deg);
+            box-shadow: 24px 0 48px rgba(110, 30, 59, 0.22);
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        .book-page.page-turned::after {
+            opacity: 1;
+        }
+
+        .book-page.page-underneath {
+            transform: rotateY(0deg) scale(0.985);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .book-page.page-hidden {
+            display: none;
+            pointer-events: none;
+        }
+
+        /* ===================================================================== */
+        /* SPATIAL 2D CAMERA CANVAS PER I 3 REGALI (Screen 3)                    */
+        /* ===================================================================== */
+        .spatial-world {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform;
+        }
+
+        .spatial-panel {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background-color: var(--bg-pink);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        /* Posizioni relative al centro (0, 0) */
+        .panel-hub    { top: 0; left: 0; }
+        .panel-top    { top: -100vh; top: -100dvh; left: 0; }     /* Regalo Sinistro -> Vai in alto */
+        .panel-right  { top: 0; left: 100vw; }                    /* Regalo Centrale -> Vai a destra */
+        .panel-bottom { top: 100vh; top: 100dvh; left: 0; }       /* Regalo Destro   -> Vai in basso */
+
+        /* Animazioni pacchi regalo */
+        @keyframes giftBob {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(1deg); }
+        }
+
+        .gift-box-btn {
+            background: transparent;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+            outline: none;
+        }
+
+        .gift-box-btn:hover {
+            transform: translateY(-8px) scale(1.08);
+            filter: drop-shadow(0 10px 16px rgba(158, 11, 61, 0.16));
+        }
+
+        .gift-box-btn:active {
+            transform: scale(0.95);
+        }
+
+        .gift-anim-1 { animation: giftBob 2.8s ease-in-out infinite; }
+        .gift-anim-2 { animation: giftBob 2.8s ease-in-out 0.35s infinite; }
+        .gift-anim-3 { animation: giftBob 2.8s ease-in-out 0.7s infinite; }
+
+        @keyframes pulseCue {
+            0%, 100% { transform: translateY(0); opacity: 0.75; }
+            50% { transform: translateY(4px); opacity: 1; }
+        }
+
+        .cue-bounce {
+            animation: pulseCue 1.8s ease-in-out infinite;
+        }
+
+        /* Pulsante ovale fedele allo screenshot */
+        .btn-next {
+            background-color: var(--accent-crimson);
+            color: #FFFFFF;
+            font-weight: 800;
+            font-size: 1.05rem;
+            padding: 0.72rem 3.2rem;
+            border-radius: 9999px;
+            box-shadow: 0 6px 18px rgba(158, 11, 61, 0.25);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background-color 0.2s ease;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 10px 24px rgba(158, 11, 61, 0.35);
+            background-color: #b30d45;
+        }
+
+        .btn-next:active {
+            transform: translateY(1px) scale(0.96);
+        }
+
+        /* Custom Range Slider fedele allo screenshot */
+        input[type="range"].love-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: var(--slider-track);
+            border-radius: 999px;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        input[type="range"].love-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: grab;
+            box-shadow: 0 2px 8px rgba(184, 41, 82, 0.4);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        input[type="range"].love-slider::-webkit-slider-thumb:hover,
+        input[type="range"].love-slider:active::-webkit-slider-thumb {
+            transform: scale(1.22);
+            cursor: grabbing;
+        }
+
+        input[type="range"].love-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border: none;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: grab;
+            box-shadow: 0 2px 8px rgba(184, 41, 82, 0.4);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Animazioni dei gattini e degli elementi */
+        @keyframes floatGentle {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes catBounceHappy {
+            0%, 100% { transform: translateY(0) scale(1, 1); }
+            40% { transform: translateY(-10px) scale(0.96, 1.05); }
+            70% { transform: translateY(0) scale(1.04, 0.96); }
+        }
+
+        @keyframes catCrySob {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(2px) rotate(-2deg); }
+            50% { transform: translateY(-1px) rotate(0deg); }
+            75% { transform: translateY(2px) rotate(2deg); }
+        }
+
+        @keyframes catAngryShake {
+            0%, 100% { transform: translateX(0) scale(1); }
+            20% { transform: translateX(-4px) rotate(-1.5deg); }
+            40% { transform: translateX(4px) rotate(1.5deg); }
+            60% { transform: translateX(-3px) rotate(-1deg); }
+            80% { transform: translateX(3px) rotate(1deg); }
+        }
+
+        @keyframes catPleadWiggle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            30% { transform: scale(1.03, 0.97) rotate(-3deg); }
+            60% { transform: scale(0.98, 1.03) rotate(3deg); }
+        }
+
+        @keyframes catExcitedJump {
+            0%, 100% { transform: translateY(0) scale(1.05, 0.95); }
+            35% { transform: translateY(-16px) scale(0.95, 1.08); }
+            65% { transform: translateY(-4px) scale(1.02, 0.98); }
+        }
+
+        @keyframes popNumber {
+            0% { transform: scale(0.75); opacity: 0.5; }
+            60% { transform: scale(1.22); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes infinityPulse {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 0 rgba(166, 28, 69, 0); }
+            50% { transform: scale(1.14); text-shadow: 0 4px 18px rgba(166, 28, 69, 0.35); }
+        }
+
+        @keyframes planeFly {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(4px, -5px) rotate(3deg); }
+        }
+
+        @keyframes birdsKiss {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.25); }
+            45% { transform: scale(0.95); }
+            65% { transform: scale(1.18); }
+        }
+
+        @keyframes floatUpHeart {
+            0% {
+                transform: translateY(0) scale(0.5) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-160px) scale(1.3) rotate(25deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .anim-float { animation: floatGentle 3s ease-in-out infinite; }
+        .anim-cat-0 { animation: catBounceHappy 2.2s ease-in-out infinite; }
+        .anim-cat-1 { animation: catCrySob 0.9s ease-in-out infinite; }
+        .anim-cat-2 { animation: catAngryShake 0.45s ease-in-out infinite; }
+        .anim-cat-3 { animation: catPleadWiggle 1.4s ease-in-out infinite; }
+        .anim-cat-4 { animation: catExcitedJump 0.65s cubic-bezier(0.28, 0.84, 0.42, 1) infinite; }
+
+        .anim-pop { animation: popNumber 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .anim-infinity { animation: infinityPulse 1.6s ease-in-out infinite; }
+        .anim-plane { animation: planeFly 3.5s ease-in-out infinite; }
+        .anim-birds { animation: birdsKiss 2.6s ease-in-out infinite; }
+        .anim-heart { animation: heartBeat 1.4s ease-in-out infinite; transform-origin: center; }
+        .screen-enter { animation: fadeInScale 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+        /* Particelle cuoricini */
+        .floating-heart {
+            position: fixed;
+            pointer-events: none;
+            z-index: 40;
+            animation: floatUpHeart 1.8s ease-out forwards;
+        }
+
+        /* Fusione immagine gattino caricato con lo sfondo */
+        .cat-media-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            /* Rende ancora più naturale l'integrazione sullo sfondo rosa cipria */
+            filter: drop-shadow(0 4px 8px rgba(110, 30, 59, 0.08));
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pulsante discreto in alto a sinistra per caricare le proprie foto dei gattini (visibile su Pagina 2) -->
+    <button id="openCustomModalBtn" title="Carica le tue foto dei gattini"
+        class="hidden fixed top-4 left-4 z-40 flex items-center gap-2 px-3 py-2 rounded-full bg-white/80 hover:bg-white text-[#6E1E3B] text-xs font-bold shadow-sm border border-[#EED5DA] backdrop-blur-sm transition-all active:scale-95">
+        <i class="fa-solid fa-camera text-[#9E0B3D]"></i>
+        <span class="hidden sm:inline">Personalizza Gattini</span>
+    </button>
+
+    <!-- CONTENITORE LIBRO 3D -->
+    <div id="bookViewport" class="book-viewport">
+
+        <!-- ===================================================================== -->
+        <!-- PAGINA 1: "are you ready?" + pulsante Next                            -->
+        <!-- ===================================================================== -->
+        <main id="screen1" class="book-page page-active flex flex-col items-center justify-center px-6 text-center">
+            <h1 class="text-[2.1rem] sm:text-4xl font-extrabold tracking-tight text-[#6E1E3B] mb-9 anim-float">
+                are you ready?
+            </h1>
+            <button id="startBtn" class="btn-next">
+                Next
+            </button>
+        </main>
+
+        <!-- ===================================================================== -->
+        <!-- PAGINA 2: Love Meter interattivo da 0% a 100% -> 200 -> 500 -> 1000 -> ∞ -->
+        <!-- ===================================================================== -->
+        <section id="screen2" class="book-page page-hidden flex flex-col items-center justify-center px-5 py-8 overflow-hidden">
+            
+            <!-- Decorazione in alto a destra: due uccellini/fantasmini che si baciano con cuoricino -->
+            <div class="absolute top-3 right-3 sm:top-6 sm:right-6 w-24 h-20 sm:w-28 sm:h-24 pointer-events-none anim-birds z-10">
+                <svg viewBox="0 0 140 110" class="w-full h-full overflow-visible">
+                <!-- Uccellino/Fantasmino Sinistro -->
+                <g transform="translate(8, 22)">
+                    <path d="M22 48 C12 48 8 38 11 26 C14 14 25 8 36 10 C45 12 52 20 53 29 C56 30 58 32 55 34 C53 35 51 35 51 35 C50 43 42 48 32 48 Z" 
+                          fill="#FFFFFF" stroke="#A65E74" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- Guanciotta -->
+                    <ellipse cx="42" cy="31" rx="4" ry="2.5" fill="#F8BBD0"/>
+                    <!-- Occhio chiuso felice -->
+                    <path d="M36 23 Q40 20 44 23" fill="none" stroke="#A65E74" stroke-width="2" stroke-linecap="round"/>
+                    <!-- Aletta -->
+                    <path d="M22 31 Q29 29 31 35 Q26 39 20 36" fill="none" stroke="#A65E74" stroke-width="2" stroke-linecap="round"/>
+                    <!-- Ondine base -->
+                    <path d="M16 47 Q20 51 24 48 Q28 51 32 48 Q36 51 40 48" fill="none" stroke="#A65E74" stroke-width="2" stroke-linecap="round"/>
+                </g>
+                <!-- Uccellino/Fantasmino Destro -->
+                <g transform="translate(68, 22)">
+                    <path d="M42 48 C52 48 56 38 53 26 C50 14 39 8 28 10 C19 12 12 20 11 29 C8 30 6 32 9 34 C11 35 13 35 13 35 C14 43 22 48 32 48 Z" 
+                          fill="#FFFFFF" stroke="#A65E74" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- Guanciotta -->
+                    <ellipse cx="22" cy="31" rx="4" ry="2.5" fill="#F8BBD0"/>
+                    <!-- Occhio chiuso felice -->
+                    <path d="M20 23 Q24 20 28 23" fill="none" stroke="#A65E74" stroke-width="2" stroke-linecap="round"/>
+                    <!-- Aletta -->
+                    <path d="M42 31 Q35 29 33 35 Q38 39 44 36" fill="none" stroke="#A65E74" stroke-width="2" stroke-linecap="round"/>
+                    <!-- Ondine base -->
+                    <path d="M24 48 Q28 51 32 48 Q36 51 40 48 Q44 51 48 47" fill="none" stroke="#A65E74" stroke-width="2" stroke-linecap="round"/>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Decorazione in basso a sinistra: aeroplanino di carta rosa con scia a cuore -->
+        <div class="absolute bottom-2 left-2 sm:bottom-5 sm:left-5 w-28 h-28 sm:w-32 sm:h-32 pointer-events-none anim-plane z-10">
+            <svg viewBox="0 0 130 130" class="w-full h-full overflow-visible">
+                <!-- Scia tratteggiata a forma di cuore -->
+                <path d="M35 58 C42 75 56 88 68 78 C78 70 72 58 63 62 C55 66 56 82 65 92 C74 102 88 108 102 108" 
+                      fill="none" stroke="#B87A8D" stroke-width="1.8" stroke-dasharray="4 4" stroke-linecap="round"/>
+                <!-- Aeroplanino di carta kawaii -->
+                <g transform="translate(8, 18) rotate(-12)">
+                    <polygon points="4,12 46,24 22,36" fill="#FAD2DC" stroke="#A65E74" stroke-width="1.8" stroke-linejoin="round"/>
+                    <polygon points="4,12 22,36 18,48" fill="#F4A8BC" stroke="#A65E74" stroke-width="1.8" stroke-linejoin="round"/>
+                    <polygon points="4,12 18,48 28,39" fill="#FAD2DC" stroke="#A65E74" stroke-width="1.8" stroke-linejoin="round"/>
+                    <!-- Occhietti dolci sull'aereo -->
+                    <circle cx="21" cy="22" r="1.4" fill="#6E1E3B"/>
+                    <circle cx="26" cy="24" r="1.4" fill="#6E1E3B"/>
+                    <path d="M22.5 24.5 Q23.5 26 24.8 25" fill="none" stroke="#6E1E3B" stroke-width="1.1" stroke-linecap="round"/>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Contenitore Centrale Principale -->
+        <div class="w-full max-w-[340px] sm:max-w-[380px] flex flex-col items-center text-center z-20">
+            
+            <!-- Box Immagine Gattino (SVG animato di default oppure foto scontornata dall'utente) -->
+            <div id="catContainer" class="cat-media-box w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center mb-3 anim-cat-0">
+                <!-- Inserito dinamicamente da JS -->
+            </div>
+
+            <!-- Testo dinamico sopra la percentuale -->
+            <h2 id="statusText" class="text-[1.45rem] sm:text-[1.7rem] font-extrabold text-[#6E1E3B] mb-2 transition-all duration-200">
+                How much do you love me?
+            </h2>
+
+            <!-- Contatore Percentuale / Infinito -->
+            <div id="percentageDisplay" class="text-[2.15rem] sm:text-[2.5rem] font-black text-[#A61C45] leading-none mb-4 tracking-tight">
+                0%
+            </div>
+
+            <!-- Tachimetro "love" SVG identico agli screenshot -->
+            <div class="w-full max-w-[295px] sm:max-w-[330px] relative select-none">
+                <svg viewBox="0 0 300 165" class="w-full h-auto overflow-visible">
+                    <defs>
+                        <filter id="gaugeShadow" x="-10%" y="-10%" width="120%" height="125%">
+                            <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#6E1E3B" flood-opacity="0.12"/>
+                        </filter>
+                    </defs>
+
+                    <!-- Arco esterno 6 spicchi sfumati da sinistra (0%) a destra (100%) -->
+                    <!-- Centro (150, 145), Raggio esterno = 122, Raggio interno = 72 -->
+                    <g filter="url(#gaugeShadow)">
+                        <!-- Spicchio 1: 180° -> 150° (Rosa pallidissimo) -->
+                        <path d="M 28 145 A 122 122 0 0 1 44.3 84 L 87.6 109 A 72 72 0 0 0 78 145 Z" fill="#FBE3E8" stroke="#FDF0F2" stroke-width="1.5"/>
+                        <!-- Spicchio 2: 150° -> 120° (Rosa chiaro) -->
+                        <path d="M 44.3 84 A 122 122 0 0 1 89 39.3 L 114 82.6 A 72 72 0 0 0 87.6 109 Z" fill="#F6B9C8" stroke="#FDF0F2" stroke-width="1.5"/>
+                        <!-- Spicchio 3: 120° -> 90° (Rosa medio) -->
+                        <path d="M 89 39.3 A 122 122 0 0 1 150 23 L 150 73 A 72 72 0 0 0 114 82.6 Z" fill="#EE87A1" stroke="#FDF0F2" stroke-width="1.5"/>
+                        <!-- Spicchio 4: 90° -> 60° (Rosa intenso) -->
+                        <path d="M 150 23 A 122 122 0 0 1 211 39.3 L 186 82.6 A 72 72 0 0 0 150 73 Z" fill="#E05074" stroke="#FDF0F2" stroke-width="1.5"/>
+                        <!-- Spicchio 5: 60° -> 30° (Cremisi) -->
+                        <path d="M 211 39.3 A 122 122 0 0 1 255.7 84 L 212.4 109 A 72 72 0 0 0 186 82.6 Z" fill="#C41E46" stroke="#FDF0F2" stroke-width="1.5"/>
+                        <!-- Spicchio 6: 30° -> 0° (Bordeaux scuro) -->
+                        <path d="M 255.7 84 A 122 122 0 0 1 272 145 L 222 145 A 72 72 0 0 0 212.4 109 Z" fill="#9E0B2B" stroke="#FDF0F2" stroke-width="1.5"/>
+                    </g>
+
+                    <!-- Cuoricino tenue nello spicchio sinistro -->
+                    <path d="M 55 130 C 55 130 46 123 46 118 C 46 115 48.5 113 51 113 C 53 113 54.5 114.5 55 115.5 C 55.5 114.5 57 113 59 113 C 61.5 113 64 115 64 118 C 64 123 55 130 55 130 Z" 
+                          fill="none" stroke="#F4CCD5" stroke-width="1.6"/>
+
+                    <!-- Cuoricino bianco e stellina nello spicchio destro (100%+) -->
+                    <g id="gaugeRightHeart">
+                        <path d="M 246 132 C 246 132 234 123 234 116.5 C 234 112.5 237 110 240.5 110 C 243 110 245 111.8 246 113.2 C 247 111.8 249 110 251.5 110 C 255 110 258 112.5 258 116.5 C 258 123 246 132 246 132 Z" 
+                              fill="none" stroke="#F8BBD0" stroke-width="1.8" stroke-linejoin="round"/>
+                        <!-- Scintilla piccola -->
+                        <path d="M 259 127 L 260.5 130 L 263.5 131.5 L 260.5 133 L 259 136 L 257.5 133 L 254.5 131.5 L 257.5 130 Z" fill="#F8BBD0"/>
+                    </g>
+
+                    <!-- Semicerchio interno bianco/rosa chiaro con scritta corsiva "love" -->
+                    <path d="M 80 145 A 70 70 0 0 1 220 145 Z" fill="#FAF2F4"/>
+                    <text x="150" y="132" text-anchor="middle" class="font-script" font-size="38" fill="#8C6E76" letter-spacing="0.5">
+                        love
+                    </text>
+
+                    <!-- Lancetta rotante con cerchietto alla base (0° a sinistra -> 180° a destra) -->
+                    <g id="gaugeNeedle" transform="rotate(0, 150, 145)" style="transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);">
+                        <!-- Linea sottile verso sinistra (punto di partenza 0%) -->
+                        <line x1="150" y1="145" x2="46" y2="145" stroke="#B81D48" stroke-width="2.6" stroke-linecap="round"/>
+                        <!-- Cerchietto centrale -->
+                        <circle cx="150" cy="145" r="6" fill="#FDF0F2" stroke="#B81D48" stroke-width="2.6"/>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Slider Interattivo sotto al tachimetro -->
+            <div class="w-full px-3 mt-5 mb-7">
+                <input type="range" id="loveSlider" min="0" max="100" value="0" aria-label="Love percentage slider" class="love-slider">
+            </div>
+
+            <!-- Pulsante Next (appare quando il contatore raggiunge ∞) -->
+            <div class="h-14 flex items-center justify-center">
+                <button id="finalNextBtn" class="btn-next hidden">
+                    Next
+                </button>
+            </div>
+
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- PAGINA 3: SPAZIO 2D CON "You passed the love test" E I 3 REGALI       -->
+        <!-- ===================================================================== -->
+        <section id="screen3" class="book-page page-hidden overflow-hidden">
+            <div id="spatialWorld" class="spatial-world" style="transform: translate3d(0vw, 0vh, 0);">
+
+                <!-- =============================================================== -->
+                <!-- SCHERMATA REGALO 1 (SOPRA: 0, -100vh) -> Vuota come richiesto   -->
+                <!-- =============================================================== -->
+                <div id="giftPanelTop" class="spatial-panel panel-top">
+                    <!-- Lasciata intenzionalmente vuota come richiesto -->
+                </div>
+
+                <!-- =============================================================== -->
+                <!-- HUB CENTRALE (0, 0): "You passed the love test" + 3 Regali      -->
+                <!-- =============================================================== -->
+                <div id="giftPanelHub" class="spatial-panel panel-hub">
+                    <div class="w-full max-w-[430px] flex flex-col items-center text-center">
+                        <h2 class="text-[1.7rem] sm:text-[2rem] font-black text-[#B32851] tracking-tight mb-1.5">
+                            You passed the love test
+                        </h2>
+                        <p class="text-[0.85rem] sm:text-[0.95rem] font-extrabold text-[#6E1E3B] mb-9">
+                            Your surprises are waiting for you
+                        </p>
+
+                        <!-- Riga con i 3 pacchi regalo azzurri con fiocco rosa -->
+                        <div class="w-full flex items-center justify-center gap-3 sm:gap-5 px-1">
+                            
+                            <!-- Regalo Sinistro -> Va in alto -->
+                            <button type="button" data-gift-dir="top" aria-label="Primo regalo" class="gift-box-btn gift-anim-1 flex-1 max-w-[132px]">
+                                <svg viewBox="0 0 120 135" class="w-full h-auto overflow-visible">
+                                    <ellipse cx="60" cy="126" rx="34" ry="5.5" fill="#6E1E3B" opacity="0.12"/>
+                                    <polygon points="22,64 60,76 60,122 22,109" fill="#9BC9DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="98,64 60,76 60,122 98,109" fill="#B6DCEF" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="36,68.5 46,71.6 46,117.3 36,114" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.6"/>
+                                    <polygon points="74,71.6 84,68.5 84,114 74,117.3" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.6"/>
+                                    <polygon points="18,52 60,40 102,52 60,64" fill="#CBE7F5" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="18,52 60,64 60,76 18,64" fill="#A6D1E6" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="102,52 60,64 60,76 102,64" fill="#BCE0F2" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="34,56.8 76,44.6 85,47.2 44,59.8" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
+                                    <polygon points="34,56.8 44,59.8 44,71.5 34,68.5" fill="#EFAEC0" stroke="#7A5B6B" stroke-width="1.5"/>
+                                    <polygon points="85,56.8 75,59.8 75,71.5 85,68.5" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
+                                    <path d="M56 49 C44 58 34 65 31 69 L39 71 L43 66 L47 72 C51 66 56 56 59 51" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                    <path d="M64 49 C76 58 86 65 89 69 L81 71 L77 66 L73 72 C69 66 64 56 61 51" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                    <path d="M57 46 C42 30 22 25 22 41 C22 52 44 51 57 48 Z" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <path d="M55 46 C44 37 32 36 32 42 C32 47 45 48 55 47 Z" fill="#E59EB1"/>
+                                    <path d="M63 46 C78 30 98 25 98 41 C98 52 76 51 63 48 Z" fill="#F9D5DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <path d="M65 46 C76 37 88 36 88 42 C88 47 75 48 65 47 Z" fill="#EDA9BC"/>
+                                    <rect x="54" y="42" width="12" height="10" rx="4" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="2"/>
+                                </svg>
+                            </button>
+
+                            <!-- Regalo Centrale -> Va a destra -->
+                            <button type="button" data-gift-dir="right" aria-label="Secondo regalo" class="gift-box-btn gift-anim-2 flex-1 max-w-[132px]">
+                                <svg viewBox="0 0 120 135" class="w-full h-auto overflow-visible">
+                                    <ellipse cx="60" cy="126" rx="34" ry="5.5" fill="#6E1E3B" opacity="0.12"/>
+                                    <polygon points="22,64 60,76 60,122 22,109" fill="#9BC9DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="98,64 60,76 60,122 98,109" fill="#B6DCEF" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="36,68.5 46,71.6 46,117.3 36,114" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.6"/>
+                                    <polygon points="74,71.6 84,68.5 84,114 74,117.3" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.6"/>
+                                    <polygon points="18,52 60,40 102,52 60,64" fill="#CBE7F5" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="18,52 60,64 60,76 18,64" fill="#A6D1E6" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="102,52 60,64 60,76 102,64" fill="#BCE0F2" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="34,56.8 76,44.6 85,47.2 44,59.8" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
+                                    <polygon points="34,56.8 44,59.8 44,71.5 34,68.5" fill="#EFAEC0" stroke="#7A5B6B" stroke-width="1.5"/>
+                                    <polygon points="85,56.8 75,59.8 75,71.5 85,68.5" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
+                                    <path d="M56 49 C44 58 34 65 31 69 L39 71 L43 66 L47 72 C51 66 56 56 59 51" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                    <path d="M64 49 C76 58 86 65 89 69 L81 71 L77 66 L73 72 C69 66 64 56 61 51" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                    <path d="M57 46 C42 30 22 25 22 41 C22 52 44 51 57 48 Z" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <path d="M55 46 C44 37 32 36 32 42 C32 47 45 48 55 47 Z" fill="#E59EB1"/>
+                                    <path d="M63 46 C78 30 98 25 98 41 C98 52 76 51 63 48 Z" fill="#F9D5DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <path d="M65 46 C76 37 88 36 88 42 C88 47 75 48 65 47 Z" fill="#EDA9BC"/>
+                                    <rect x="54" y="42" width="12" height="10" rx="4" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="2"/>
+                                </svg>
+                            </button>
+
+                            <!-- Regalo Destro -> Va in basso -->
+                            <button type="button" data-gift-dir="bottom" aria-label="Terzo regalo" class="gift-box-btn gift-anim-3 flex-1 max-w-[132px]">
+                                <svg viewBox="0 0 120 135" class="w-full h-auto overflow-visible">
+                                    <ellipse cx="60" cy="126" rx="34" ry="5.5" fill="#6E1E3B" opacity="0.12"/>
+                                    <polygon points="22,64 60,76 60,122 22,109" fill="#9BC9DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="98,64 60,76 60,122 98,109" fill="#B6DCEF" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="36,68.5 46,71.6 46,117.3 36,114" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.6"/>
+                                    <polygon points="74,71.6 84,68.5 84,114 74,117.3" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.6"/>
+                                    <polygon points="18,52 60,40 102,52 60,64" fill="#CBE7F5" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="18,52 60,64 60,76 18,64" fill="#A6D1E6" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="102,52 60,64 60,76 102,64" fill="#BCE0F2" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <polygon points="34,56.8 76,44.6 85,47.2 44,59.8" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
+                                    <polygon points="34,56.8 44,59.8 44,71.5 34,68.5" fill="#EFAEC0" stroke="#7A5B6B" stroke-width="1.5"/>
+                                    <polygon points="85,56.8 75,59.8 75,71.5 85,68.5" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
+                                    <path d="M56 49 C44 58 34 65 31 69 L39 71 L43 66 L47 72 C51 66 56 56 59 51" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                    <path d="M64 49 C76 58 86 65 89 69 L81 71 L77 66 L73 72 C69 66 64 56 61 51" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                    <path d="M57 46 C42 30 22 25 22 41 C22 52 44 51 57 48 Z" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <path d="M55 46 C44 37 32 36 32 42 C32 47 45 48 55 47 Z" fill="#E59EB1"/>
+                                    <path d="M63 46 C78 30 98 25 98 41 C98 52 76 51 63 48 Z" fill="#F9D5DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                    <path d="M65 46 C76 37 88 36 88 42 C88 47 75 48 65 47 Z" fill="#EDA9BC"/>
+                                    <rect x="54" y="42" width="12" height="10" rx="4" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="2"/>
+                                </svg>
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =============================================================== -->
+                <!-- SCHERMATA REGALO 2 (DESTRA: +100vw, 0) -> POLAROID & CANZONE    -->
+                <!-- =============================================================== -->
+                <div id="giftPanelRight" class="spatial-panel panel-right song-collage-bg overflow-hidden">
+                    
+                    <!-- Pulsante discreto in alto a destra per personalizzare canzone/copertina/foto -->
+                    <button id="openSongEditBtn" type="button" title="Personalizza canzone, copertina e foto"
+                        class="absolute top-3.5 right-3.5 z-40 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 hover:bg-white text-[#7A203E] text-[11px] font-extrabold shadow-sm border border-white/80 backdrop-blur-sm transition active:scale-95">
+                        <i class="fa-solid fa-sliders text-[#C24B6E]"></i>
+                        <span>Personalizza</span>
+                    </button>
+
+                    <!-- Elementi decorativi collage sullo sfondo (pizzo, carta strappata, fiori, busta) -->
+                    <svg viewBox="0 0 400 760" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 w-full h-full pointer-events-none z-0">
+                        <defs>
+                            <!-- Pattern pizzo delicato -->
+                            <pattern id="lacePattern" width="24" height="24" patternUnits="userSpaceOnUse">
+                                <circle cx="12" cy="12" r="9" fill="none" stroke="#FFFFFF" stroke-width="1.2" stroke-dasharray="2 2" opacity="0.55"/>
+                                <circle cx="12" cy="12" r="4" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0.45"/>
+                                <circle cx="0" cy="0" r="3" fill="#FFFFFF" opacity="0.35"/>
+                                <circle cx="24" cy="0" r="3" fill="#FFFFFF" opacity="0.35"/>
+                                <circle cx="0" cy="24" r="3" fill="#FFFFFF" opacity="0.35"/>
+                                <circle cx="24" cy="24" r="3" fill="#FFFFFF" opacity="0.35"/>
+                            </pattern>
+                        </defs>
+
+                        <!-- Pizzo decorativo in alto a destra -->
+                        <path d="M310 -10 C325 70 355 145 415 190 L415 -10 Z" fill="url(#lacePattern)" opacity="0.85"/>
+                        <path d="M310 -10 C325 70 355 145 415 190" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="4 3" opacity="0.65"/>
+
+                        <!-- Pizzo decorativo in basso a destra -->
+                        <path d="M265 770 C275 685 335 645 415 625 L415 770 Z" fill="url(#lacePattern)" opacity="0.85"/>
+
+                        <!-- Ritaglio carta rosa rigata dietro la Polaroid in alto -->
+                        <path d="M92 145 Q130 135 168 142 Q205 133 242 144 Q268 138 286 148 L280 215 L95 215 Z" fill="#F29CB3" opacity="0.55"/>
+                        <path d="M62 180 C45 260 40 360 55 445 L110 445 L110 180 Z" fill="url(#lacePattern)" opacity="0.7"/>
+
+                        <!-- Rametti floreali delicati a destra sotto la Polaroid -->
+                        <g stroke="#B87A88" stroke-width="1.4" fill="none" opacity="0.85">
+                            <path d="M335 555 Q365 495 385 445"/>
+                            <path d="M348 530 Q378 505 395 485"/>
+                            <path d="M325 565 Q340 520 355 475"/>
+                        </g>
+                        <g fill="#FCE4EC" stroke="#D48C9E" stroke-width="0.9">
+                            <circle cx="385" cy="445" r="4"/>
+                            <circle cx="375" cy="462" r="3.5"/>
+                            <circle cx="395" cy="485" r="4"/>
+                            <circle cx="380" cy="500" r="3.5"/>
+                            <circle cx="355" cy="475" r="4"/>
+                            <circle cx="363" cy="495" r="3.5"/>
+                            <circle cx="342" cy="515" r="3.5"/>
+                        </g>
+
+                        <!-- Fiori di ciliegio e ramo a sinistra -->
+                        <g stroke="#8E4A5B" stroke-width="1.8" fill="none">
+                            <path d="M-5 350 Q42 365 78 395"/>
+                            <path d="M22 360 Q45 335 65 320"/>
+                        </g>
+                        <!-- Fiore ciliegio 1 -->
+                        <g transform="translate(52, 345)">
+                            <circle cx="0" cy="-11" r="8" fill="#FAD4DF" stroke="#D97B93" stroke-width="1"/>
+                            <circle cx="10" cy="-3" r="8" fill="#FAD4DF" stroke="#D97B93" stroke-width="1"/>
+                            <circle cx="6" cy="9" r="8" fill="#FAD4DF" stroke="#D97B93" stroke-width="1"/>
+                            <circle cx="-6" cy="9" r="8" fill="#FAD4DF" stroke="#D97B93" stroke-width="1"/>
+                            <circle cx="-10" cy="-3" r="8" fill="#FAD4DF" stroke="#D97B93" stroke-width="1"/>
+                            <circle cx="0" cy="0" r="4" fill="#C94A6D"/>
+                        </g>
+                        <!-- Fiore ciliegio 2 -->
+                        <g transform="translate(22, 388) scale(0.9)">
+                            <circle cx="0" cy="-11" r="8" fill="#FAD4DF" stroke="#D97B93" stroke-width="1"/>
+                            <circle cx="10" cy="-3" r="8" fill="#FAD4DF" stroke="#D97B93" stroke-width="1"/>
+                            <circle cx="6" cy="9" r="8" fill="#FAD4DF" stroke="#D97B93" stroke-width="1"/>
+                            <circle cx="-6" cy="9" r="8" fill="#FAD4DF" stroke="#D97B93" stroke-width="1"/>
+                            <circle cx="-10" cy="-3" r="8" fill="#FAD4DF" stroke="#D97B93" stroke-width="1"/>
+                            <circle cx="0" cy="0" r="4" fill="#C94A6D"/>
+                        </g>
+
+                        <!-- Giglio rosa grande a sinistra -->
+                        <g transform="translate(65, 485) rotate(-14)">
+                            <ellipse cx="0" cy="-28" rx="12" ry="32" fill="#F8A8BE" stroke="#DC6E8C" stroke-width="1.2"/>
+                            <ellipse cx="26" cy="-10" rx="12" ry="32" fill="#F9B8CA" stroke="#DC6E8C" stroke-width="1.2" transform="rotate(62 26 -10)"/>
+                            <ellipse cx="18" cy="22" rx="12" ry="32" fill="#F8A8BE" stroke="#DC6E8C" stroke-width="1.2" transform="rotate(132 18 22)"/>
+                            <ellipse cx="-18" cy="22" rx="12" ry="32" fill="#F9B8CA" stroke="#DC6E8C" stroke-width="1.2" transform="rotate(-132 -18 22)"/>
+                            <ellipse cx="-26" cy="-10" rx="12" ry="32" fill="#F8A8BE" stroke="#DC6E8C" stroke-width="1.2" transform="rotate(-62 -26 -10)"/>
+                            <circle cx="0" cy="0" r="6" fill="#FCE4EC"/>
+                            <line x1="0" y1="0" x2="8" y2="-14" stroke="#B83B5E" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="-9" y2="-12" stroke="#B83B5E" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="2" y2="-17" stroke="#B83B5E" stroke-width="1.5"/>
+                        </g>
+
+                        <!-- Busta rosa chiaro con sigillo a cuore in basso a sinistra -->
+                        <g transform="translate(42, 565) rotate(-14)">
+                            <rect x="0" y="0" width="136" height="88" rx="6" fill="#F9E4E8" stroke="#DFB8C2" stroke-width="1.5"/>
+                            <polyline points="2,4 68,52 134,4" fill="none" stroke="#DFB8C2" stroke-width="1.8"/>
+                            <line x1="2" y1="84" x2="48" y2="44" stroke="#E8C6CF" stroke-width="1.4"/>
+                            <line x1="134" y1="84" x2="88" y2="44" stroke="#E8C6CF" stroke-width="1.4"/>
+                            <!-- Sigillo cuore rosa -->
+                            <path d="M68 62 C68 62 54 51 54 43 C54 38 58 35 62 35 C65 35 67 37 68 39 C69 37 71 35 74 35 C78 35 82 38 82 43 C82 51 68 62 68 62 Z"
+                                  fill="#F0839E" stroke="#D46380" stroke-width="1"/>
+                        </g>
+
+                        <!-- Rametti di nebbiolina (gypsophila) in basso a sinistra -->
+                        <g stroke="#B87A88" stroke-width="1.3" fill="none" opacity="0.85">
+                            <path d="M-10 765 Q35 710 85 675"/>
+                            <path d="M25 765 Q65 720 115 695"/>
+                            <path d="M55 765 Q95 735 140 720"/>
+                        </g>
+                        <g fill="#FFF5F7" stroke="#D998A8" stroke-width="0.9">
+                            <circle cx="85" cy="675" r="4.5"/><circle cx="68" cy="688" r="4"/><circle cx="52" cy="702" r="4.5"/>
+                            <circle cx="115" cy="695" r="4.5"/><circle cx="95" cy="708" r="4"/><circle cx="78" cy="722" r="4.5"/>
+                            <circle cx="140" cy="720" r="4"/><circle cx="118" cy="732" r="4.5"/><circle cx="98" cy="744" r="4"/>
+                        </g>
+                    </svg>
+
+                    <!-- Contenitore Centrale Polaroid + Player Musicale -->
+                    <div class="relative z-10 w-full max-w-[345px] sm:max-w-[390px] flex flex-col items-center">
+                        
+                        <!-- Cornice Polaroid Bianca con Farfalla Rosa sull'angolo in alto a destra -->
+                        <div class="polaroid-card relative w-[265px] sm:w-[300px] p-3.5 pb-12 sm:p-4 sm:pb-14 rounded-[4px]">
+                            
+                            <!-- Farfalla rosa posata sull'angolo in alto a destra della Polaroid -->
+                            <div class="absolute -top-9 -right-7 w-20 h-20 pointer-events-none anim-butterfly z-20">
+                                <svg viewBox="0 0 100 100" class="w-full h-full overflow-visible">
+                                    <!-- Antenne -->
+                                    <path d="M44 52 Q32 34 24 30" fill="none" stroke="#5A2334" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path d="M47 50 Q38 30 33 24" fill="none" stroke="#5A2334" stroke-width="1.5" stroke-linecap="round"/>
+                                    <!-- Ala posteriore -->
+                                    <path d="M48 56 C64 42 88 46 84 64 C80 78 58 74 48 62 Z" fill="#F9B4C6" stroke="#C45C78" stroke-width="1.4"/>
+                                    <!-- Ala anteriore grande -->
+                                    <path d="M46 53 C56 24 84 12 88 32 C92 50 66 58 48 56 Z" fill="#F27A9B" stroke="#B84766" stroke-width="1.4"/>
+                                    <!-- Venature delicate -->
+                                    <path d="M52 48 Q70 32 82 32 M52 52 Q72 44 82 44" fill="none" stroke="#FAD2DC" stroke-width="1" opacity="0.7"/>
+                                    <!-- Corpo farfalla -->
+                                    <ellipse cx="46" cy="57" rx="2.5" ry="11" transform="rotate(-32 46 57)" fill="#5A2334"/>
+                                </svg>
+                            </div>
+
+                            <!-- Area interna della Polaroid (bianca di default, cliccabile per caricare foto) -->
+                            <label for="polaroidPhotoInput" title="Clicca per inserire la tua foto"
+                                class="group relative block w-full aspect-[4/4.3] bg-white border border-[#F2E6E9] overflow-hidden cursor-pointer">
+                                <img id="polaroidPhotoImg" src="" alt="La nostra foto" class="hidden w-full h-full object-cover">
+                                <!-- Overlay discreto al passaggio / tocco -->
+                                <div id="polaroidEmptyOverlay" class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-[#FDF0F2]/50 text-[#8E3552]">
+                                    <i class="fa-solid fa-camera text-xl mb-1"></i>
+                                    <span class="text-[11px] font-bold">Aggiungi foto</span>
+                                </div>
+                            </label>
+                            <input type="file" id="polaroidPhotoInput" accept="image/*" class="hidden">
+                        </div>
+
+                        <!-- Widget Player Musicale in basso a destra (sovrapposto leggermente alla Polaroid come in foto) -->
+                        <div class="music-widget-card relative z-20 -mt-7 self-end mr-1 sm:mr-2 w-[275px] sm:w-[305px] rounded-2xl p-3 flex flex-col gap-2">
+                            <div class="flex items-center gap-3">
+                                <!-- Copertina Quadrata (cliccabile per cambiarla) -->
+                                <label for="songCoverInput" title="Cambia copertina"
+                                    class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#1F1A1C] overflow-hidden shrink-0 shadow-sm cursor-pointer group">
+                                    <img id="songCoverImg" src="" alt="Copertina" class="hidden w-full h-full object-cover">
+                                    <!-- Copertina stilizzata di default ispirata allo screenshot -->
+                                    <div id="defaultCoverArt" class="w-full h-full bg-gradient-to-br from-[#2C241E] via-[#171312] to-[#3B2E22] flex flex-col items-center justify-center p-1 text-center relative">
+                                        <div class="w-7 h-7 rounded-full bg-[#D4AF37]/25 border border-[#D4AF37]/60 flex items-center justify-center mb-0.5">
+                                            <i class="fa-solid fa-crown text-[#F3D06B] text-xs"></i>
+                                        </div>
+                                        <span class="text-[7px] font-black tracking-wider text-[#F3D06B] uppercase leading-tight">REGINA</span>
+                                    </div>
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
+                                        <i class="fa-solid fa-image"></i>
+                                    </div>
+                                </label>
+                                <input type="file" id="songCoverInput" accept="image/*" class="hidden">
+
+                                <!-- Titolo, Artista, Barra Progresso e Controlli -->
+                                <div class="flex-1 min-w-0">
+                                    <div id="songTitleDisplay" class="text-[13px] sm:text-sm font-black text-[#4A1C2A] truncate uppercase tracking-tight">
+                                        REGINA DEL BLOCK
+                                    </div>
+                                    <div id="songArtistDisplay" class="text-[11px] sm:text-xs font-bold text-[#7D4B5A] truncate mb-1.5">
+                                        Shiva
+                                    </div>
+
+                                    <!-- Barra di avanzamento interattiva -->
+                                    <div class="w-full flex flex-col">
+                                        <input type="range" id="songProgressSlider" min="0" max="199" value="0" aria-label="Avanzamento canzone"
+                                            class="w-full h-1 bg-[#DFB4C0] rounded-lg appearance-none cursor-pointer accent-[#D26B8A]">
+                                        <div class="flex justify-between text-[10px] font-bold text-[#7D4B5A] mt-0.5">
+                                            <span id="songCurrentTime">0:00</span>
+                                            <span id="songTotalTime">3:19</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Barra Pulsanti Controllo Player -->
+                            <div class="flex items-center justify-between px-2 pt-0.5 text-[#6D3244]">
+                                <button type="button" id="songShuffleBtn" class="text-xs opacity-75 hover:opacity-100 transition p-1" title="Casuale">
+                                    <i class="fa-solid fa-shuffle"></i>
+                                </button>
+                                <button type="button" id="songPrevBtn" class="text-sm hover:scale-110 transition p-1" title="Precedente">
+                                    <i class="fa-solid fa-backward-step"></i>
+                                </button>
+                                <button type="button" id="songPlayPauseBtn"
+                                    class="w-9 h-9 rounded-full bg-[#D46A89] hover:bg-[#C25575] text-white flex items-center justify-center shadow-md transition transform active:scale-90"
+                                    title="Play / Pausa">
+                                    <i id="songPlayIcon" class="fa-solid fa-play text-xs ml-0.5"></i>
+                                </button>
+                                <button type="button" id="songNextBtn" class="text-sm hover:scale-110 transition p-1" title="Successiva">
+                                    <i class="fa-solid fa-forward-step"></i>
+                                </button>
+                                <button type="button" id="songRepeatBtn" class="text-xs opacity-75 hover:opacity-100 transition p-1" title="Ripeti">
+                                    <i class="fa-solid fa-repeat"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Elemento audio nascosto per riprodurre il file locale caricato -->
+                        <audio id="localAudioPlayer" preload="metadata"></audio>
+                    </div>
+                </div>
+
+                <!-- =============================================================== -->
+                <!-- SCHERMATA REGALO 3 (SOTTO: 0, +100vh) -> LETTERA DAL CUORE      -->
+                <!-- =============================================================== -->
+                <div id="giftPanelBottom" class="spatial-panel panel-bottom letter-watercolor-bg overflow-hidden">
+                    
+                    <!-- Dettagli acquerello, petali di ciliegio e scintille sullo sfondo -->
+                    <svg viewBox="0 0 400 760" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 w-full h-full pointer-events-none z-0">
+                        <!-- Sfumature organiche ad acquerello -->
+                        <circle cx="45" cy="95" r="85" fill="#F8B4D0" opacity="0.22"/>
+                        <circle cx="355" cy="640" r="110" fill="#F49CC0" opacity="0.2"/>
+                        <circle cx="32" cy="430" r="70" fill="#FFFFFF" opacity="0.45"/>
+
+                        <!-- Petali di ciliegio fluttuanti -->
+                        <g class="anim-petal" fill="#F79EC0" opacity="0.72">
+                            <path d="M48 155 C54 148 64 152 60 160 C56 166 46 162 48 155 Z"/>
+                            <path d="M352 465 C358 458 368 462 364 470 C360 476 350 472 352 465 Z"/>
+                            <path d="M325 655 C332 648 342 653 337 661 C332 666 322 662 325 655 Z"/>
+                            <path d="M28 310 C34 304 42 308 38 315 C34 320 26 316 28 310 Z"/>
+                        </g>
+
+                        <!-- Scintille e cuoricini delicati sullo sfondo -->
+                        <g fill="#E86B93" opacity="0.45">
+                            <path d="M36 220 L38 225 L43 227 L38 229 L36 234 L34 229 L29 227 L34 225 Z"/>
+                            <path d="M368 385 L370 390 L375 392 L370 394 L368 399 L366 394 L361 392 L366 390 Z"/>
+                            <path d="M342 585 L343.5 589 L347.5 590.5 L343.5 592 L342 596 L340.5 592 L336.5 590.5 L340.5 589 Z"/>
+                            <circle cx="24" cy="520" r="2.5"/>
+                            <circle cx="378" cy="520" r="2.5"/>
+                        </g>
+                    </svg>
+
+                    <!-- Contenitore Principale Lettera (z-30) -->
+                    <div class="relative z-30 w-full max-w-[350px] sm:max-w-[400px] h-full max-h-[670px] flex flex-col items-center justify-center py-2">
+                        
+                        <!-- Titolo in alto ben leggibile -->
+                        <h2 class="text-[1.55rem] sm:text-[1.95rem] font-black text-[#D42F58] tracking-tight mb-2.5 text-center drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)]">
+                            A Letter From My Heart
+                        </h2>
+
+                        <!-- Barra per cambiare Font e Grandezza in tempo reale -->
+                        <div id="letterToolbar" class="w-full max-w-[305px] sm:max-w-[340px] mb-3 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#F3C5D5] shadow-sm flex items-center justify-between gap-2 text-xs">
+                            <div class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-font text-[#D42F58] text-[11px]"></i>
+                                <select id="letterFontSelect" aria-label="Scegli font lettera"
+                                    class="bg-transparent font-bold text-[#6E1E3B] text-xs outline-none cursor-pointer">
+                                    <option value="font-caveat">Corsivo Dolce</option>
+                                    <option value="font-script">Elegante</option>
+                                    <option value="font-quicksand">Tondeggiante</option>
+                                    <option value="font-playfair">Classico</option>
+                                    <option value="font-sans">Pulito</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" id="letterSizeDown" title="Riduci testo"
+                                    class="w-6 h-6 rounded-full bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] font-black flex items-center justify-center transition">
+                                    A-
+                                </button>
+                                <span id="letterSizeLabel" class="text-[11px] font-extrabold text-[#6E1E3B] w-7 text-center">20</span>
+                                <button type="button" id="letterSizeUp" title="Ingrandisci testo"
+                                    class="w-6 h-6 rounded-full bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] font-black flex items-center justify-center transition">
+                                    A+
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Foglio a righe strappato con washi tape in alto e buchi del quaderno -->
+                        <div class="relative w-[300px] sm:w-[340px] flex-1 max-h-[470px] flex items-center justify-center">
+                            <!-- Nastro adesivo decorativo (washi tape) in cima al foglio -->
+                            <div class="washi-tape-top absolute -top-2.5 left-1/2 -translate-x-1/2 w-24 h-5 -rotate-1 rounded-[2px] pointer-events-none z-20"></div>
+
+                            <div class="notebook-paper w-full h-full overflow-hidden">
+                                <!-- Buchi del quaderno ad anelli sul margine sinistro -->
+                                <div class="absolute left-3 top-4 bottom-4 flex flex-col justify-between pointer-events-none z-10">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#FCE4EC] shadow-inner border border-[#DFC9AE]"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#FCE4EC] shadow-inner border border-[#DFC9AE]"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#FCE4EC] shadow-inner border border-[#DFC9AE]"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#FCE4EC] shadow-inner border border-[#DFC9AE]"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#FCE4EC] shadow-inner border border-[#DFC9AE]"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#FCE4EC] shadow-inner border border-[#DFC9AE]"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#FCE4EC] shadow-inner border border-[#DFC9AE]"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#FCE4EC] shadow-inner border border-[#DFC9AE]"></span>
+                                </div>
+
+                                <!-- Area di testo modificabile in tempo reale -->
+                                <textarea id="letterTextarea"
+                                    placeholder="Scrivi qui la tua lettera..."
+                                    class="notebook-textarea font-caveat"
+                                    style="font-size: 20px;"></textarea>
+                            </div>
+
+                            <!-- Gattino calico in basso a sinistra che abbraccia un cuore rosso -->
+                            <div class="absolute -bottom-6 -left-7 sm:-left-9 w-36 h-36 sm:w-40 sm:h-40 pointer-events-none z-20 anim-cat-0">
+                                <svg viewBox="0 0 160 155" class="w-full h-full overflow-visible">
+                                    <!-- Cuoricini fluttuanti sopra la testa -->
+                                    <path d="M98 32 C98 32 88 24 88 18 C88 14 91 12 94 12 C96 12 97.5 13.5 98 15 C98.5 13.5 100 12 102 12 C105 12 108 14 108 18 C108 24 98 32 98 32 Z"
+                                          fill="#E62E5C" transform="rotate(-12 98 22)"/>
+                                    <path d="M122 38 C122 38 112 30 112 24 C112 20 115 18 118 18 C120 18 121.5 19.5 122 21 C122.5 19.5 124 18 126 18 C129 18 132 20 132 24 C132 30 122 38 122 38 Z"
+                                          fill="#E62E5C" stroke="#2D141C" stroke-width="2" transform="rotate(14 122 28)"/>
+                                    <path d="M111 14 C111 14 106 10 106 7 C106 5 107.5 4 109 4 C110 4 110.8 4.8 111 5.5 C111.2 4.8 112 4 113 4 C114.5 4 116 5 116 7 C116 10 111 14 111 14 Z"
+                                          fill="#2D141C"/>
+
+                                    <!-- Testa del gattino calico -->
+                                    <path d="M24 128 C16 112 16 84 26 68 L22 38 L52 52 C64 49 78 49 90 52 L82 28 L108 48 C124 64 128 94 118 124"
+                                          fill="#FFFFFF" stroke="#2D141C" stroke-width="3.6" stroke-linejoin="round"/>
+                                    <!-- Macchia arancione/caramello sull'orecchio e lato sinistro -->
+                                    <path d="M25 42 L51 54 C46 72 34 86 22 92 C20 74 22 56 25 42 Z" fill="#E39D5B"/>
+                                    <polygon points="27,46 28,58 41,53" fill="#FAD2DC"/>
+                                    <polygon points="86,35 89,47 100,45" fill="#FAD2DC"/>
+
+                                    <!-- Occhietti chiusi felici -->
+                                    <path d="M38 78 Q46 72 54 78" fill="none" stroke="#2D141C" stroke-width="3.4" stroke-linecap="round"/>
+                                    <path d="M84 78 Q92 72 100 78" fill="none" stroke="#2D141C" stroke-width="3.4" stroke-linecap="round"/>
+                                    <!-- Guanciotte rosa -->
+                                    <line x1="34" y1="86" x2="37" y2="83" stroke="#E65C7A" stroke-width="2" stroke-linecap="round"/>
+                                    <line x1="39" y1="87" x2="42" y2="84" stroke="#E65C7A" stroke-width="2" stroke-linecap="round"/>
+                                    <line x1="102" y1="84" x2="105" y2="87" stroke="#E65C7A" stroke-width="2" stroke-linecap="round"/>
+                                    <line x1="107" y1="83" x2="110" y2="86" stroke="#E65C7A" stroke-width="2" stroke-linecap="round"/>
+                                    <!-- Boccuccia kawaii "w" -->
+                                    <path d="M61 82 Q65 87 69 82 Q73 87 77 82" fill="none" stroke="#2D141C" stroke-width="3" stroke-linecap="round"/>
+
+                                    <!-- Grande cuore rosso abbracciato al centro -->
+                                    <path d="M72 146 C72 146 34 124 34 104 C34 92 44 86 54 88 C62 90 68 96 72 102 C76 96 82 90 90 88 C100 86 110 92 110 104 C110 124 72 146 72 146 Z"
+                                          fill="#DC264C" stroke="#2D141C" stroke-width="3.6" stroke-linejoin="round"/>
+                                    <!-- Riflesso luminoso sul cuore -->
+                                    <path d="M46 98 Q50 93 57 94" fill="none" stroke="#FF8FA6" stroke-width="2.5" stroke-linecap="round"/>
+
+                                    <!-- Zampetta sinistra bianca -->
+                                    <path d="M26 146 L26 122 C26 112 44 112 44 122 L44 146" fill="#FFFFFF" stroke="#2D141C" stroke-width="3.6" stroke-linecap="round"/>
+                                    <!-- Zampetta destra arancione -->
+                                    <path d="M98 146 L98 122 C98 112 116 112 116 122 L116 146" fill="#E39D5B" stroke="#2D141C" stroke-width="3.6" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODALE PERSONALIZZAZIONE CANZONE, COPERTINA E FOTO POLAROID           -->
+    <!-- ===================================================================== -->
+    <div id="songEditModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-[#FDF0F2] border-2 border-[#EED5DA] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden screen-enter">
+            <div class="px-5 py-4 bg-white/80 border-b border-[#EED5DA] flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-extrabold text-[#6E1E3B]">Personalizza Canzone & Foto</h3>
+                    <p class="text-[11px] text-[#8C4A60]">Carica il file audio dal dispositivo, la copertina e la foto Polaroid</p>
+                </div>
+                <button id="closeSongEditModalBtn" class="w-8 h-8 rounded-full bg-[#FDF0F2] hover:bg-[#F6B9C8] text-[#6E1E3B] flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4">
+                <!-- Titolo Canzone -->
+                <div>
+                    <label class="block text-xs font-extrabold text-[#6E1E3B] mb-1">Titolo della canzone</label>
+                    <input type="text" id="songTitleInput" value="REGINA DEL BLOCK"
+                        class="w-full px-3.5 py-2 rounded-xl bg-white border border-[#EED5DA] text-sm font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
+                </div>
+
+                <!-- Nome Artista -->
+                <div>
+                    <label class="block text-xs font-extrabold text-[#6E1E3B] mb-1">Artista</label>
+                    <input type="text" id="songArtistInput" value="Shiva"
+                        class="w-full px-3.5 py-2 rounded-xl bg-white border border-[#EED5DA] text-sm font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
+                </div>
+
+                <!-- Carica File Audio Locale -->
+                <div class="p-3 rounded-2xl bg-white border border-[#EED5DA] flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <div class="text-xs font-extrabold text-[#6E1E3B]">File Audio (.mp3, .m4a, .wav)</div>
+                        <div id="audioFileNameLabel" class="text-[11px] text-[#8C4A60] truncate">Nessun file selezionato</div>
+                    </div>
+                    <label class="px-3.5 py-2 rounded-full bg-[#9E0B3D] hover:bg-[#b30d45] text-white text-xs font-bold cursor-pointer shrink-0 transition active:scale-95">
+                        <i class="fa-solid fa-music mr-1"></i> Scegli Audio
+                        <input type="file" id="audioFileInput" accept="audio/*" class="hidden">
+                    </label>
+                </div>
+
+                <!-- Carica Copertina Canzone & Foto Polaroid -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <label class="p-3 rounded-2xl bg-white border border-[#EED5DA] hover:border-[#9E0B3D] flex flex-col items-center justify-center text-center cursor-pointer transition">
+                        <i class="fa-solid fa-compact-disc text-lg text-[#9E0B3D] mb-1"></i>
+                        <span class="text-xs font-extrabold text-[#6E1E3B]">Copertina</span>
+                        <span class="text-[10px] text-[#8C4A60]">Carica immagine</span>
+                        <input type="file" id="modalCoverInput" accept="image/*" class="hidden">
+                    </label>
+                    <label class="p-3 rounded-2xl bg-white border border-[#EED5DA] hover:border-[#9E0B3D] flex flex-col items-center justify-center text-center cursor-pointer transition">
+                        <i class="fa-solid fa-image text-lg text-[#9E0B3D] mb-1"></i>
+                        <span class="text-xs font-extrabold text-[#6E1E3B]">Foto Polaroid</span>
+                        <span class="text-[10px] text-[#8C4A60]">Carica foto</span>
+                        <input type="file" id="modalPolaroidInput" accept="image/*" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <div class="px-5 py-3.5 bg-white/80 border-t border-[#EED5DA] flex justify-end">
+                <button id="saveSongEditBtn" class="px-6 py-2 rounded-full text-xs font-extrabold bg-[#9E0B3D] text-white shadow hover:bg-[#b30d45] transition">
+                    Fatto!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODALE PERSONALIZZAZIONE GATTINI + RIMOZIONE AUTOMATICA SFONDO        -->
+    <!-- ===================================================================== -->
+    <div id="customModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-[#FDF0F2] border-2 border-[#EED5DA] rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden screen-enter">
+            
+            <!-- Header Modale -->
+            <div class="px-5 py-4 bg-white/80 border-b border-[#EED5DA] flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-extrabold text-[#6E1E3B]">I tuoi Gattini Personalizzati</h3>
+                    <p class="text-xs text-[#8C4A60]">Carica le foto: lo sfondo viene rimosso automaticamente!</p>
+                </div>
+                <button id="closeCustomModalBtn" class="w-9 h-9 rounded-full bg-[#FDF0F2] hover:bg-[#F6B9C8] text-[#6E1E3B] flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Controllo tolleranza scontorno -->
+            <div class="px-5 py-3 bg-[#FBE3E8]/60 border-b border-[#EED5DA] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label for="bgTolerance" class="text-xs font-bold text-[#6E1E3B] flex items-center gap-1.5">
+                    <i class="fa-solid fa-wand-magic-sparkles text-[#9E0B3D]"></i>
+                    Sensibilità rimozione sfondo: <span id="toleranceValue" class="text-[#9E0B3D]">38</span>
+                </label>
+                <input type="range" id="bgTolerance" min="10" max="95" value="38" class="w-full sm:w-40 accent-[#9E0B3D] cursor-pointer">
+            </div>
+
+            <!-- Lista dei 5 stati dei gattini -->
+            <div id="customCatsList" class="p-5 overflow-y-auto space-y-3 flex-1">
+                <!-- Generato dinamicamente da JS -->
+            </div>
+
+            <!-- Footer Modale -->
+            <div class="px-5 py-3.5 bg-white/80 border-t border-[#EED5DA] flex items-center justify-between gap-3">
+                <button id="resetAllCatsBtn" class="px-4 py-2 rounded-full text-xs font-bold text-[#9E0B3D] hover:bg-[#FBE3E8] transition">
+                    Ripristina originali
+                </button>
+                <button id="saveAndCloseBtn" class="px-6 py-2 rounded-full text-xs font-extrabold bg-[#9E0B3D] text-white shadow hover:bg-[#b30d45] transition">
+                    Fatto!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messaggio Toast discreto (mai alert) -->
+    <div id="toastMsg" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-[#6E1E3B] text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300">
+        Foto scontornata e salvata!
+    </div>
+
+    <script>
+        /**
+         * ============================================================================
+         * 1. ILLUSTRAZIONI VETTORIALI DI DEFAULT (FEDELI AGLI SCREENSHOT)
+         * ============================================================================
+         */
+        const DEFAULT_CAT_SVGS = {
+            // Stato 0 (0%): Gattino bianco felice con bocca aperta ":D" e guanciotte rosa
+            0: `
+            <svg viewBox="0 0 140 140" class="w-full h-full overflow-visible">
+                <!-- Corpo e testa -->
+                <path d="M38 115 L38 82 C28 76 28 60 36 52 L34 32 L52 42 C62 39 78 39 88 42 L106 32 L104 52 C112 60 112 76 102 82 L102 115" 
+                      fill="#FFFFFF" stroke="#2D2327" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Pelo morbido sulle guance -->
+                <path d="M32 62 L25 60 M31 70 L24 71 M34 78 L27 81" stroke="#2D2327" stroke-width="3.5" stroke-linecap="round"/>
+                <path d="M108 62 L115 60 M109 70 L116 71 M106 78 L113 81" stroke="#2D2327" stroke-width="3.5" stroke-linecap="round"/>
+                <!-- Interno orecchie rosa tenue -->
+                <polygon points="39,46 38,37 47,43" fill="#FAD2DC"/>
+                <polygon points="101,46 102,37 93,43" fill="#FAD2DC"/>
+                <!-- Occhioni tondi neri -->
+                <circle cx="52" cy="65" r="6.5" fill="#2D2327"/>
+                <circle cx="50" cy="63" r="2" fill="#FFFFFF"/>
+                <circle cx="88" cy="65" r="6.5" fill="#2D2327"/>
+                <circle cx="86" cy="63" r="2" fill="#FFFFFF"/>
+                <!-- Guanciotte rosa -->
+                <ellipse cx="42" cy="75" rx="6.5" ry="4" fill="#F8A5BA" opacity="0.85"/>
+                <ellipse cx="98" cy="75" rx="6.5" ry="4" fill="#F8A5BA" opacity="0.85"/>
+                <!-- Bocca aperta ":D" -->
+                <path d="M62 68 Q66 72 70 68 Q74 72 78 68" fill="none" stroke="#2D2327" stroke-width="3.2" stroke-linecap="round"/>
+                <path d="M64 70 C64 82 76 82 76 70 Z" fill="#F06292" stroke="#2D2327" stroke-width="3" stroke-linejoin="round"/>
+            </svg>`,
+
+            // Stato 1 (1% - 25%): Gattino che piange a dirotto con fiumi di lacrime azzurre ("Only that much?")
+            1: `
+            <svg viewBox="0 0 140 140" class="w-full h-full overflow-visible">
+                <!-- Corpo e testa -->
+                <path d="M36 118 L36 82 C26 75 27 58 35 50 L36 32 L54 41 C64 38 76 38 86 41 L104 32 L105 50 C113 58 114 75 104 82 L104 118" 
+                      fill="#FFFFFF" stroke="#2D2327" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Pelo arruffato -->
+                <path d="M31 60 L24 58 M30 69 L23 70 M109 60 L116 58 M110 69 L117 70" stroke="#2D2327" stroke-width="3.5" stroke-linecap="round"/>
+                <!-- Cascate di lacrime azzurre -->
+                <path d="M44 68 L41 118 L57 118 L57 68 Z" fill="#81D4FA" opacity="0.85"/>
+                <path d="M83 68 L83 118 L99 118 L96 68 Z" fill="#81D4FA" opacity="0.85"/>
+                <!-- Occhi grandi tristi -->
+                <circle cx="51" cy="64" r="7.5" fill="#2D2327"/>
+                <circle cx="89" cy="64" r="7.5" fill="#2D2327"/>
+                <!-- Boccuccia tremolante "w" -->
+                <path d="M61 68 Q65.5 73 70 67 Q74.5 73 79 68" fill="none" stroke="#2D2327" stroke-width="3.4" stroke-linecap="round"/>
+                <!-- Guanciotte -->
+                <ellipse cx="38" cy="73" rx="5" ry="3.5" fill="#FAD2DC"/>
+                <ellipse cx="102" cy="73" rx="5" ry="3.5" fill="#FAD2DC"/>
+            </svg>`,
+
+            // Stato 2 (26% - 49%): Gattino imbronciato/arrabbiato con ombra grigia sulla fronte e linee verticali ("That hurts...")
+            2: `
+            <svg viewBox="0 0 140 140" class="w-full h-full overflow-visible">
+                <!-- Linee verticali di frustrazione sopra la testa -->
+                <path d="M35 30 L32 18 M46 25 L45 13 M58 23 L58 11 M70 22 L70 10 M82 23 L82 11 M94 25 L95 13 M105 30 L108 18" 
+                      stroke="#2D2327" stroke-width="3.2" stroke-linecap="round"/>
+                <!-- Corpo/testa paffuta -->
+                <path d="M34 95 C26 85 26 62 35 50 L36 33 L54 42 C64 39 76 39 86 42 L104 33 L105 50 C114 62 114 85 106 95 C96 108 44 108 34 95 Z" 
+                      fill="#FFFFFF" stroke="#2D2327" stroke-width="4.2" stroke-linejoin="round"/>
+                <!-- Ombra grigia sulla fronte -->
+                <path d="M37 52 L38 37 L54 45 C64 42 76 42 86 45 L102 37 L103 52 C92 64 48 64 37 52 Z" fill="#C7C2C4"/>
+                <!-- Occhi socchiusi arrabbiati -->
+                <path d="M42 66 L58 69" stroke="#2D2327" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="50" cy="71" r="4.5" fill="#2D2327"/>
+                <path d="M98 66 L82 69" stroke="#2D2327" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="90" cy="71" r="4.5" fill="#2D2327"/>
+                <!-- Boccuccia imbronciata -->
+                <path d="M61 74 Q65.5 78 70 73 Q74.5 78 79 74" fill="none" stroke="#2D2327" stroke-width="3.4" stroke-linecap="round"/>
+                <!-- Guanciotte -->
+                <ellipse cx="40" cy="80" rx="6" ry="4" fill="#FAD2DC"/>
+                <ellipse cx="100" cy="80" rx="6" ry="4" fill="#FAD2DC"/>
+            </svg>`,
+
+            // Stato 3 (50% - 99%): Gattino supplicante con occhioni lucidi e lacrimucce ("Half? Seriously?")
+            3: `
+            <svg viewBox="0 0 140 140" class="w-full h-full overflow-visible">
+                <!-- Corpo e zampette -->
+                <path d="M42 112 C34 104 32 82 37 64 L36 36 L54 45 C64 42 76 42 86 45 L104 36 L103 64 C108 82 106 104 98 112 C90 118 82 116 78 110 C73 114 67 114 62 110 C58 116 50 118 42 112 Z" 
+                      fill="#FFFFFF" stroke="#2D2327" stroke-width="4" stroke-linejoin="round"/>
+                <!-- Occhi lucidi grandi -->
+                <ellipse cx="52" cy="66" rx="7.5" ry="6" fill="#FFFFFF" stroke="#2D2327" stroke-width="3"/>
+                <circle cx="53" cy="66" r="4" fill="#2D2327"/>
+                <circle cx="51" cy="64" r="1.8" fill="#FFFFFF"/>
+                <ellipse cx="88" cy="66" rx="7.5" ry="6" fill="#FFFFFF" stroke="#2D2327" stroke-width="3"/>
+                <circle cx="87" cy="66" r="4" fill="#2D2327"/>
+                <circle cx="85" cy="64" r="1.8" fill="#FFFFFF"/>
+                <!-- Lacrimucce agli angoli degli occhi -->
+                <path d="M43 69 Q36 74 42 78 Q46 75 43 69 Z" fill="#81D4FA" stroke="#2D2327" stroke-width="2"/>
+                <path d="M97 69 Q104 74 98 78 Q94 75 97 69 Z" fill="#81D4FA" stroke="#2D2327" stroke-width="2"/>
+                <!-- Boccuccia triste "^" -->
+                <path d="M62 72 L70 67 L78 72" fill="none" stroke="#2D2327" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M66 75 Q70 73 74 75" fill="none" stroke="#2D2327" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>`,
+
+            // Stato 4 (100% -> 200 -> 500 -> 1000 -> ∞): Gattino super entusiasta che salta di gioia ("Correct answer!")
+            4: `
+            <svg viewBox="0 0 140 140" class="w-full h-full overflow-visible">
+                <!-- Linee di movimento/gioia -->
+                <path d="M26 52 L20 48 M24 64 L17 64 M114 52 L120 48 M116 64 L123 64" stroke="#2D2327" stroke-width="3.2" stroke-linecap="round"/>
+                <!-- Corpo paffuto che salta -->
+                <path d="M42 108 C30 96 30 66 38 50 L38 32 L56 41 C65 38 75 38 84 41 L102 32 L102 50 C110 66 110 96 98 108 C86 118 54 118 42 108 Z" 
+                      fill="#FFFFFF" stroke="#2D2327" stroke-width="4.2" stroke-linejoin="round"/>
+                <!-- Piedini rosa che scalciano di gioia -->
+                <ellipse cx="46" cy="116" rx="8" ry="4.5" fill="#F06292" stroke="#AD1457" stroke-width="2" transform="rotate(-15 46 116)"/>
+                <ellipse cx="94" cy="116" rx="8" ry="4.5" fill="#F06292" stroke="#AD1457" stroke-width="2" transform="rotate(15 94 116)"/>
+                <!-- Occhietti chiusi estasiati -->
+                <path d="M44 58 L54 55" stroke="#2D2327" stroke-width="4" stroke-linecap="round"/>
+                <path d="M96 58 L86 55" stroke="#2D2327" stroke-width="4" stroke-linecap="round"/>
+                <!-- Bocca spalancata felice -->
+                <path d="M63 54 C63 68 77 68 77 54 Z" fill="#F06292" stroke="#2D2327" stroke-width="3" stroke-linejoin="round"/>
+                <!-- Zampette alzate al petto -->
+                <path d="M48 76 C44 66 56 62 60 72 C62 78 54 84 48 76 Z" fill="#FFFFFF" stroke="#2D2327" stroke-width="3.5"/>
+                <path d="M92 76 C96 66 84 62 80 72 C78 78 86 84 92 76 Z" fill="#FFFFFF" stroke="#2D2327" stroke-width="3.5"/>
+                <!-- Guanciotte rosa acceso -->
+                <ellipse cx="42" cy="65" rx="6" ry="3.5" fill="#F8A5BA"/>
+                <ellipse cx="98" cy="65" rx="6" ry="3.5" fill="#F8A5BA"/>
+            </svg>`
+        };
+
+        /**
+         * Configurazione dei 5 livelli del gattino
+         */
+        const CAT_LEVELS_META = [
+            { id: 0, label: "0% — Iniziale", desc: "How much do you love me?" },
+            { id: 1, label: "1% - 25% — Piange", desc: "Only that much?" },
+            { id: 2, label: "26% - 49% — Arrabbiato", desc: "That hurts..." },
+            { id: 3, label: "50% - 99% — Supplicante", desc: "Half? Seriously?" },
+            { id: 4, label: "100%+ — Esultante", desc: "Correct answer!" }
+        ];
+
+        // Stato globale dell'applicazione
+        let customCatImages = {}; // { 0: dataURL, 1: dataURL, ... }
+        let currentCatState = -1;
+        let celebrationRunning = false;
+        let celebrationTimers = [];
+
+        // Carica eventuali immagini personalizzate salvate nel browser
+        try {
+            const saved = localStorage.getItem('loveMeterCustomCats_v1');
+            if (saved) {
+                customCatImages = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.warn("Impossibile leggere localStorage:", e);
+        }
+
+        // Elementi DOM
+        const screen1 = document.getElementById('screen1');
+        const screen2 = document.getElementById('screen2');
+        const screen3 = document.getElementById('screen3');
+        const startBtn = document.getElementById('startBtn');
+        const catContainer = document.getElementById('catContainer');
+        const statusText = document.getElementById('statusText');
+        const percentageDisplay = document.getElementById('percentageDisplay');
+        const gaugeNeedle = document.getElementById('gaugeNeedle');
+        const loveSlider = document.getElementById('loveSlider');
+        const finalNextBtn = document.getElementById('finalNextBtn');
+        const spatialWorld = document.getElementById('spatialWorld');
+
+        // Stato navigazione libro e camera spaziale regali
+        let currentBookPage = 1;
+        let currentGiftZone = 'hub'; // 'hub' | 'top' | 'right' | 'bottom'
+        let isCameraMoving = false;
+
+        /**
+         * ============================================================================
+         * 2. TRANSIZIONI A LIBRO 3D (PAGINA 1 -> PAGINA 2 -> PAGINA 3)
+         * ============================================================================
+         */
+        function turnBookPage(fromEl, toEl, nextPageNum) {
+            // Prepara la pagina di destinazione sotto quella attuale
+            toEl.classList.remove('page-hidden', 'page-turned', 'page-active');
+            toEl.classList.add('page-underneath');
+
+            // Forza reflow per avviare l'animazione 3D in modo fluido
+            void toEl.offsetWidth;
+
+            // Gira la pagina corrente come il foglio di un libro
+            fromEl.classList.remove('page-active');
+            fromEl.classList.add('page-turned');
+
+            // Porta in primo piano la nuova pagina
+            setTimeout(() => {
+                toEl.classList.remove('page-underneath');
+                toEl.classList.add('page-active');
+            }, 120);
+
+            // Nasconde la pagina girata al termine della transizione
+            setTimeout(() => {
+                fromEl.classList.add('page-hidden');
+                fromEl.classList.remove('page-turned');
+                currentBookPage = nextPageNum;
+
+                // Mostra il pulsante personalizzazione gattini solo sulla Pagina 2
+                if (nextPageNum === 2) {
+                    openCustomModalBtn.classList.remove('hidden');
+                } else {
+                    openCustomModalBtn.classList.add('hidden');
+                }
+            }, 960);
+        }
+
+        startBtn.addEventListener('click', () => {
+            updateLoveMeter(0);
+            turnBookPage(screen1, screen2, 2);
+        });
+
+        finalNextBtn.addEventListener('click', () => {
+            currentGiftZone = 'hub';
+            spatialWorld.style.transform = 'translate3d(0vw, 0vh, 0)';
+            turnBookPage(screen2, screen3, 3);
+            setTimeout(() => spawnHeartBurst(16), 450);
+        });
+
+        /**
+         * ============================================================================
+         * 2B. NAVIGAZIONE SPAZIALE 2D DEI 3 REGALI (PAN CAMERA + SWIPE / SCROLL)
+         * ============================================================================
+         */
+        function panSpatialCamera(targetZone) {
+            if (isCameraMoving || currentGiftZone === targetZone) return;
+            isCameraMoving = true;
+            currentGiftZone = targetZone;
+
+            if (targetZone === 'hub') {
+                spatialWorld.style.transform = 'translate3d(0vw, 0vh, 0)';
+            } else if (targetZone === 'top') {
+                // Regalo sinistro: camera sale in alto (mondo scende di +100vh)
+                spatialWorld.style.transform = 'translate3d(0vw, 100vh, 0)';
+            } else if (targetZone === 'right') {
+                // Regalo centrale: camera va a destra (mondo si sposta a sinistra di -100vw)
+                spatialWorld.style.transform = 'translate3d(-100vw, 0vh, 0)';
+            } else if (targetZone === 'bottom') {
+                // Regalo destro: camera scende in basso (mondo sale di -100vh)
+                spatialWorld.style.transform = 'translate3d(0vw, -100vh, 0)';
+            }
+
+            setTimeout(() => {
+                isCameraMoving = false;
+            }, 820);
+        }
+
+        // Click sui 3 pacchi regalo
+        document.querySelectorAll('[data-gift-dir]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const dir = btn.getAttribute('data-gift-dir');
+                panSpatialCamera(dir);
+            });
+        });
+
+        // Click sui pulsanti direzionali di ritorno
+        document.querySelectorAll('[data-return-hub]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                panSpatialCamera('hub');
+            });
+        });
+
+        // Supporto gesto Touch Swipe per tornare alla schermata dei regali
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        screen3.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        screen3.addEventListener('touchend', (e) => {
+            if (currentBookPage !== 3 || currentGiftZone === 'hub' || e.changedTouches.length === 0) return;
+
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            const minSwipe = 48;
+
+            // Regalo 1 (in alto): per tornare giù ai regali l'utente scorre il dito verso l'ALTO (dy < -minSwipe)
+            if (currentGiftZone === 'top' && dy < -minSwipe && Math.abs(dy) > Math.abs(dx)) {
+                panSpatialCamera('hub');
+            }
+            // Regalo 2 (a destra): per tornare a sinistra ai regali l'utente scorre il dito verso DESTRA (dx > minSwipe)
+            else if (currentGiftZone === 'right' && dx > minSwipe && Math.abs(dx) > Math.abs(dy)) {
+                panSpatialCamera('hub');
+            }
+            // Regalo 3 (in basso): per tornare su ai regali l'utente scorre il dito verso il BASSO (dy > minSwipe)
+            else if (currentGiftZone === 'bottom' && dy > minSwipe && Math.abs(dy) > Math.abs(dx)) {
+                panSpatialCamera('hub');
+            }
+        }, { passive: true });
+
+        // Supporto rotellina mouse / trackpad per tornare ai regali
+        screen3.addEventListener('wheel', (e) => {
+            if (currentBookPage !== 3 || currentGiftZone === 'hub') return;
+
+            if (currentGiftZone === 'top' && e.deltaY > 28) {
+                panSpatialCamera('hub');
+            } else if (currentGiftZone === 'right' && e.deltaX < -28) {
+                panSpatialCamera('hub');
+            } else if (currentGiftZone === 'bottom' && e.deltaY < -28) {
+                panSpatialCamera('hub');
+            }
+        }, { passive: true });
+
+        // Ascolta lo spostamento dello slider (sia touch che mouse)
+        loveSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value, 10);
+            updateLoveMeter(val);
+        });
+
+        /**
+         * Aggiorna il gattino, il testo, la lancetta e avvia la sequenza al 100%
+         */
+        function updateLoveMeter(val) {
+            // Se l'utente trascina indietro sotto il 100%, interrompiamo l'animazione 100->200->500->1000->∞
+            if (val < 100 && celebrationRunning) {
+                stopCelebrationSequence();
+            }
+
+            // 1. Ruota la lancetta da 0° (0%) a 180° (100%)
+            const angle = (val / 100) * 180;
+            gaugeNeedle.setAttribute('transform', `rotate(${angle}, 150, 145)`);
+
+            // 2. Determina stato gattino e testo esatto come negli screenshot
+            let nextState = 0;
+            let text = "How much do you love me?";
+
+            if (val === 0) {
+                nextState = 0;
+                text = "How much do you love me?";
+            } else if (val >= 1 && val <= 25) {
+                nextState = 1;
+                text = "Only that much?";
+            } else if (val >= 26 && val <= 49) {
+                nextState = 2;
+                text = "That hurts...";
+            } else if (val >= 50 && val <= 99) {
+                nextState = 3;
+                text = "Half? Seriously?";
+            } else if (val >= 100) {
+                nextState = 4;
+                text = "Correct answer!";
+            }
+
+            // Aggiorna testo
+            if (statusText.textContent !== text) {
+                statusText.textContent = text;
+            }
+
+            // Aggiorna immagine/SVG gattino se cambia fascia
+            if (currentCatState !== nextState) {
+                currentCatState = nextState;
+                renderCatVisual(nextState);
+            }
+
+            // 3. Gestione percentuale vs sequenza automatica al 100%
+            if (val < 100) {
+                finalNextBtn.classList.add('hidden');
+                percentageDisplay.classList.remove('anim-infinity', 'text-4xl', 'sm:text-5xl');
+                percentageDisplay.textContent = `${val}%`;
+            } else if (!celebrationRunning) {
+                startCelebrationSequence();
+            }
+        }
+
+        /**
+         * Renderizza il gattino (foto personalizzata scontornata se presente, altrimenti SVG)
+         */
+        function renderCatVisual(stateIndex) {
+            // Imposta classe animazione specifica per lo stato
+            catContainer.className = `cat-media-box w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center mb-3 anim-cat-${stateIndex}`;
+
+            if (customCatImages[stateIndex]) {
+                catContainer.innerHTML = `<img src="${customCatImages[stateIndex]}" alt="Gattino stato ${stateIndex}" class="w-full h-full object-contain">`;
+            } else {
+                catContainer.innerHTML = DEFAULT_CAT_SVGS[stateIndex];
+            }
+        }
+
+        /**
+         * Sequenza automatica quando si raggiunge 100%:
+         * 100% -> 200% -> 500% -> 1000% -> ∞ + comparsa pulsante Next
+         */
+        function startCelebrationSequence() {
+            celebrationRunning = true;
+            finalNextBtn.classList.add('hidden');
+
+            const steps = [
+                { label: "100%", delay: 0, isInfinity: false },
+                { label: "200%", delay: 550, isInfinity: false },
+                { label: "500%", delay: 1100, isInfinity: false },
+                { label: "1000%", delay: 1650, isInfinity: false },
+                { label: "∞", delay: 2250, isInfinity: true }
+            ];
+
+            steps.forEach((step) => {
+                const timer = setTimeout(() => {
+                    if (!celebrationRunning) return;
+
+                    percentageDisplay.classList.remove('anim-pop');
+                    // Force reflow per riavviare l'animazione pop
+                    void percentageDisplay.offsetWidth;
+
+                    percentageDisplay.textContent = step.label;
+                    percentageDisplay.classList.add('anim-pop');
+
+                    if (step.isInfinity) {
+                        percentageDisplay.classList.add('anim-infinity', 'text-4xl', 'sm:text-5xl');
+                        finalNextBtn.classList.remove('hidden');
+                        finalNextBtn.classList.add('screen-enter');
+                        spawnHeartBurst(22);
+                    } else {
+                        spawnHeartBurst(6);
+                    }
+                }, step.delay);
+
+                celebrationTimers.push(timer);
+            });
+        }
+
+        function stopCelebrationSequence() {
+            celebrationRunning = false;
+            celebrationTimers.forEach(t => clearTimeout(t));
+            celebrationTimers = [];
+            finalNextBtn.classList.add('hidden');
+            percentageDisplay.classList.remove('anim-infinity', 'text-4xl', 'sm:text-5xl');
+        }
+
+        /**
+         * Effetto particellare di cuoricini che volano verso l'alto
+         */
+        function spawnHeartBurst(count = 10) {
+            const hearts = ['❤️', '💖', '💗', '💕', '💓'];
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('div');
+                el.className = 'floating-heart';
+                el.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                el.style.left = `${15 + Math.random() * 70}vw`;
+                el.style.top = `${45 + Math.random() * 35}vh`;
+                el.style.fontSize = `${16 + Math.random() * 18}px`;
+                el.style.animationDuration = `${1.3 + Math.random() * 0.9}s`;
+                document.body.appendChild(el);
+
+                setTimeout(() => {
+                    el.remove();
+                }, 2200);
+            }
+        }
+
+        /**
+         * ============================================================================
+         * 3. RIMOZIONE AUTOMATICA SFONDO (FLOOD-FILL + FEATHERING) E UPLOAD FOTO
+         * ============================================================================
+         */
+        const customModal = document.getElementById('customModal');
+        const openCustomModalBtn = document.getElementById('openCustomModalBtn');
+        const closeCustomModalBtn = document.getElementById('closeCustomModalBtn');
+        const saveAndCloseBtn = document.getElementById('saveAndCloseBtn');
+        const resetAllCatsBtn = document.getElementById('resetAllCatsBtn');
+        const customCatsList = document.getElementById('customCatsList');
+        const bgToleranceSlider = document.getElementById('bgTolerance');
+        const toleranceValueLabel = document.getElementById('toleranceValue');
+        const toastMsg = document.getElementById('toastMsg');
+
+        // Teniamo traccia dei file originali caricati nella sessione per ricalcolare se l'utente cambia sensibilità
+        const rawUploadedDataUrls = {};
+
+        openCustomModalBtn.addEventListener('click', () => {
+            renderModalList();
+            customModal.classList.remove('hidden');
+        });
+
+        const closeModal = () => customModal.classList.add('hidden');
+        closeCustomModalBtn.addEventListener('click', closeModal);
+        saveAndCloseBtn.addEventListener('click', closeModal);
+
+        bgToleranceSlider.addEventListener('input', (e) => {
+            const tol = parseInt(e.target.value, 10);
+            toleranceValueLabel.textContent = tol;
+            // Rielabora al volo le immagini caricate in questa sessione
+            Object.keys(rawUploadedDataUrls).forEach((idx) => {
+                processAndSaveImage(parseInt(idx, 10), rawUploadedDataUrls[idx], tol, false);
+            });
+        });
+
+        resetAllCatsBtn.addEventListener('click', () => {
+            customCatImages = {};
+            try {
+                localStorage.removeItem('loveMeterCustomCats_v1');
+            } catch (e) {}
+            renderModalList();
+            if (currentCatState >= 0) renderCatVisual(currentCatState);
+            showToast("Gattini originali ripristinati!");
+        });
+
+        function renderModalList() {
+            customCatsList.innerHTML = '';
+            CAT_LEVELS_META.forEach((item) => {
+                const hasCustom = Boolean(customCatImages[item.id]);
+                const previewHtml = hasCustom
+                    ? `<img src="${customCatImages[item.id]}" class="w-12 h-12 object-contain">`
+                    : `<div class="w-12 h-12">${DEFAULT_CAT_SVGS[item.id]}</div>`;
+
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between gap-3 p-3 rounded-2xl bg-white border border-[#EED5DA] shadow-sm";
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 rounded-xl bg-[#FDF0F2] border border-[#EED5DA] flex items-center justify-center overflow-hidden shrink-0">
+                            ${previewHtml}
+                        </div>
+                        <div>
+                            <div class="text-xs font-extrabold text-[#6E1E3B]">${item.label}</div>
+                            <div class="text-[11px] text-[#8C4A60]">"${item.desc}"</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="px-3 py-1.5 rounded-full bg-[#9E0B3D] hover:bg-[#b30d45] text-white text-[11px] font-bold cursor-pointer transition active:scale-95">
+                            <i class="fa-solid fa-upload mr-1"></i> Foto
+                            <input type="file" accept="image/*" class="hidden" data-cat-idx="${item.id}">
+                        </label>
+                        ${hasCustom ? `
+                            <button type="button" data-remove-idx="${item.id}" title="Rimuovi foto"
+                                class="w-7 h-7 rounded-full bg-[#FDF0F2] hover:bg-[#F6B9C8] text-[#9E0B3D] flex items-center justify-center text-xs transition">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                customCatsList.appendChild(row);
+            });
+
+            // Collega eventi upload
+            customCatsList.querySelectorAll('input[type="file"]').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    const idx = parseInt(e.target.getAttribute('data-cat-idx'), 10);
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        rawUploadedDataUrls[idx] = ev.target.result;
+                        const tol = parseInt(bgToleranceSlider.value, 10);
+                        processAndSaveImage(idx, ev.target.result, tol, true);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            // Collega eventi rimozione singola
+            customCatsList.querySelectorAll('button[data-remove-idx]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.getAttribute('data-remove-idx'), 10);
+                    delete customCatImages[idx];
+                    delete rawUploadedDataUrls[idx];
+                    saveCustomCatsToStorage();
+                    renderModalList();
+                    if (currentCatState === idx) renderCatVisual(idx);
+                    showToast("Foto rimossa!");
+                });
+            });
+        }
+
+        /**
+         * Algoritmo intelligente di rimozione sfondo:
+         * 1. Ridimensiona l'immagine (max 360px) per prestazioni istantanee e risparmio memoria.
+         * 2. Campiona il colore medio dei bordi/angoli esterni dell'immagine.
+         * 3. Esegue un Flood-Fill partendo da tutto il perimetro esterno per rendere trasparente
+         *    lo sfondo senza cancellare eventuali parti bianche interne del gattino!
+         * 4. Applica una sfumatura morbida (anti-aliasing) sui pixel di confine.
+         */
+        function processAndSaveImage(catIndex, dataUrl, tolerance, notify = true) {
+            const img = new Image();
+            img.onload = () => {
+                const maxDim = 360;
+                let w = img.width;
+                let h = img.height;
+                if (w > maxDim || h > maxDim) {
+                    if (w > h) {
+                        h = Math.round((h * maxDim) / w);
+                        w = maxDim;
+                    } else {
+                        w = Math.round((w * maxDim) / h);
+                        h = maxDim;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+
+                const imgData = ctx.getImageData(0, 0, w, h);
+                const data = imgData.data;
+
+                // Campiona i 4 angoli per determinare il colore dominante dello sfondo
+                const corners = [
+                    0,
+                    (w - 1) * 4,
+                    ((h - 1) * w) * 4,
+                    ((h - 1) * w + (w - 1)) * 4
+                ];
+
+                let bgR = 0, bgG = 0, bgB = 0, validCorners = 0;
+                corners.forEach(pos => {
+                    if (data[pos + 3] > 200) {
+                        bgR += data[pos];
+                        bgG += data[pos + 1];
+                        bgB += data[pos + 2];
+                        validCorners++;
+                    }
+                });
+
+                if (validCorners > 0) {
+                    bgR /= validCorners;
+                    bgG /= validCorners;
+                    bgB /= validCorners;
+
+                    // Flood-fill BFS dai bordi dell'immagine
+                    const visited = new Uint8Array(w * h);
+                    const queue = new Int32Array(w * h);
+                    let head = 0, tail = 0;
+
+                    const colorDist = (idx4) => {
+                        const dr = data[idx4] - bgR;
+                        const dg = data[idx4 + 1] - bgG;
+                        const db = data[idx4 + 2] - bgB;
+                        return Math.sqrt(dr * dr + dg * dg + db * db);
+                    };
+
+                    // Aggiungi tutti i pixel del bordo alla coda se compatibili con lo sfondo
+                    for (let x = 0; x < w; x++) {
+                        const topIdx = x;
+                        const botIdx = (h - 1) * w + x;
+                        if (!visited[topIdx] && colorDist(topIdx * 4) <= tolerance * 1.4) {
+                            visited[topIdx] = 1;
+                            queue[tail++] = topIdx;
+                        }
+                        if (!visited[botIdx] && colorDist(botIdx * 4) <= tolerance * 1.4) {
+                            visited[botIdx] = 1;
+                            queue[tail++] = botIdx;
+                        }
+                    }
+                    for (let y = 0; y < h; y++) {
+                        const leftIdx = y * w;
+                        const rightIdx = y * w + (w - 1);
+                        if (!visited[leftIdx] && colorDist(leftIdx * 4) <= tolerance * 1.4) {
+                            visited[leftIdx] = 1;
+                            queue[tail++] = leftIdx;
+                        }
+                        if (!visited[rightIdx] && colorDist(rightIdx * 4) <= tolerance * 1.4) {
+                            visited[rightIdx] = 1;
+                            queue[tail++] = rightIdx;
+                        }
+                    }
+
+                    // Propaga il flood-fill su tutto lo sfondo connesso
+                    while (head < tail) {
+                        const curr = queue[head++];
+                        const cx = curr % w;
+                        const cy = (curr - cx) / w;
+                        const c4 = curr * 4;
+                        const dist = colorDist(c4);
+
+                        // Rendi trasparente (con morbidezza vicino alla soglia)
+                        if (dist <= tolerance) {
+                            data[c4 + 3] = 0;
+                        } else {
+                            // Sfumatura morbida anti-aliasing
+                            const alphaFactor = (dist - tolerance) / (tolerance * 0.4);
+                            data[c4 + 3] = Math.min(data[c4 + 3], Math.round(255 * alphaFactor));
+                        }
+
+                        // Controlla i 4 vicini
+                        const neighbors = [];
+                        if (cx > 0) neighbors.push(curr - 1);
+                        if (cx < w - 1) neighbors.push(curr + 1);
+                        if (cy > 0) neighbors.push(curr - w);
+                        if (cy < h - 1) neighbors.push(curr + w);
+
+                        for (let i = 0; i < neighbors.length; i++) {
+                            const nIdx = neighbors[i];
+                            if (!visited[nIdx]) {
+                                const nDist = colorDist(nIdx * 4);
+                                if (nDist <= tolerance * 1.35) {
+                                    visited[nIdx] = 1;
+                                    queue[tail++] = nIdx;
+                                }
+                            }
+                        }
+                    }
+
+                    ctx.putImageData(imgData, 0, 0);
+                }
+
+                // Ritaglia automaticamente lo spazio trasparente in eccesso intorno al gattino
+                const trimmedDataUrl = trimTransparentCanvas(canvas);
+                customCatImages[catIndex] = trimmedDataUrl;
+                saveCustomCatsToStorage();
+                renderModalList();
+
+                if (currentCatState === catIndex) {
+                    renderCatVisual(catIndex);
+                }
+                if (notify) {
+                    showToast("Sfondo rimosso e gattino aggiornato!");
+                }
+            };
+            img.src = dataUrl;
+        }
+
+        /**
+         * Ritaglia i margini vuoti trasparenti così il gattino risulta grande e centrato
+         */
+        function trimTransparentCanvas(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            const data = ctx.getImageData(0, 0, w, h).data;
+
+            let minX = w, minY = h, maxX = 0, maxY = 0;
+            let found = false;
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const alpha = data[(y * w + x) * 4 + 3];
+                    if (alpha > 20) {
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found) return canvas.toDataURL('image/png');
+
+            const pad = 4;
+            minX = Math.max(0, minX - pad);
+            minY = Math.max(0, minY - pad);
+            maxX = Math.min(w - 1, maxX + pad);
+            maxY = Math.min(h - 1, maxY + pad);
+
+            const trimW = maxX - minX + 1;
+            const trimH = maxY - minY + 1;
+
+            const out = document.createElement('canvas');
+            out.width = trimW;
+            out.height = trimH;
+            out.getContext('2d').drawImage(canvas, minX, minY, trimW, trimH, 0, 0, trimW, trimH);
+            return out.toDataURL('image/png');
+        }
+
+        function saveCustomCatsToStorage() {
+            try {
+                localStorage.setItem('loveMeterCustomCats_v1', JSON.stringify(customCatImages));
+            } catch (e) {
+                console.warn("Spazio localStorage esaurito:", e);
+            }
+        }
+
+        let toastTimer = null;
+        function showToast(msg) {
+            toastMsg.textContent = msg;
+            toastMsg.style.opacity = '1';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toastMsg.style.opacity = '0';
+            }, 2400);
+        }
+
+        /**
+         * ============================================================================
+         * 4. LOGICA SCHERMATA REGALO CENTRALE: POLAROID + PLAYER MUSICALE LOCALE
+         * ============================================================================
+         */
+        const openSongEditBtn = document.getElementById('openSongEditBtn');
+        const songEditModal = document.getElementById('songEditModal');
+        const closeSongEditModalBtn = document.getElementById('closeSongEditModalBtn');
+        const saveSongEditBtn = document.getElementById('saveSongEditBtn');
+
+        const songTitleInput = document.getElementById('songTitleInput');
+        const songArtistInput = document.getElementById('songArtistInput');
+        const songTitleDisplay = document.getElementById('songTitleDisplay');
+        const songArtistDisplay = document.getElementById('songArtistDisplay');
+
+        const polaroidPhotoInput = document.getElementById('polaroidPhotoInput');
+        const modalPolaroidInput = document.getElementById('modalPolaroidInput');
+        const polaroidPhotoImg = document.getElementById('polaroidPhotoImg');
+        const polaroidEmptyOverlay = document.getElementById('polaroidEmptyOverlay');
+
+        const songCoverInput = document.getElementById('songCoverInput');
+        const modalCoverInput = document.getElementById('modalCoverInput');
+        const songCoverImg = document.getElementById('songCoverImg');
+        const defaultCoverArt = document.getElementById('defaultCoverArt');
+
+        const audioFileInput = document.getElementById('audioFileInput');
+        const audioFileNameLabel = document.getElementById('audioFileNameLabel');
+        const localAudioPlayer = document.getElementById('localAudioPlayer');
+        const songPlayPauseBtn = document.getElementById('songPlayPauseBtn');
+        const songPlayIcon = document.getElementById('songPlayIcon');
+        const songProgressSlider = document.getElementById('songProgressSlider');
+        const songCurrentTime = document.getElementById('songCurrentTime');
+        const songTotalTime = document.getElementById('songTotalTime');
+        const songRepeatBtn = document.getElementById('songRepeatBtn');
+        const songPrevBtn = document.getElementById('songPrevBtn');
+        const songNextBtn = document.getElementById('songNextBtn');
+
+        let hasLocalAudio = false;
+        let simPlaying = false;
+        let simTimer = null;
+        let simElapsed = 0;
+        const SIM_DURATION = 199; // 3:19 come nello screenshot
+
+        function formatSeconds(sec) {
+            if (!isFinite(sec) || sec < 0) return "0:00";
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        // Ripristina eventuali impostazioni salvate della canzone/polaroid
+        try {
+            const savedMeta = JSON.parse(localStorage.getItem('loveGiftSongMeta_v1') || '{}');
+            if (savedMeta.title) {
+                songTitleDisplay.textContent = savedMeta.title;
+                songTitleInput.value = savedMeta.title;
+            }
+            if (savedMeta.artist) {
+                songArtistDisplay.textContent = savedMeta.artist;
+                songArtistInput.value = savedMeta.artist;
+            }
+            if (savedMeta.cover) {
+                songCoverImg.src = savedMeta.cover;
+                songCoverImg.classList.remove('hidden');
+                defaultCoverArt.classList.add('hidden');
+            }
+            if (savedMeta.polaroid) {
+                polaroidPhotoImg.src = savedMeta.polaroid;
+                polaroidPhotoImg.classList.remove('hidden');
+                polaroidEmptyOverlay.classList.add('hidden');
+            }
+        } catch (e) {}
+
+        function persistSongMeta(patch) {
+            try {
+                const prev = JSON.parse(localStorage.getItem('loveGiftSongMeta_v1') || '{}');
+                localStorage.setItem('loveGiftSongMeta_v1', JSON.stringify({ ...prev, ...patch }));
+            } catch (e) {}
+        }
+
+        // Apertura / chiusura modale canzone
+        openSongEditBtn.addEventListener('click', () => songEditModal.classList.remove('hidden'));
+        const closeSongModal = () => songEditModal.classList.add('hidden');
+        closeSongEditModalBtn.addEventListener('click', closeSongModal);
+        saveSongEditBtn.addEventListener('click', () => {
+            const t = songTitleInput.value.trim() || "REGINA DEL BLOCK";
+            const a = songArtistInput.value.trim() || "Shiva";
+            songTitleDisplay.textContent = t;
+            songArtistDisplay.textContent = a;
+            persistSongMeta({ title: t, artist: a });
+            closeSongModal();
+            showToast("Dettagli aggiornati!");
+        });
+
+        // Funzione helper per ridimensionare immagine prima del salvataggio
+        function loadScaledImage(file, maxDim, callback) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    let w = img.width, h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                        else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                    }
+                    const c = document.createElement('canvas');
+                    c.width = w; c.height = h;
+                    c.getContext('2d').drawImage(img, 0, 0, w, h);
+                    callback(c.toDataURL('image/jpeg', 0.88));
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Upload foto Polaroid (sia cliccando sulla Polaroid sia dal modale)
+        function handlePolaroidFile(file) {
+            if (!file) return;
+            loadScaledImage(file, 720, (dataUrl) => {
+                polaroidPhotoImg.src = dataUrl;
+                polaroidPhotoImg.classList.remove('hidden');
+                polaroidEmptyOverlay.classList.add('hidden');
+                persistSongMeta({ polaroid: dataUrl });
+                showToast("Foto Polaroid caricata!");
+            });
+        }
+        polaroidPhotoInput.addEventListener('change', (e) => handlePolaroidFile(e.target.files[0]));
+        modalPolaroidInput.addEventListener('change', (e) => handlePolaroidFile(e.target.files[0]));
+
+        // Upload copertina canzone (sia cliccando sulla copertina sia dal modale)
+        function handleCoverFile(file) {
+            if (!file) return;
+            loadScaledImage(file, 360, (dataUrl) => {
+                songCoverImg.src = dataUrl;
+                songCoverImg.classList.remove('hidden');
+                defaultCoverArt.classList.add('hidden');
+                persistSongMeta({ cover: dataUrl });
+                showToast("Copertina aggiornata!");
+            });
+        }
+        songCoverInput.addEventListener('change', (e) => handleCoverFile(e.target.files[0]));
+        modalCoverInput.addEventListener('change', (e) => handleCoverFile(e.target.files[0]));
+
+        // Upload file audio locale (.mp3, .wav, .m4a...)
+        audioFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            stopSimulatedPlayback();
+            const objectUrl = URL.createObjectURL(file);
+            localAudioPlayer.src = objectUrl;
+            hasLocalAudio = true;
+            audioFileNameLabel.textContent = file.name;
+
+            // Se l'utente non ha cambiato il titolo di default, suggerisce il nome del file
+            const cleanName = file.name.replace(/\.[^/.]+$/, "");
+            if (songTitleInput.value === "REGINA DEL BLOCK") {
+                songTitleInput.value = cleanName;
+                songTitleDisplay.textContent = cleanName;
+            }
+
+            localAudioPlayer.onloadedmetadata = () => {
+                const dur = Math.floor(localAudioPlayer.duration) || SIM_DURATION;
+                songProgressSlider.max = dur;
+                songProgressSlider.value = 0;
+                songCurrentTime.textContent = "0:00";
+                songTotalTime.textContent = formatSeconds(dur);
+            };
+
+            localAudioPlayer.play().then(() => {
+                songPlayIcon.className = "fa-solid fa-pause text-xs";
+            }).catch(() => {
+                songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
+            });
+
+            showToast("Canzone caricata e pronta!");
+        });
+
+        localAudioPlayer.addEventListener('timeupdate', () => {
+            if (!hasLocalAudio) return;
+            const cur = Math.floor(localAudioPlayer.currentTime);
+            songProgressSlider.value = cur;
+            songCurrentTime.textContent = formatSeconds(cur);
+        });
+
+        localAudioPlayer.addEventListener('ended', () => {
+            songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
+        });
+
+        function stopSimulatedPlayback() {
+            simPlaying = false;
+            clearInterval(simTimer);
+            simTimer = null;
+        }
+
+        // Play / Pausa (reale se c'è un file locale, oppure simulazione fluida se non è stato ancora caricato)
+        songPlayPauseBtn.addEventListener('click', () => {
+            if (hasLocalAudio) {
+                if (localAudioPlayer.paused) {
+                    localAudioPlayer.play();
+                    songPlayIcon.className = "fa-solid fa-pause text-xs";
+                } else {
+                    localAudioPlayer.pause();
+                    songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
+                }
+            } else {
+                if (!simPlaying) {
+                    simPlaying = true;
+                    songPlayIcon.className = "fa-solid fa-pause text-xs";
+                    simTimer = setInterval(() => {
+                        simElapsed++;
+                        if (simElapsed > SIM_DURATION) simElapsed = 0;
+                        songProgressSlider.value = simElapsed;
+                        songCurrentTime.textContent = formatSeconds(simElapsed);
+                    }, 1000);
+                } else {
+                    stopSimulatedPlayback();
+                    songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
+                }
+            }
+        });
+
+        // Seek sulla barra di avanzamento
+        songProgressSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value, 10);
+            songCurrentTime.textContent = formatSeconds(val);
+            if (hasLocalAudio) {
+                localAudioPlayer.currentTime = val;
+            } else {
+                simElapsed = val;
+            }
+        });
+
+        songPrevBtn.addEventListener('click', () => {
+            if (hasLocalAudio) localAudioPlayer.currentTime = 0;
+            simElapsed = 0;
+            songProgressSlider.value = 0;
+            songCurrentTime.textContent = "0:00";
+        });
+
+        songNextBtn.addEventListener('click', () => {
+            if (hasLocalAudio && localAudioPlayer.duration) {
+                localAudioPlayer.currentTime = Math.min(localAudioPlayer.duration, localAudioPlayer.currentTime + 10);
+            } else {
+                simElapsed = Math.min(SIM_DURATION, simElapsed + 10);
+                songProgressSlider.value = simElapsed;
+                songCurrentTime.textContent = formatSeconds(simElapsed);
+            }
+        });
+
+        songRepeatBtn.addEventListener('click', () => {
+            localAudioPlayer.loop = !localAudioPlayer.loop;
+            songRepeatBtn.classList.toggle('text-[#D42F58]', localAudioPlayer.loop);
+            songRepeatBtn.classList.toggle('opacity-100', localAudioPlayer.loop);
+        });
+
+        /**
+         * ============================================================================
+         * 5. LOGICA SCHERMATA REGALO DESTRO: LETTERA IN TEMPO REALE (FONT & SIZE)
+         * ============================================================================
+         */
+        const letterTextarea = document.getElementById('letterTextarea');
+        const letterFontSelect = document.getElementById('letterFontSelect');
+        const letterSizeDown = document.getElementById('letterSizeDown');
+        const letterSizeUp = document.getElementById('letterSizeUp');
+        const letterSizeLabel = document.getElementById('letterSizeLabel');
+
+        let letterFontSize = 20;
+        const FONT_CLASSES = ['font-caveat', 'font-script', 'font-quicksand', 'font-playfair', 'font-sans'];
+
+        // Ripristina testo, font e dimensione della lettera salvati
+        try {
+            const savedLetter = JSON.parse(localStorage.getItem('loveGiftLetter_v1') || '{}');
+            if (typeof savedLetter.text === 'string') {
+                letterTextarea.value = savedLetter.text;
+            }
+            if (savedLetter.font && FONT_CLASSES.includes(savedLetter.font)) {
+                letterFontSelect.value = savedLetter.font;
+                applyLetterFont(savedLetter.font);
+            }
+            if (savedLetter.size) {
+                letterFontSize = savedLetter.size;
+                applyLetterSize(letterFontSize);
+            }
+        } catch (e) {}
+
+        function saveLetterState() {
+            try {
+                localStorage.setItem('loveGiftLetter_v1', JSON.stringify({
+                    text: letterTextarea.value,
+                    font: letterFontSelect.value,
+                    size: letterFontSize
+                }));
+            } catch (e) {}
+        }
+
+        function applyLetterFont(fontClass) {
+            FONT_CLASSES.forEach(cls => letterTextarea.classList.remove(cls));
+            letterTextarea.classList.add(fontClass);
+        }
+
+        function applyLetterSize(sizePx) {
+            letterTextarea.style.fontSize = `${sizePx}px`;
+            letterSizeLabel.textContent = sizePx;
+        }
+
+        letterTextarea.addEventListener('input', saveLetterState);
+
+        letterFontSelect.addEventListener('change', (e) => {
+            applyLetterFont(e.target.value);
+            saveLetterState();
+        });
+
+        letterSizeDown.addEventListener('click', () => {
+            letterFontSize = Math.max(14, letterFontSize - 2);
+            applyLetterSize(letterFontSize);
+            saveLetterState();
+        });
+
+        letterSizeUp.addEventListener('click', () => {
+            letterFontSize = Math.min(34, letterFontSize + 2);
+            applyLetterSize(letterFontSize);
+            saveLetterState();
+        });
+    </script>
+</body>
+</html>
