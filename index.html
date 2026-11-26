@@ -769,9 +769,9 @@
                     </svg>
 
                     <!-- Barra superiore: Titolo Album + Stato Sync GitHub + Impostazioni -->
-                    <div class="relative z-20 w-full max-w-[385px] sm:max-w-[440px] flex items-center justify-between gap-2 mb-2.5 px-1">
+                    <div class="relative z-20 w-full max-w-[385px] sm:max-w-[440px] flex items-center justify-between gap-2 mb-2 px-1">
                         <div>
-                            <h2 class="text-[1.35rem] sm:text-[1.65rem] font-black text-[#B32851] leading-tight tracking-tight">
+                            <h2 class="text-[1.3rem] sm:text-[1.6rem] font-black text-[#B32851] leading-tight tracking-tight">
                                 Our Photo Album
                             </h2>
                             <div id="albumGitHubStatus" class="text-[10px] sm:text-[11px] font-bold text-[#8C4A60] flex items-center gap-1">
@@ -781,6 +781,11 @@
                         </div>
 
                         <div class="flex items-center gap-1.5">
+                            <button type="button" id="albumDeletePageBtn" title="Elimina questa pagina"
+                                class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/90 hover:bg-[#FCE4EC] text-[#9E0B3D] text-[11px] font-extrabold shadow-sm border border-[#F3C5D5] transition active:scale-95">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                                <span>Elimina pag.</span>
+                            </button>
                             <button type="button" id="openAlbumGitHubModalBtn" title="Collega salvataggio automatico su GitHub"
                                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-[#6E1E3B] text-[11px] font-extrabold shadow-sm border border-[#F3C5D5] transition active:scale-95">
                                 <i class="fa-brands fa-github text-[#9E0B3D] text-xs"></i>
@@ -790,7 +795,7 @@
                     </div>
 
                     <!-- LIBRO ALBUM FOTOGRAFICO -->
-                    <div class="album-book-shell relative z-20 w-full max-w-[365px] sm:max-w-[425px] h-[64vh] max-h-[510px] min-h-[390px] rounded-r-[22px] rounded-l-[10px] p-2.5 pl-3.5 sm:p-3 sm:pl-4 flex flex-col">
+                    <div class="album-book-shell relative z-20 w-full max-w-[365px] sm:max-w-[425px] h-[64vh] max-h-[515px] min-h-[395px] rounded-r-[22px] rounded-l-[10px] p-2.5 pl-3.5 sm:p-3 sm:pl-4 flex flex-col">
                         
                         <!-- Segnalibro a nastro in alto a destra -->
                         <div class="absolute -top-1.5 right-7 w-5 h-9 bg-[#FAD2DC] shadow-sm z-30 pointer-events-none"
@@ -801,29 +806,37 @@
                             <!-- Ombra rilegatura sul lato sinistro -->
                             <div class="album-spine-shadow absolute inset-y-0 left-0 w-10 pointer-events-none z-10"></div>
 
-                            <!-- Intestazione pagina: Data / Titolo pagina + Indicatore capacità -->
-                            <div class="relative z-20 flex items-center justify-between border-b border-[#F2DCE2] pb-1.5 mb-2 pl-2">
-                                <span id="albumPageTitle" class="font-caveat text-lg sm:text-xl font-bold text-[#9E0B3D]">
-                                    Pagina 1 • I nostri inizi
-                                </span>
-                                <span id="albumPageBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#FCE4EC] text-[#9E0B3D]">
-                                    0 / 1 foto
+                            <!-- Intestazione pagina: Titolo modificabile + Indicatore scomparti -->
+                            <div class="relative z-20 flex items-center justify-between gap-2 border-b border-[#F2DCE2] pb-1.5 mb-2 pl-2">
+                                <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                                    <input type="text" id="albumPageTitleInput" aria-label="Titolo pagina"
+                                        class="w-full bg-transparent hover:bg-[#FDF0F2]/80 focus:bg-white px-1.5 py-0.5 rounded-lg font-caveat text-lg sm:text-xl font-bold text-[#9E0B3D] outline-none focus:ring-1 focus:ring-[#E89EB5] truncate"
+                                        placeholder="Titolo pagina...">
+                                    <button type="button" id="albumEditTitleBtn" title="Modifica titolo pagina"
+                                        class="w-6 h-6 rounded-full bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] flex items-center justify-center shrink-0 text-[10px] transition">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                </div>
+                                <span id="albumPageBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#FCE4EC] text-[#9E0B3D] shrink-0">
+                                    0 scomparti
                                 </span>
                             </div>
 
-                            <!-- Griglia dinamica delle foto (1, 2 o 3 foto in base alla pagina) -->
+                            <!-- Griglia dinamica degli scomparti foto (1, 2 o 3 scomparti in base alla pagina) -->
                             <div id="albumPhotosGrid" class="relative z-20 flex-1 w-full overflow-hidden flex items-center justify-center pl-1.5">
                                 <!-- Popolato dinamicamente da JS -->
                             </div>
 
-                            <!-- Footer pagina: Aggiungi foto, Nuova Pagina, Numero pagina -->
+                            <!-- Input nascosto per caricare foto in uno specifico scomparto -->
+                            <input type="file" id="albumPhotoUploadInput" accept="image/*" class="hidden">
+
+                            <!-- Footer pagina: Aggiungi scomparto/foto, Nuova Pagina, Numero pagina -->
                             <div class="relative z-20 flex items-center justify-between gap-2 pt-2 mt-1.5 border-t border-[#F2DCE2] pl-2">
-                                <label for="albumPhotoUploadInput"
+                                <button type="button" id="albumAddSlotBtn" title="Crea un nuovo scomparto per inserire una foto"
                                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#9E0B3D] hover:bg-[#b30d45] text-white text-[11px] font-extrabold shadow-sm cursor-pointer transition active:scale-95">
                                     <i class="fa-solid fa-plus"></i>
                                     <span>Aggiungi foto</span>
-                                </label>
-                                <input type="file" id="albumPhotoUploadInput" accept="image/*" multiple class="hidden">
+                                </button>
 
                                 <span id="albumPageCounter" class="text-[11px] font-black text-[#8C4A60]">
                                     1 / 1
@@ -2930,16 +2943,19 @@
 
         /**
          * ============================================================================
-         * 6. ALBUM FOTOGRAFICO A LIBRO CON PAGINE DINAMICHE (1, 2 O 3 FOTO) E GITHUB SYNC
+         * 6. ALBUM FOTOGRAFICO A LIBRO CON SCOMPARTI, TITOLI, ELIMINA PAGINA & SYNC
          * ============================================================================
          */
         const albumPageSheet = document.getElementById('albumPageSheet');
-        const albumPageTitle = document.getElementById('albumPageTitle');
+        const albumPageTitleInput = document.getElementById('albumPageTitleInput');
+        const albumEditTitleBtn = document.getElementById('albumEditTitleBtn');
+        const albumDeletePageBtn = document.getElementById('albumDeletePageBtn');
         const albumPageBadge = document.getElementById('albumPageBadge');
         const albumPhotosGrid = document.getElementById('albumPhotosGrid');
         const albumPageCounter = document.getElementById('albumPageCounter');
         const albumPageDots = document.getElementById('albumPageDots');
         const albumPhotoUploadInput = document.getElementById('albumPhotoUploadInput');
+        const albumAddSlotBtn = document.getElementById('albumAddSlotBtn');
         const albumNewPageBtn = document.getElementById('albumNewPageBtn');
         const albumPrevPageBtn = document.getElementById('albumPrevPageBtn');
         const albumNextPageBtn = document.getElementById('albumNextPageBtn');
@@ -2957,7 +2973,7 @@
         const saveAlbumGitHubConfigBtn = document.getElementById('saveAlbumGitHubConfigBtn');
         const syncAlbumNowBtn = document.getElementById('syncAlbumNowBtn');
 
-        // Modale dettaglio foto
+        // Modale dettaglio foto / dedica
         const albumPhotoDetailModal = document.getElementById('albumPhotoDetailModal');
         const closeAlbumPhotoDetailBtn = document.getElementById('closeAlbumPhotoDetailBtn');
         const albumDetailImg = document.getElementById('albumDetailImg');
@@ -2965,12 +2981,12 @@
         const albumDeletePhotoBtn = document.getElementById('albumDeletePhotoBtn');
         const albumSaveCaptionBtn = document.getElementById('albumSaveCaptionBtn');
 
-        const ALBUM_STORAGE_KEY = 'lovePhotoAlbumData_v1';
+        const ALBUM_STORAGE_KEY = 'lovePhotoAlbumData_v2';
         const ALBUM_GH_CONFIG_KEY = 'lovePhotoAlbumGitHubCfg_v1';
 
-        // Ogni pagina ha una capacità diversa (1, 2 o 3 foto) con layout vario e romantico
-        const PAGE_LAYOUT_PATTERN = [1, 2, 3, 2, 1, 3, 2, 3];
-        const PAGE_SUBTITLES = [
+        // Ogni pagina ha una capienza diversa di scomparti (1, 2 o 3 scomparti) per layout sempre vari
+        const PAGE_CAPACITY_PATTERN = [1, 2, 3, 2, 1, 3, 2, 3];
+        const DEFAULT_PAGE_TITLES = [
             "I nostri inizi",
             "Momenti insieme",
             "Ricordi speciali",
@@ -2981,20 +2997,26 @@
             "Per sempre"
         ];
 
-        function getPageCapacity(pageIndex) {
-            return PAGE_LAYOUT_PATTERN[pageIndex % PAGE_LAYOUT_PATTERN.length];
+        function getDefaultPageTitle(idx) {
+            return `Pagina ${idx + 1} • ${DEFAULT_PAGE_TITLES[idx % DEFAULT_PAGE_TITLES.length]}`;
         }
 
-        // Struttura dati album: { pages: [ { capacity: 1, photos: [ { id, src, caption, path } ] } ] }
+        function getPageMaxSlots(idx) {
+            return PAGE_CAPACITY_PATTERN[idx % PAGE_CAPACITY_PATTERN.length];
+        }
+
+        // Struttura dati:
+        // pages: [ { title: "...", maxSlots: 1, slots: [ { id, src, path, caption } | null ] } ]
+        // Nota: slots può contenere scomparti vuoti (`null`) creati tramite "Aggiungi foto" o scomparti pieni con foto + dedica!
         let albumData = {
             pages: [
-                { capacity: 1, photos: [] }
+                { title: getDefaultPageTitle(0), maxSlots: 1, slots: [] }
             ]
         };
         let currentAlbumPageIdx = 0;
-        let selectedPhotoDetail = null; // { pageIdx, photoIdx }
+        let pendingUploadSlot = null; // { pageIdx, slotIdx }
+        let selectedPhotoDetail = null; // { pageIdx, slotIdx }
 
-        // Rileva automaticamente owner e repo se ospitato su *.github.io/nome-repo/
         function detectGitHubRepoFromLocation() {
             try {
                 const host = window.location.hostname || '';
@@ -3037,36 +3059,102 @@
             try {
                 localStorage.setItem(ALBUM_STORAGE_KEY, JSON.stringify(albumData));
             } catch (e) {
-                console.warn("Spazio locale pieno, le foto restano comunque su GitHub se collegato.");
+                console.warn("Spazio locale pieno, le foto restano su GitHub se collegato.");
             }
         }
 
-        // Carica album prima da localStorage (immediato) e poi aggiorna da `album/album.json` su GitHub!
+        // Normalizza vecchie strutture (se presenti) nella struttura a scomparti con dediche preservate
+        function normalizeAlbumStructure(raw) {
+            if (!raw || !Array.isArray(raw.pages) || raw.pages.length === 0) {
+                return { pages: [{ title: getDefaultPageTitle(0), maxSlots: 1, slots: [] }] };
+            }
+            const pages = raw.pages.map((pg, idx) => {
+                const maxSlots = pg.maxSlots || pg.capacity || getPageMaxSlots(idx);
+                const title = (typeof pg.title === 'string' && pg.title.trim()) ? pg.title : getDefaultPageTitle(idx);
+                let slots = [];
+                if (Array.isArray(pg.slots)) {
+                    slots = pg.slots.map(s => {
+                        if (!s) return null;
+                        return {
+                            id: s.id || ('p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
+                            src: s.src || s.path || '',
+                            path: s.path || s.src || '',
+                            caption: s.caption || ''
+                        };
+                    });
+                } else if (Array.isArray(pg.photos)) {
+                    slots = pg.photos.map(ph => ({
+                        id: ph.id || ('p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
+                        src: ph.src || ph.path || '',
+                        path: ph.path || ph.src || '',
+                        caption: ph.caption || ''
+                    }));
+                }
+                return { title, maxSlots, slots };
+            });
+            return { pages };
+        }
+
+        // Unisce i dati locali (che mantengono eventuali dediche recenti o dataURL non ancora serviti da CDN) con quelli di GitHub
+        function mergeAlbumWithRemote(localObj, remoteObj) {
+            const localPages = localObj?.pages || [];
+            const remotePages = remoteObj?.pages || [];
+            if (remotePages.length === 0) return localObj;
+
+            // Mappa di tutte le foto locali per id e per path
+            const localPhotoMap = new Map();
+            for (const pg of localPages) {
+                for (const s of (pg.slots || [])) {
+                    if (s && s.id) localPhotoMap.set(s.id, s);
+                    if (s && s.path) localPhotoMap.set(s.path, s);
+                }
+            }
+
+            const mergedPages = remotePages.map((rpg, idx) => {
+                const lpg = localPages[idx];
+                const mergedSlots = (rpg.slots || []).map(rs => {
+                    if (!rs) return null;
+                    const match = localPhotoMap.get(rs.id) || localPhotoMap.get(rs.path);
+                    const isLocalDataUrl = match && typeof match.src === 'string' && match.src.startsWith('data:image/');
+                    return {
+                        id: rs.id,
+                        path: rs.path || (match ? match.path : '') || rs.src,
+                        // Se la foto locale ha ancora il dataURL e su GitHub è appena stata caricata, mostra comunque subito l'immagine
+                        src: isLocalDataUrl ? match.src : (rs.src || rs.path || (match ? match.src : '')),
+                        caption: (rs.caption && rs.caption.trim()) ? rs.caption : (match && match.caption ? match.caption : '')
+                    };
+                });
+
+                return {
+                    title: (lpg && lpg.title && lpg.title !== rpg.title) ? lpg.title : (rpg.title || getDefaultPageTitle(idx)),
+                    maxSlots: rpg.maxSlots || getPageMaxSlots(idx),
+                    slots: mergedSlots
+                };
+            });
+
+            return { pages: mergedPages };
+        }
+
         async function initAlbumData() {
             try {
                 const localRaw = localStorage.getItem(ALBUM_STORAGE_KEY);
                 if (localRaw) {
-                    const parsed = JSON.parse(localRaw);
-                    if (parsed && Array.isArray(parsed.pages) && parsed.pages.length > 0) {
-                        albumData = parsed;
-                    }
+                    albumData = normalizeAlbumStructure(JSON.parse(localRaw));
                 }
             } catch (e) {}
 
             renderAlbumPage();
 
-            // Controlla se esiste `album/album.json` già salvato su GitHub
+            // Carica anche `album/album.json` da GitHub evitando di perdere foto/dediche locali
             try {
                 const resp = await fetch('album/album.json?t=' + Date.now(), { cache: 'no-store' });
                 if (resp.ok) {
-                    const remoteData = await resp.json();
-                    if (remoteData && Array.isArray(remoteData.pages) && remoteData.pages.length > 0) {
-                        albumData = remoteData;
-                        saveAlbumLocally();
-                        renderAlbumPage();
-                        updateAlbumStatusUI('ok', ghConfig.token ? 'Auto-Save GitHub attivo ✓' : 'Album caricato da GitHub ✓');
-                        return;
-                    }
+                    const remoteNormalized = normalizeAlbumStructure(await resp.json());
+                    albumData = mergeAlbumWithRemote(albumData, remoteNormalized);
+                    saveAlbumLocally();
+                    renderAlbumPage();
+                    updateAlbumStatusUI('ok', ghConfig.token ? 'Auto-Save GitHub attivo ✓' : 'Album caricato da GitHub ✓');
+                    return;
                 }
             } catch (e) {}
 
@@ -3077,10 +3165,10 @@
             }
         }
 
-        // Renderizza la pagina corrente del libro con layout diverso per 1, 2 o 3 foto
+        // Renderizza la pagina corrente con gli scomparti (pieni o vuoti) e titolo modificabile
         function renderAlbumPage(flipDirection = null) {
             if (!albumData.pages || albumData.pages.length === 0) {
-                albumData.pages = [{ capacity: 1, photos: [] }];
+                albumData.pages = [{ title: getDefaultPageTitle(0), maxSlots: 1, slots: [] }];
             }
             if (currentAlbumPageIdx >= albumData.pages.length) {
                 currentAlbumPageIdx = albumData.pages.length - 1;
@@ -3088,23 +3176,24 @@
             if (currentAlbumPageIdx < 0) currentAlbumPageIdx = 0;
 
             const page = albumData.pages[currentAlbumPageIdx];
-            const capacity = page.capacity || getPageCapacity(currentAlbumPageIdx);
-            const photos = page.photos || [];
-            const subtitle = PAGE_SUBTITLES[currentAlbumPageIdx % PAGE_SUBTITLES.length];
+            const maxSlots = page.maxSlots || getPageMaxSlots(currentAlbumPageIdx);
+            if (!Array.isArray(page.slots)) page.slots = [];
+            const slots = page.slots;
 
-            // Animazione cambio pagina
             if (flipDirection) {
                 albumPageSheet.classList.remove('flip-next', 'flip-prev');
                 void albumPageSheet.offsetWidth;
                 albumPageSheet.classList.add(flipDirection === 'next' ? 'flip-next' : 'flip-prev');
             }
 
-            albumPageTitle.textContent = `Pagina ${currentAlbumPageIdx + 1} • ${subtitle}`;
-            albumPageBadge.textContent = `${photos.length} / ${capacity} ${capacity === 1 ? 'foto' : 'foto'}`;
+            albumPageTitleInput.value = page.title || getDefaultPageTitle(currentAlbumPageIdx);
+            const photoCount = slots.filter(Boolean).length;
+            albumPageBadge.textContent = `${photoCount} / ${maxSlots} scomparti`;
             albumPageCounter.textContent = `${currentAlbumPageIdx + 1} / ${albumData.pages.length}`;
 
             albumPrevPageBtn.disabled = currentAlbumPageIdx === 0;
             albumNextPageBtn.disabled = currentAlbumPageIdx === albumData.pages.length - 1;
+            albumDeletePageBtn.disabled = albumData.pages.length <= 1;
 
             // Pallini indicatore pagine
             albumPageDots.innerHTML = '';
@@ -3122,114 +3211,102 @@
                 albumPageDots.appendChild(dot);
             });
 
-            // Costruisci il layout fotografico in base al numero di slot della pagina (1, 2 o 3)
             albumPhotosGrid.innerHTML = '';
 
-            if (photos.length === 0) {
-                // Pagina vuota con invito elegante ad aggiungere la prima foto
-                const emptyBox = document.createElement('label');
-                emptyBox.setAttribute('for', 'albumPhotoUploadInput');
-                emptyBox.className = 'w-full h-full max-h-[260px] rounded-2xl border-2 border-dashed border-[#E8B8C7] bg-[#FDF5F8]/70 hover:bg-[#FCE8EF] flex flex-col items-center justify-center text-center p-4 cursor-pointer transition group';
-                emptyBox.innerHTML = `
+            // Se non ci sono ancora scomparti creati nella pagina, mostra uno scomparto vuoto pronto per la foto
+            if (slots.length === 0) {
+                const emptySlotBtn = document.createElement('button');
+                emptySlotBtn.type = 'button';
+                emptySlotBtn.className = 'w-full h-full max-h-[255px] rounded-2xl border-2 border-dashed border-[#E8B8C7] bg-[#FDF5F8]/75 hover:bg-[#FCE8EF] flex flex-col items-center justify-center text-center p-4 cursor-pointer transition group';
+                emptySlotBtn.innerHTML = `
                     <div class="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-[#9E0B3D] mb-2 group-hover:scale-110 transition">
                         <i class="fa-solid fa-camera-retro text-lg"></i>
                     </div>
-                    <div class="text-xs font-extrabold text-[#6E1E3B]">Questa pagina ospita ${capacity} ${capacity === 1 ? 'foto' : 'foto'}</div>
-                    <div class="text-[11px] text-[#8C4A60] mt-0.5">Tocca qui o usa "+ Aggiungi foto" per iniziare</div>
+                    <div class="text-xs font-extrabold text-[#6E1E3B]">Scomparto 1 pronto (max ${maxSlots} in questa pagina)</div>
+                    <div class="text-[11px] text-[#8C4A60] mt-0.5">Tocca qui per mettere la foto oppure premi "+ Aggiungi foto"</div>
                 `;
-                albumPhotosGrid.appendChild(emptyBox);
+                emptySlotBtn.addEventListener('click', () => {
+                    // Crea lo scomparto 0 e apre subito la selezione foto per quello scomparto
+                    page.slots.push(null);
+                    saveAlbumLocally();
+                    triggerUploadForSlot(currentAlbumPageIdx, 0);
+                });
+                albumPhotosGrid.appendChild(emptySlotBtn);
                 return;
             }
 
-            // Layout 1: 1 Foto grande centrata tipo Polaroid protagonista
-            if (capacity === 1) {
-                const p = photos[0];
-                albumPhotosGrid.innerHTML = `
-                    <div class="w-full h-full flex items-center justify-center p-2">
-                        <div data-photo-idx="0" class="album-photo-frame w-[84%] max-w-[235px] cursor-pointer" style="transform: rotate(-1.5deg);">
-                            <div class="album-tape"></div>
-                            <div class="w-full aspect-[4/4.2] bg-[#FDF0F2] overflow-hidden rounded-[2px]">
-                                <img src="${p.src}" alt="Ricordo" class="w-full h-full object-cover">
+            // Layout dinamico in base al numero di scomparti della pagina (1, 2 o 3)
+            const totalSlots = slots.length;
+            const isDiagonal = totalSlots === 2 && (currentAlbumPageIdx % 2 === 1);
+
+            const containerCls = totalSlots === 1
+                ? 'w-full h-full flex items-center justify-center p-2'
+                : totalSlots === 2
+                    ? (isDiagonal ? 'w-full h-full flex flex-col justify-center gap-2.5 px-2' : 'w-full h-full grid grid-cols-2 gap-2.5 items-center px-1')
+                    : 'w-full h-full grid grid-cols-2 gap-2 items-center content-center px-1';
+
+            const cardsHtml = slots.map((slotData, slotIdx) => {
+                const rots = ['-1.8deg', '2deg', '-1.4deg'];
+                const rot = rots[slotIdx % rots.length];
+                let frameCls = 'w-[84%] max-w-[235px]';
+                let aspectCls = 'aspect-[4/4.2]';
+
+                if (totalSlots === 2) {
+                    aspectCls = 'aspect-[4/3.6]';
+                    frameCls = isDiagonal
+                        ? (slotIdx === 0 ? 'self-start w-[66%]' : 'self-end w-[66%] -mt-3')
+                        : 'w-full';
+                } else if (totalSlots >= 3) {
+                    aspectCls = slotIdx === 0 ? 'aspect-[16/10]' : 'aspect-[4/3.5]';
+                    frameCls = slotIdx === 0 ? 'col-span-2 w-[78%] mx-auto' : 'col-span-1 w-full';
+                }
+
+                if (slotData && slotData.src) {
+                    const ded = slotData.caption && slotData.caption.trim()
+                        ? slotData.caption.trim()
+                        : 'Tocca per scrivere una dedica ♥';
+                    return `
+                        <div data-open-slot="${slotIdx}" class="album-photo-frame ${frameCls} cursor-pointer" style="transform: rotate(${rot}); padding-bottom: ${totalSlots >= 3 ? '14px' : '18px'};">
+                            ${totalSlots <= 2 ? '<div class="album-tape" style="width: 34px; height: 10px;"></div>' : ''}
+                            <div class="w-full ${aspectCls} bg-[#FDF0F2] overflow-hidden rounded-[2px]">
+                                <img src="${slotData.src}" alt="Ricordo" class="w-full h-full object-cover" onerror="this.style.opacity='0.25'">
                             </div>
-                            <div class="font-caveat text-base font-bold text-[#6E1E3B] text-center truncate mt-1 px-1">
-                                ${escapeHtml(p.caption || 'Il nostro momento ♥')}
+                            <div class="font-caveat ${totalSlots === 1 ? 'text-base' : 'text-xs sm:text-sm'} font-bold text-[#6E1E3B] text-center truncate mt-1 px-1">
+                                ${escapeHtml(ded)}
                             </div>
                         </div>
-                    </div>
-                `;
-            }
-            // Layout 2: 2 Foto affiancate o sfalsate in diagonale
-            else if (capacity === 2) {
-                const isDiagonal = currentAlbumPageIdx % 4 === 1;
-                const gridCls = isDiagonal
-                    ? 'w-full h-full flex flex-col justify-center gap-2.5 px-2'
-                    : 'w-full h-full grid grid-cols-2 gap-2.5 items-center px-1';
-
-                const framesHtml = [0, 1].map(slotIdx => {
-                    const p = photos[slotIdx];
-                    const rot = slotIdx === 0 ? '-2.2deg' : '2.2deg';
-                    const alignCls = isDiagonal ? (slotIdx === 0 ? 'self-start w-[66%]' : 'self-end w-[66%] -mt-3') : 'w-full';
-                    if (p) {
-                        return `
-                            <div data-photo-idx="${slotIdx}" class="album-photo-frame ${alignCls} cursor-pointer" style="transform: rotate(${rot});">
-                                <div class="album-tape" style="width: 34px; height: 10px;"></div>
-                                <div class="w-full aspect-[4/3.6] bg-[#FDF0F2] overflow-hidden rounded-[2px]">
-                                    <img src="${p.src}" alt="Ricordo" class="w-full h-full object-cover">
-                                </div>
-                                <div class="font-caveat text-xs sm:text-sm font-bold text-[#6E1E3B] text-center truncate mt-0.5">
-                                    ${escapeHtml(p.caption || 'Noi ♥')}
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        return `
-                            <label for="albumPhotoUploadInput" class="${alignCls} aspect-[4/3.8] rounded-xl border-2 border-dashed border-[#E8B8C7] bg-[#FDF5F8]/70 hover:bg-[#FCE8EF] flex flex-col items-center justify-center text-[#9E0B3D] cursor-pointer transition" style="transform: rotate(${rot});">
-                                <i class="fa-solid fa-plus text-sm mb-0.5"></i>
-                                <span class="text-[10px] font-extrabold">2ª foto</span>
-                            </label>
-                        `;
-                    }
-                }).join('');
-
-                albumPhotosGrid.innerHTML = `<div class="${gridCls}">${framesHtml}</div>`;
-            }
-            // Layout 3: 3 Foto collage (1 principale a sinistra/sopra + 2 più piccole)
-            else {
-                const framesHtml = [0, 1, 2].map(slotIdx => {
-                    const p = photos[slotIdx];
-                    const rots = ['-1.8deg', '2deg', '-1.4deg'];
-                    const spanCls = slotIdx === 0 ? 'col-span-2 w-[78%] mx-auto' : 'col-span-1 w-full';
-                    const aspectCls = slotIdx === 0 ? 'aspect-[16/10]' : 'aspect-[4/3.5]';
-
-                    if (p) {
-                        return `
-                            <div data-photo-idx="${slotIdx}" class="album-photo-frame ${spanCls} cursor-pointer" style="transform: rotate(${rots[slotIdx]}); padding-bottom: 14px;">
-                                <div class="w-full ${aspectCls} bg-[#FDF0F2] overflow-hidden rounded-[2px]">
-                                    <img src="${p.src}" alt="Ricordo" class="w-full h-full object-cover">
-                                </div>
-                                <div class="font-caveat text-xs font-bold text-[#6E1E3B] text-center truncate mt-0.5">
-                                    ${escapeHtml(p.caption || '♥')}
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        return `
-                            <label for="albumPhotoUploadInput" class="${spanCls} ${aspectCls} rounded-xl border-2 border-dashed border-[#E8B8C7] bg-[#FDF5F8]/70 hover:bg-[#FCE8EF] flex flex-col items-center justify-center text-[#9E0B3D] cursor-pointer transition" style="transform: rotate(${rots[slotIdx]});">
+                    `;
+                } else {
+                    // Scomparto vuoto creato da "+ Aggiungi foto": cliccando qui si sceglie la foto da mettere in questo scomparto!
+                    return `
+                        <button type="button" data-fill-slot="${slotIdx}"
+                            class="${frameCls} ${aspectCls} rounded-xl border-2 border-dashed border-[#D9829B] bg-[#FDF5F8]/85 hover:bg-[#FCE4EC] flex flex-col items-center justify-center text-[#9E0B3D] cursor-pointer transition p-2"
+                            style="transform: rotate(${rot});">
+                            <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center mb-1">
                                 <i class="fa-solid fa-plus text-xs"></i>
-                                <span class="text-[9px] font-extrabold">+ Foto</span>
-                            </label>
-                        `;
-                    }
-                }).join('');
+                            </div>
+                            <span class="text-[10px] font-extrabold">Scomparto ${slotIdx + 1}</span>
+                            <span class="text-[9px] text-[#8C4A60]">Tocca per mettere foto</span>
+                        </button>
+                    `;
+                }
+            }).join('');
 
-                albumPhotosGrid.innerHTML = `<div class="w-full h-full grid grid-cols-2 gap-2 items-center content-center px-1">${framesHtml}</div>`;
-            }
+            albumPhotosGrid.innerHTML = `<div class="${containerCls}">${cardsHtml}</div>`;
 
-            // Rendi cliccabili le foto per ingrandirle / aggiungere dedica / eliminarle
-            albumPhotosGrid.querySelectorAll('[data-photo-idx]').forEach(el => {
+            // Collega click su scomparto vuoto per caricare foto
+            albumPhotosGrid.querySelectorAll('[data-fill-slot]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const sIdx = parseInt(btn.getAttribute('data-fill-slot'), 10);
+                    triggerUploadForSlot(currentAlbumPageIdx, sIdx);
+                });
+            });
+
+            // Collega click su foto esistente per aprire dedica / ingrandimento / elimina
+            albumPhotosGrid.querySelectorAll('[data-open-slot]').forEach(el => {
                 el.addEventListener('click', () => {
-                    const pIdx = parseInt(el.getAttribute('data-photo-idx'), 10);
-                    openPhotoDetail(currentAlbumPageIdx, pIdx);
+                    const sIdx = parseInt(el.getAttribute('data-open-slot'), 10);
+                    openPhotoDetail(currentAlbumPageIdx, sIdx);
                 });
             });
         }
@@ -3242,7 +3319,55 @@
                 .replace(/"/g, '&quot;');
         }
 
-        // Navigazione tra pagine dell'album
+        function triggerUploadForSlot(pageIdx, slotIdx) {
+            pendingUploadSlot = { pageIdx, slotIdx };
+            albumPhotoUploadInput.value = '';
+            albumPhotoUploadInput.click();
+        }
+
+        // 1) Modifica titolo della pagina in tempo reale + salvataggio su GitHub
+        let titleSyncTimer = null;
+        albumPageTitleInput.addEventListener('input', (e) => {
+            const page = albumData.pages[currentAlbumPageIdx];
+            if (!page) return;
+            page.title = e.target.value;
+            saveAlbumLocally();
+            clearTimeout(titleSyncTimer);
+            titleSyncTimer = setTimeout(() => {
+                syncManifestToGitHub();
+            }, 900);
+        });
+        albumPageTitleInput.addEventListener('blur', () => {
+            const page = albumData.pages[currentAlbumPageIdx];
+            if (page && !page.title.trim()) {
+                page.title = getDefaultPageTitle(currentAlbumPageIdx);
+                albumPageTitleInput.value = page.title;
+                saveAlbumLocally();
+            }
+            syncManifestToGitHub();
+        });
+        albumEditTitleBtn.addEventListener('click', () => {
+            albumPageTitleInput.focus();
+            albumPageTitleInput.select();
+        });
+
+        // 2) Eliminazione della pagina corrente
+        albumDeletePageBtn.addEventListener('click', async () => {
+            if (albumData.pages.length <= 1) {
+                showToast("Deve restare almeno una pagina nell'album!");
+                return;
+            }
+            const removedPage = albumData.pages.splice(currentAlbumPageIdx, 1)[0];
+            if (currentAlbumPageIdx >= albumData.pages.length) {
+                currentAlbumPageIdx = albumData.pages.length - 1;
+            }
+            saveAlbumLocally();
+            renderAlbumPage('prev');
+            showToast(`Pagina "${removedPage.title || ''}" eliminata`);
+            await syncManifestToGitHub();
+        });
+
+        // Navigazione tra pagine
         albumPrevPageBtn.addEventListener('click', () => {
             if (currentAlbumPageIdx > 0) {
                 currentAlbumPageIdx--;
@@ -3257,22 +3382,59 @@
             }
         });
 
-        // Crea manualmente una nuova pagina e gira subito foglio
+        // Crea nuova pagina vuota
         albumNewPageBtn.addEventListener('click', async () => {
             const newIdx = albumData.pages.length;
             albumData.pages.push({
-                capacity: getPageCapacity(newIdx),
-                photos: []
+                title: getDefaultPageTitle(newIdx),
+                maxSlots: getPageMaxSlots(newIdx),
+                slots: []
             });
             currentAlbumPageIdx = newIdx;
             saveAlbumLocally();
             renderAlbumPage('next');
-            showToast(`Nuova pagina (${getPageCapacity(newIdx)} foto) aggiunta!`);
+            showToast(`Nuova pagina creata (${getPageMaxSlots(newIdx)} scomparti)`);
             await syncManifestToGitHub();
         });
 
-        // Comprime e ridimensiona la foto per renderla veloce su web e leggera su GitHub
-        function compressAlbumPhoto(file, maxDim = 1080) {
+        // 3) Pulsante "+ Aggiungi foto": crea uno scomparto vuoto (o va alla pagina dopo se la pagina attuale è già piena)
+        albumAddSlotBtn.addEventListener('click', async () => {
+            let page = albumData.pages[currentAlbumPageIdx];
+            let maxSlots = page.maxSlots || getPageMaxSlots(currentAlbumPageIdx);
+
+            // Se la pagina corrente ha già raggiunto il massimo degli scomparti, passa o crea la pagina successiva
+            if (page.slots.length >= maxSlots) {
+                const nextIdx = currentAlbumPageIdx + 1;
+                if (nextIdx < albumData.pages.length) {
+                    currentAlbumPageIdx = nextIdx;
+                    page = albumData.pages[currentAlbumPageIdx];
+                    maxSlots = page.maxSlots || getPageMaxSlots(currentAlbumPageIdx);
+                    renderAlbumPage('next');
+                } else {
+                    albumData.pages.push({
+                        title: getDefaultPageTitle(nextIdx),
+                        maxSlots: getPageMaxSlots(nextIdx),
+                        slots: [null]
+                    });
+                    currentAlbumPageIdx = nextIdx;
+                    saveAlbumLocally();
+                    renderAlbumPage('next');
+                    showToast("Pagina piena: creata pagina successiva con 1 scomparto!");
+                    await syncManifestToGitHub();
+                    return;
+                }
+            }
+
+            if (page.slots.length < maxSlots) {
+                page.slots.push(null);
+                saveAlbumLocally();
+                renderAlbumPage();
+                showToast(`Scomparto ${page.slots.length} aggiunto: toccalo per mettere la foto!`);
+                await syncManifestToGitHub();
+            }
+        });
+
+        function compressAlbumPhoto(file, maxDim = 1024) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
@@ -3287,8 +3449,7 @@
                         canvas.width = w;
                         canvas.height = h;
                         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.84);
-                        resolve(dataUrl);
+                        resolve(canvas.toDataURL('image/jpeg', 0.82));
                     };
                     img.onerror = reject;
                     img.src = ev.target.result;
@@ -3298,106 +3459,125 @@
             });
         }
 
-        // Aggiunta di una o più foto:
-        // Se la pagina corrente è piena, crea automaticamente la pagina successiva e gira foglio!
+        // Quando si sceglie il file per uno scomparto specifico (o se si clicca direttamente su uno scomparto)
         albumPhotoUploadInput.addEventListener('change', async (e) => {
-            const files = Array.from(e.target.files || []);
-            if (files.length === 0) return;
+            const file = (e.target.files || [])[0];
+            if (!file) return;
 
-            let turnedPage = false;
+            try {
+                const dataUrl = await compressAlbumPhoto(file, 1024);
 
-            for (const file of files) {
-                try {
-                    const dataUrl = await compressAlbumPhoto(file, 1080);
+                let targetPageIdx = currentAlbumPageIdx;
+                let targetSlotIdx = -1;
 
-                    // Trova la pagina corrente o crea la pagina successiva se quella corrente ha già raggiunto la sua capienza
-                    let targetPage = albumData.pages[currentAlbumPageIdx];
-                    const cap = targetPage.capacity || getPageCapacity(currentAlbumPageIdx);
+                if (pendingUploadSlot && albumData.pages[pendingUploadSlot.pageIdx]) {
+                    targetPageIdx = pendingUploadSlot.pageIdx;
+                    targetSlotIdx = pendingUploadSlot.slotIdx;
+                }
 
-                    if (targetPage.photos.length >= cap) {
-                        // Controlla se esiste già una pagina successiva con spazio libero, altrimenti creala
-                        if (currentAlbumPageIdx + 1 < albumData.pages.length &&
-                            albumData.pages[currentAlbumPageIdx + 1].photos.length < (albumData.pages[currentAlbumPageIdx + 1].capacity || getPageCapacity(currentAlbumPageIdx + 1))) {
-                            currentAlbumPageIdx++;
+                const page = albumData.pages[targetPageIdx];
+                const maxSlots = page.maxSlots || getPageMaxSlots(targetPageIdx);
+
+                if (targetSlotIdx < 0) {
+                    // Cerca il primo scomparto vuoto nella pagina corrente
+                    targetSlotIdx = page.slots.findIndex(s => s === null);
+                    if (targetSlotIdx < 0) {
+                        if (page.slots.length < maxSlots) {
+                            page.slots.push(null);
+                            targetSlotIdx = page.slots.length - 1;
                         } else {
+                            // Crea nuova pagina e inserisci lì
                             const nextIdx = albumData.pages.length;
                             albumData.pages.push({
-                                capacity: getPageCapacity(nextIdx),
-                                photos: []
+                                title: getDefaultPageTitle(nextIdx),
+                                maxSlots: getPageMaxSlots(nextIdx),
+                                slots: [null]
                             });
                             currentAlbumPageIdx = nextIdx;
+                            targetPageIdx = nextIdx;
+                            targetSlotIdx = 0;
                         }
-                        turnedPage = true;
-                        targetPage = albumData.pages[currentAlbumPageIdx];
                     }
-
-                    const photoId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-                    const filePath = `album/${photoId}.jpg`;
-
-                    const photoObj = {
-                        id: photoId,
-                        src: dataUrl, // Mostrata subito istantaneamente
-                        path: filePath,
-                        caption: ''
-                    };
-
-                    targetPage.photos.push(photoObj);
-                    saveAlbumLocally();
-                    renderAlbumPage(turnedPage ? 'next' : null);
-
-                    // Carica automaticamente su GitHub se configurato!
-                    if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
-                        await uploadPhotoAndManifestToGitHub(photoObj, dataUrl);
-                    } else {
-                        showToast("Foto aggiunta! Attiva Auto-Save per salvarla su GitHub.");
-                    }
-                } catch (err) {
-                    console.error("Errore aggiunta foto:", err);
                 }
+
+                const photoId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+                const filePath = `album/${photoId}.jpg`;
+                const existingCaption = (page.slots[targetSlotIdx] && page.slots[targetSlotIdx].caption) || '';
+
+                const photoObj = {
+                    id: photoId,
+                    src: dataUrl,
+                    path: filePath,
+                    caption: existingCaption
+                };
+
+                page.slots[targetSlotIdx] = photoObj;
+                pendingUploadSlot = null;
+                saveAlbumLocally();
+                renderAlbumPage();
+
+                if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
+                    await uploadPhotoAndManifestToGitHub(photoObj, dataUrl);
+                } else {
+                    showToast("Foto inserita nello scomparto! Attiva Auto-Save per salvarla su GitHub.");
+                }
+            } catch (err) {
+                console.error("Errore caricamento foto:", err);
+                showToast("Errore durante il caricamento della foto.");
             }
 
             albumPhotoUploadInput.value = '';
         });
 
-        // Modale dettaglio foto (ingrandimento + dedica + rimozione)
-        function openPhotoDetail(pageIdx, photoIdx) {
+        // 4) Modale dettaglio foto: dedica salvata ESATTAMENTE sotto quella foto + rimozione foto dallo scomparto
+        function openPhotoDetail(pageIdx, slotIdx) {
             const page = albumData.pages[pageIdx];
-            if (!page || !page.photos[photoIdx]) return;
-            selectedPhotoDetail = { pageIdx, photoIdx };
-            const p = page.photos[photoIdx];
-            albumDetailImg.src = p.src;
-            albumDetailCaptionInput.value = p.caption || '';
+            const slot = page?.slots?.[slotIdx];
+            if (!slot || !slot.src) return;
+            selectedPhotoDetail = { pageIdx, slotIdx, photoId: slot.id };
+            albumDetailImg.src = slot.src;
+            albumDetailCaptionInput.value = slot.caption || '';
             albumPhotoDetailModal.classList.remove('hidden');
+            setTimeout(() => albumDetailCaptionInput.focus(), 60);
         }
 
         closeAlbumPhotoDetailBtn.addEventListener('click', () => {
             albumPhotoDetailModal.classList.add('hidden');
+            selectedPhotoDetail = null;
         });
 
         albumSaveCaptionBtn.addEventListener('click', async () => {
             if (!selectedPhotoDetail) return;
-            const { pageIdx, photoIdx } = selectedPhotoDetail;
-            const p = albumData.pages[pageIdx]?.photos[photoIdx];
-            if (p) {
-                p.caption = albumDetailCaptionInput.value.trim();
+            const { pageIdx, slotIdx, photoId } = selectedPhotoDetail;
+            const page = albumData.pages[pageIdx];
+            // Trova la foto per id oppure per slotIdx così la dedica va sempre sotto la foto giusta
+            let targetPhoto = page?.slots?.[slotIdx];
+            if (!targetPhoto || (photoId && targetPhoto.id !== photoId)) {
+                targetPhoto = (page?.slots || []).find(s => s && s.id === photoId) || null;
+            }
+            if (targetPhoto) {
+                targetPhoto.caption = albumDetailCaptionInput.value.trim();
                 saveAlbumLocally();
                 renderAlbumPage();
                 albumPhotoDetailModal.classList.add('hidden');
-                showToast("Dedica salvata!");
+                selectedPhotoDetail = null;
+                showToast("Dedica salvata sotto la foto!");
                 await syncManifestToGitHub();
             }
         });
 
         albumDeletePhotoBtn.addEventListener('click', async () => {
             if (!selectedPhotoDetail) return;
-            const { pageIdx, photoIdx } = selectedPhotoDetail;
+            const { pageIdx, slotIdx } = selectedPhotoDetail;
             const page = albumData.pages[pageIdx];
-            if (page && page.photos[photoIdx]) {
-                page.photos.splice(photoIdx, 1);
+            if (page && page.slots && page.slots[slotIdx]) {
+                // Lascia lo scomparto vuoto (`null`) così il layout resta ordinato
+                page.slots[slotIdx] = null;
                 saveAlbumLocally();
                 renderAlbumPage();
                 albumPhotoDetailModal.classList.add('hidden');
-                showToast("Foto rimossa dall'album");
+                selectedPhotoDetail = null;
+                showToast("Foto rimossa dallo scomparto");
                 await syncManifestToGitHub();
             }
         });
@@ -3466,7 +3646,6 @@
             const { owner, repo, branch, token } = ghConfig;
             const apiUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${filePath}`;
 
-            // Controlla se il file esiste già per ottenere lo SHA
             let sha = null;
             try {
                 const getResp = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, {
@@ -3509,10 +3688,10 @@
             if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
             try {
                 updateAlbumStatusUI('syncing', 'Salvataggio foto su GitHub...');
-                const base64Img = dataUrl.split(',')[1];
+                const base64Img = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
                 await githubPutFile(photoObj.path, base64Img, `Aggiunta foto album (${photoObj.id})`);
 
-                // Aggiorna `src` al percorso relativo del repository (così `album/album.json` resta leggero e funziona per tutti)
+                // Aggiorna `src` al percorso relativo del repository mantenendo l'immagine visibile
                 photoObj.src = photoObj.path;
                 saveAlbumLocally();
 
@@ -3530,17 +3709,21 @@
             if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
             try {
                 updateAlbumStatusUI('syncing', 'Aggiorno album su GitHub...');
-                // Esporta solo i riferimenti puliti (non dataURL giganti) nel manifest JSON
                 const cleanManifest = {
                     updatedAt: new Date().toISOString(),
                     pages: albumData.pages.map((pg, idx) => ({
-                        capacity: pg.capacity || getPageCapacity(idx),
-                        photos: (pg.photos || []).map(ph => ({
-                            id: ph.id,
-                            src: ph.path || ph.src,
-                            path: ph.path || ph.src,
-                            caption: ph.caption || ''
-                        }))
+                        title: pg.title || getDefaultPageTitle(idx),
+                        maxSlots: pg.maxSlots || getPageMaxSlots(idx),
+                        slots: (pg.slots || []).map(sl => {
+                            if (!sl) return null;
+                            const cleanPath = sl.path || (sl.src && !sl.src.startsWith('data:') ? sl.src : `album/${sl.id}.jpg`);
+                            return {
+                                id: sl.id,
+                                src: cleanPath,
+                                path: cleanPath,
+                                caption: sl.caption || ''
+                            };
+                        })
                     }))
                 };
                 const jsonBase64 = utf8ToBase64(JSON.stringify(cleanManifest, null, 2));
@@ -3560,13 +3743,13 @@
             try {
                 updateAlbumStatusUI('syncing', 'Sincronizzazione foto su GitHub...');
                 for (const page of albumData.pages) {
-                    for (const ph of (page.photos || [])) {
-                        if (ph.src && ph.src.startsWith('data:image/')) {
-                            const base64Img = ph.src.split(',')[1];
-                            const targetPath = ph.path || `album/${ph.id}.jpg`;
-                            await githubPutFile(targetPath, base64Img, `Sync foto album (${ph.id})`);
-                            ph.path = targetPath;
-                            ph.src = targetPath;
+                    for (const sl of (page.slots || [])) {
+                        if (sl && sl.src && sl.src.startsWith('data:image/')) {
+                            const base64Img = sl.src.split(',')[1];
+                            const targetPath = sl.path || `album/${sl.id}.jpg`;
+                            await githubPutFile(targetPath, base64Img, `Sync foto album (${sl.id})`);
+                            sl.path = targetPath;
+                            sl.src = targetPath;
                         }
                     }
                 }
@@ -3581,7 +3764,6 @@
             }
         }
 
-        // Avvia caricamento iniziale dell'album
         initAlbumData();
 
 
