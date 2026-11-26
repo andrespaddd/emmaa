@@ -2102,7 +2102,7 @@
         // Precarica canzone.m4a via fetch() in background:
         // Risolve i problemi di streaming/Range-request su GitHub Pages e prepara il buffer per WebAudio/Blob
         async function preloadM4AReliably() {
-            const candidates = [DEFAULT_AUDIO_FILE, './' + DEFAULT_AUDIO_FILE, 'Canzone.m4a', 'CANZONE.M4A'];
+            const candidates = [DEFAULT_AUDIO_FILE, './' + DEFAULT_AUDIO_FILE, 'Canzone.m4a', 'CANZONE.M4A', 'canzone.mp3', 'song.m4a', 'audio.m4a'];
             for (const url of candidates) {
                 try {
                     const resp = await fetch(url, { cache: 'force-cache' });
@@ -2461,16 +2461,9 @@
                     // Tentativo 3: decodifica diretta M4A tramite Web Audio API in memoria
                     const okWebAudio = await playWithWebAudioFallback();
                     if (!okWebAudio) {
-                        // Fallback visivo fluido se il file non fosse ancora presente nel repo
-                        audioEngineMode = 'sim';
-                        simPlaying = true;
-                        songPlayIcon.className = "fa-solid fa-pause text-xs";
-                        simTimer = setInterval(() => {
-                            simElapsed++;
-                            if (simElapsed > SIM_DURATION) simElapsed = 0;
-                            songProgressSlider.value = simElapsed;
-                            songCurrentTime.textContent = formatSeconds(simElapsed);
-                        }, 1000);
+                        showToast("canzone.m4a non trovato su GitHub: controlla il nome del file o caricalo da Personalizza!");
+                        songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
+                        return;
                     }
                 }
             } else {
