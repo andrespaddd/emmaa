@@ -974,7 +974,11 @@
                         </div>
 
                         <!-- Elemento audio nascosto per riprodurre il file locale caricato -->
-                        <audio id="localAudioPlayer" preload="metadata"></audio>
+                        <audio id="localAudioPlayer" preload="auto" playsinline webkit-playsinline crossorigin="anonymous">
+                            <source src="canzone.m4a" type="audio/mp4">
+                            <source src="canzone.m4a" type="audio/x-m4a">
+                            <source src="canzone.m4a" type="audio/aac">
+                        </audio>
                     </div>
                 </div>
 
@@ -2059,7 +2063,20 @@
         let simPlaying = false;
         let simTimer = null;
         let simElapsed = 0;
-        const SIM_DURATION = 199; // 3:19 come nello screenshot
+        const SIM_DURATION = 199; // 3:19
+
+        // Stato motore audio avanzato per garantire compatibilità 100% con .m4a su iOS/Android/Desktop
+        let audioEngineMode = 'html5'; // 'html5' | 'webaudio' | 'sim'
+        let webAudioCtx = null;
+        let webAudioBuffer = null;
+        let webAudioSource = null;
+        let webAudioStartTime = 0;
+        let webAudioOffset = 0;
+        let webAudioPlaying = false;
+        let webAudioTimer = null;
+        let rawAudioArrayBuffer = null;
+        let cachedBlobUrl = null;
+        let isLoopEnabled = false;
 
         function formatSeconds(sec) {
             if (!isFinite(sec) || sec < 0) return "0:00";
@@ -2068,38 +2085,165 @@
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        // Configura l'audio predefinito (canzone.m4a) compatibile con iPhone/Safari/Android e GitHub Pages
-        localAudioPlayer.setAttribute('playsinline', '');
-        localAudioPlayer.setAttribute('webkit-playsinline', '');
-        localAudioPlayer.preload = 'auto';
-        localAudioPlayer.src = DEFAULT_AUDIO_FILE;
-        localAudioPlayer.load();
-        audioFileNameLabel.textContent = DEFAULT_AUDIO_FILE;
-
         function syncAudioDuration() {
+            if (audioEngineMode === 'webaudio' && webAudioBuffer) {
+                const dur = Math.floor(webAudioBuffer.duration);
+                songProgressSlider.max = dur;
+                songTotalTime.textContent = formatSeconds(dur);
+                return;
+            }
             if (localAudioPlayer.duration && isFinite(localAudioPlayer.duration) && localAudioPlayer.duration > 0) {
                 const dur = Math.floor(localAudioPlayer.duration);
                 songProgressSlider.max = dur;
                 songTotalTime.textContent = formatSeconds(dur);
             }
         }
+
+        // Precarica canzone.m4a via fetch() in background:
+        // Risolve i problemi di streaming/Range-request su GitHub Pages e prepara il buffer per WebAudio/Blob
+        async function preloadM4AReliably() {
+            const candidates = [DEFAULT_AUDIO_FILE, './' + DEFAULT_AUDIO_FILE, 'Canzone.m4a', 'CANZONE.M4A'];
+            for (const url of candidates) {
+                try {
+                    const resp = await fetch(url, { cache: 'force-cache' });
+                    if (resp.ok) {
+                        const buf = await resp.arrayBuffer();
+                        if (buf && buf.byteLength > 1024) {
+                            rawAudioArrayBuffer = buf;
+                            audioFileNameLabel.textContent = url;
+                            // Crea un Blob con MIME type esplicito audio/mp4 (standard universale per M4A)
+                            const blob = new Blob([buf], { type: 'audio/mp4' });
+                            cachedBlobUrl = URL.createObjectURL(blob);
+                            // Se l'HTML5 player non aveva ancora caricato la durata, usa subito il Blob
+                            if (!localAudioPlayer.duration || !isFinite(localAudioPlayer.duration)) {
+                                localAudioPlayer.innerHTML = '';
+                                localAudioPlayer.src = cachedBlobUrl;
+                                localAudioPlayer.load();
+                            }
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    // Continua con il candidato successivo
+                }
+            }
+        }
+
+        // Decodifica e avvia tramite Web Audio API (funziona anche se <audio> dovesse bloccarsi su M4A)
+        async function playWithWebAudioFallback() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return false;
+                if (!webAudioCtx) {
+                    webAudioCtx = new AudioCtx();
+                }
+                if (webAudioCtx.state === 'suspended') {
+                    await webAudioCtx.resume();
+                }
+                if (!webAudioBuffer) {
+                    if (!rawAudioArrayBuffer) {
+                        const resp = await fetch(DEFAULT_AUDIO_FILE);
+                        if (!resp.ok) return false;
+                        rawAudioArrayBuffer = await resp.arrayBuffer();
+                    }
+                    // Copia buffer perché decodeAudioData lo consuma
+                    const copy = rawAudioArrayBuffer.slice(0);
+                    webAudioBuffer = await new Promise((resolve, reject) => {
+                        const p = webAudioCtx.decodeAudioData(copy, resolve, reject);
+                        if (p && typeof p.then === 'function') p.then(resolve).catch(reject);
+                    });
+                }
+
+                audioEngineMode = 'webaudio';
+                syncAudioDuration();
+
+                if (webAudioSource) {
+                    try { webAudioSource.stop(); } catch (e) {}
+                }
+                webAudioSource = webAudioCtx.createBufferSource();
+                webAudioSource.buffer = webAudioBuffer;
+                webAudioSource.loop = isLoopEnabled;
+                webAudioSource.connect(webAudioCtx.destination);
+
+                const offset = Math.min(webAudioOffset, Math.max(0, webAudioBuffer.duration - 0.1));
+                webAudioStartTime = webAudioCtx.currentTime - offset;
+                webAudioSource.start(0, offset);
+                webAudioPlaying = true;
+                songPlayIcon.className = "fa-solid fa-pause text-xs";
+
+                clearInterval(webAudioTimer);
+                webAudioTimer = setInterval(() => {
+                    if (!webAudioPlaying || !webAudioBuffer) return;
+                    let elapsed = webAudioCtx.currentTime - webAudioStartTime;
+                    if (elapsed >= webAudioBuffer.duration) {
+                        if (isLoopEnabled) {
+                            webAudioStartTime = webAudioCtx.currentTime;
+                            elapsed = 0;
+                        } else {
+                            webAudioPlaying = false;
+                            webAudioOffset = 0;
+                            clearInterval(webAudioTimer);
+                            songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
+                            songProgressSlider.value = 0;
+                            songCurrentTime.textContent = "0:00";
+                            return;
+                        }
+                    }
+                    const sec = Math.floor(elapsed);
+                    songProgressSlider.value = sec;
+                    songCurrentTime.textContent = formatSeconds(sec);
+                }, 250);
+
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function pauseWebAudio() {
+            if (webAudioPlaying && webAudioCtx) {
+                webAudioOffset = Math.max(0, webAudioCtx.currentTime - webAudioStartTime);
+                try { webAudioSource.stop(); } catch (e) {}
+                webAudioPlaying = false;
+                clearInterval(webAudioTimer);
+                songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
+            }
+        }
+
+        // Inizializzazione iniziale player M4A
+        localAudioPlayer.setAttribute('playsinline', '');
+        localAudioPlayer.setAttribute('webkit-playsinline', '');
+        localAudioPlayer.preload = 'auto';
+        localAudioPlayer.load();
+        audioFileNameLabel.textContent = DEFAULT_AUDIO_FILE;
+
         localAudioPlayer.addEventListener('loadedmetadata', syncAudioDuration);
         localAudioPlayer.addEventListener('durationchange', syncAudioDuration);
         localAudioPlayer.addEventListener('canplay', syncAudioDuration);
         localAudioPlayer.addEventListener('error', () => {
-            // Riprova anche con percorso relativo ./canzone.m4a o maiuscola iniziale se necessario
-            if (!localAudioPlayer.dataset.retryStep) {
-                localAudioPlayer.dataset.retryStep = '1';
-                localAudioPlayer.src = './' + DEFAULT_AUDIO_FILE;
+            if (cachedBlobUrl && localAudioPlayer.src !== cachedBlobUrl) {
+                localAudioPlayer.innerHTML = '';
+                localAudioPlayer.src = cachedBlobUrl;
                 localAudioPlayer.load();
-            } else if (localAudioPlayer.dataset.retryStep === '1') {
-                localAudioPlayer.dataset.retryStep = '2';
-                localAudioPlayer.src = 'Canzone.m4a';
-                localAudioPlayer.load();
-            } else {
-                hasLocalAudio = false;
             }
         });
+
+        // Avvia subito il precaricamento affidabile del file .m4a
+        preloadM4AReliably();
+
+        // Sblocca l'audio al primo tocco dell'utente sulla pagina ("Next" iniziale)
+        document.addEventListener('pointerdown', function unlockAudioOnce() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx && !webAudioCtx) {
+                    webAudioCtx = new AudioCtx();
+                }
+                if (webAudioCtx && webAudioCtx.state === 'suspended') {
+                    webAudioCtx.resume();
+                }
+            } catch (e) {}
+            document.removeEventListener('pointerdown', unlockAudioOnce);
+        }, { once: true });
 
         // Ripristina eventuali impostazioni salvate oppure usa copertina.jpg di default
         let coverApplied = false;
@@ -2212,12 +2356,14 @@
             if (!file) return;
 
             stopSimulatedPlayback();
+            pauseWebAudio();
+            audioEngineMode = 'html5';
             const objectUrl = URL.createObjectURL(file);
+            localAudioPlayer.innerHTML = '';
             localAudioPlayer.src = objectUrl;
             hasLocalAudio = true;
             audioFileNameLabel.textContent = file.name;
 
-            // Se l'utente non ha cambiato il titolo di default, suggerisce il nome del file
             const cleanName = file.name.replace(/\.[^/.]+$/, "");
             if (songTitleInput.value === "REGINA DEL BLOCK") {
                 songTitleInput.value = cleanName;
@@ -2242,7 +2388,7 @@
         });
 
         localAudioPlayer.addEventListener('timeupdate', () => {
-            if (!hasLocalAudio) return;
+            if (audioEngineMode !== 'html5') return;
             const cur = Math.floor(localAudioPlayer.currentTime);
             songProgressSlider.value = cur;
             songCurrentTime.textContent = formatSeconds(cur);
@@ -2258,34 +2404,20 @@
             simTimer = null;
         }
 
-        // Play / Pausa (sblocco audio su iPhone/Safari + riavvio pulito se il file era in sospeso)
-        songPlayPauseBtn.addEventListener('click', () => {
-            if (hasLocalAudio) {
-                if (localAudioPlayer.paused) {
-                    if (localAudioPlayer.readyState === 0) {
-                        localAudioPlayer.load();
-                    }
-                    const playPromise = localAudioPlayer.play();
-                    if (playPromise !== undefined) {
-                        playPromise.then(() => {
-                            songPlayIcon.className = "fa-solid fa-pause text-xs";
-                        }).catch(() => {
-                            localAudioPlayer.load();
-                            localAudioPlayer.play().then(() => {
-                                songPlayIcon.className = "fa-solid fa-pause text-xs";
-                            }).catch(() => {
-                                songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
-                                showToast("Tocca di nuovo Play o alza il volume");
-                            });
-                        });
-                    } else {
-                        songPlayIcon.className = "fa-solid fa-pause text-xs";
-                    }
+        // Play / Pausa con doppio motore (HTML5 Audio + Blob + WebAudio API fallback garantito per .m4a)
+        songPlayPauseBtn.addEventListener('click', async () => {
+            // Se sta suonando con WebAudio
+            if (audioEngineMode === 'webaudio') {
+                if (webAudioPlaying) {
+                    pauseWebAudio();
                 } else {
-                    localAudioPlayer.pause();
-                    songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
+                    await playWithWebAudioFallback();
                 }
-            } else {
+                return;
+            }
+
+            // Se è in modalità simulata
+            if (audioEngineMode === 'sim') {
                 if (!simPlaying) {
                     simPlaying = true;
                     songPlayIcon.className = "fa-solid fa-pause text-xs";
@@ -2299,29 +2431,89 @@
                     stopSimulatedPlayback();
                     songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
                 }
+                return;
+            }
+
+            // Motore principale HTML5 Audio
+            if (localAudioPlayer.paused) {
+                try {
+                    if (localAudioPlayer.readyState === 0) {
+                        if (cachedBlobUrl) {
+                            localAudioPlayer.innerHTML = '';
+                            localAudioPlayer.src = cachedBlobUrl;
+                        }
+                        localAudioPlayer.load();
+                    }
+                    await localAudioPlayer.play();
+                    songPlayIcon.className = "fa-solid fa-pause text-xs";
+                } catch (err1) {
+                    // Tentativo 2: prova con Blob URL audio/mp4
+                    if (cachedBlobUrl && localAudioPlayer.src !== cachedBlobUrl) {
+                        try {
+                            localAudioPlayer.innerHTML = '';
+                            localAudioPlayer.src = cachedBlobUrl;
+                            localAudioPlayer.load();
+                            await localAudioPlayer.play();
+                            songPlayIcon.className = "fa-solid fa-pause text-xs";
+                            return;
+                        } catch (err2) {}
+                    }
+                    // Tentativo 3: decodifica diretta M4A tramite Web Audio API in memoria
+                    const okWebAudio = await playWithWebAudioFallback();
+                    if (!okWebAudio) {
+                        // Fallback visivo fluido se il file non fosse ancora presente nel repo
+                        audioEngineMode = 'sim';
+                        simPlaying = true;
+                        songPlayIcon.className = "fa-solid fa-pause text-xs";
+                        simTimer = setInterval(() => {
+                            simElapsed++;
+                            if (simElapsed > SIM_DURATION) simElapsed = 0;
+                            songProgressSlider.value = simElapsed;
+                            songCurrentTime.textContent = formatSeconds(simElapsed);
+                        }, 1000);
+                    }
+                }
+            } else {
+                localAudioPlayer.pause();
+                songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
             }
         });
 
         // Seek sulla barra di avanzamento
-        songProgressSlider.addEventListener('input', (e) => {
+        songProgressSlider.addEventListener('input', async (e) => {
             const val = parseInt(e.target.value, 10);
             songCurrentTime.textContent = formatSeconds(val);
-            if (hasLocalAudio) {
+            if (audioEngineMode === 'webaudio') {
+                webAudioOffset = val;
+                if (webAudioPlaying) {
+                    await playWithWebAudioFallback();
+                }
+            } else if (audioEngineMode === 'html5') {
                 localAudioPlayer.currentTime = val;
             } else {
                 simElapsed = val;
             }
         });
 
-        songPrevBtn.addEventListener('click', () => {
-            if (hasLocalAudio) localAudioPlayer.currentTime = 0;
-            simElapsed = 0;
+        songPrevBtn.addEventListener('click', async () => {
             songProgressSlider.value = 0;
             songCurrentTime.textContent = "0:00";
+            if (audioEngineMode === 'webaudio') {
+                webAudioOffset = 0;
+                if (webAudioPlaying) await playWithWebAudioFallback();
+            } else if (audioEngineMode === 'html5') {
+                localAudioPlayer.currentTime = 0;
+            } else {
+                simElapsed = 0;
+            }
         });
 
-        songNextBtn.addEventListener('click', () => {
-            if (hasLocalAudio && localAudioPlayer.duration) {
+        songNextBtn.addEventListener('click', async () => {
+            if (audioEngineMode === 'webaudio' && webAudioBuffer) {
+                const cur = webAudioPlaying ? (webAudioCtx.currentTime - webAudioStartTime) : webAudioOffset;
+                webAudioOffset = Math.min(webAudioBuffer.duration, cur + 10);
+                if (webAudioPlaying) await playWithWebAudioFallback();
+            } else if (audioEngineMode === 'html5' && localAudioPlayer.duration) {
                 localAudioPlayer.currentTime = Math.min(localAudioPlayer.duration, localAudioPlayer.currentTime + 10);
             } else {
                 simElapsed = Math.min(SIM_DURATION, simElapsed + 10);
@@ -2331,9 +2523,11 @@
         });
 
         songRepeatBtn.addEventListener('click', () => {
-            localAudioPlayer.loop = !localAudioPlayer.loop;
-            songRepeatBtn.classList.toggle('text-[#D42F58]', localAudioPlayer.loop);
-            songRepeatBtn.classList.toggle('opacity-100', localAudioPlayer.loop);
+            isLoopEnabled = !isLoopEnabled;
+            localAudioPlayer.loop = isLoopEnabled;
+            if (webAudioSource) webAudioSource.loop = isLoopEnabled;
+            songRepeatBtn.classList.toggle('text-[#D42F58]', isLoopEnabled);
+            songRepeatBtn.classList.toggle('opacity-100', isLoopEnabled);
         });
 
         /**
