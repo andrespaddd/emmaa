@@ -1516,8 +1516,9 @@
             <div class="w-full aspect-square bg-[#FDF0F2] rounded-xl overflow-hidden border border-[#F2DCE2] mb-3">
                 <img id="albumDetailImg" src="" alt="Foto ingrandita" class="w-full h-full object-contain">
             </div>
+            <label for="albumDetailCaptionInput" class="w-full text-[11px] font-extrabold text-[#8C4A60] text-left mb-1">Dedica sotto la foto</label>
             <input type="text" id="albumDetailCaptionInput" placeholder="Scrivi una piccola dedica o data..."
-                class="w-full px-3.5 py-2 rounded-xl bg-[#FDF0F2] border border-[#EED5DA] font-caveat text-lg font-bold text-[#6E1E3B] text-center outline-none focus:border-[#9E0B3D] mb-3">
+                class="w-full px-3.5 py-2 rounded-xl bg-[#FDF0F2] border border-[#EED5DA] font-caveat text-lg font-bold text-[#6E1E3B] text-center outline-none focus:border-[#9E0B3D] mb-3 select-text">
             <div class="w-full flex items-center justify-between gap-2">
                 <button type="button" id="albumDeletePhotoBtn"
                     class="px-3.5 py-2 rounded-full text-xs font-extrabold bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] transition">
@@ -2981,10 +2982,13 @@
         const albumDeletePhotoBtn = document.getElementById('albumDeletePhotoBtn');
         const albumSaveCaptionBtn = document.getElementById('albumSaveCaptionBtn');
 
-        const ALBUM_STORAGE_KEY = 'lovePhotoAlbumData_v3';
+        const ALBUM_STORAGE_KEY = 'lovePhotoAlbumData_v5';
         const ALBUM_GH_CONFIG_KEY = 'lovePhotoAlbumGitHubCfg_v1';
-        const ALBUM_DB_NAME = 'LovePhotoAlbumIndexedDB_v1';
+        const ALBUM_DB_NAME = 'LovePhotoAlbumIndexedDB_v3';
         const ALBUM_DB_STORE = 'albumStore';
+
+        // Consenti selezione multipla anche dall'input foto
+        albumPhotoUploadInput.setAttribute('multiple', 'multiple');
 
         const DEFAULT_PAGE_TITLES = [
             "I nostri inizi",
@@ -3012,7 +3016,30 @@
         let selectedPhotoDetail = null; // { pageIdx, slotIdx, photoId }
 
         // ============================================================================
-        // IndexedDB senza limiti di 5MB (risolve il blocco localStorage con tante foto)
+        // Coda sequenziale anti-conflitto per GitHub (evita errori 409/422 su upload multipli)
+        // ============================================================================
+        let githubSyncQueue = Promise.resolve();
+        let pendingSyncCount = 0;
+
+        function enqueueGitHubTask(taskFn) {
+            pendingSyncCount++;
+            githubSyncQueue = githubSyncQueue
+                .then(async () => {
+                    try {
+                        await taskFn();
+                    } finally {
+                        pendingSyncCount = Math.max(0, pendingSyncCount - 1);
+                    }
+                })
+                .catch((err) => {
+                    pendingSyncCount = Math.max(0, pendingSyncCount - 1);
+                    console.error("Errore coda sync GitHub:", err);
+                });
+            return githubSyncQueue;
+        }
+
+        // ============================================================================
+        // IndexedDB senza limiti di 5MB (salva tutte le foto e tutte le dediche in locale)
         // ============================================================================
         function openAlbumIDB() {
             return new Promise((resolve, reject) => {
@@ -3037,7 +3064,7 @@
                 const db = await openAlbumIDB();
                 await new Promise((resolve, reject) => {
                     const tx = db.transaction(ALBUM_DB_STORE, 'readwrite');
-                    tx.objectStore(ALBUM_DB_STORE).put(dataObj, 'albumData');
+                    tx.objectStore(ALBUM_DB_STORE).put(JSON.parse(JSON.stringify(dataObj)), 'albumData');
                     tx.oncomplete = () => resolve();
                     tx.onerror = (e) => reject(e.target.error);
                 });
@@ -3060,11 +3087,34 @@
             }
         }
 
-        async function saveAlbumLocally() {
-            // 1. Salva sempre l'intero album (inclusi tutti i dataURL e tutte le dediche) in IndexedDB (senza limite di 5MB)
-            await saveAlbumToIDB(albumData);
+        // Migra eventuali dati salvati nei vecchi database IndexedDB v2
+        async function loadLegacyAlbumFromIDBv2() {
+            try {
+                if (!window.indexedDB) return null;
+                return await new Promise((resolve) => {
+                    const req = indexedDB.open('LovePhotoAlbumIndexedDB_v2', 1);
+                    req.onupgradeneeded = () => {
+                        resolve(null);
+                    };
+                    req.onsuccess = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('albumStore')) {
+                            resolve(null);
+                            return;
+                        }
+                        const tx = db.transaction('albumStore', 'readonly');
+                        const getReq = tx.objectStore('albumStore').get('albumData');
+                        getReq.onsuccess = () => resolve(getReq.result || null);
+                        getReq.onerror = () => resolve(null);
+                    };
+                    req.onerror = () => resolve(null);
+                });
+            } catch (e) {
+                return null;
+            }
+        }
 
-            // 2. Salva anche una copia leggera in localStorage (metadati + dediche + percorsi) come backup istantaneo
+        function saveAlbumLightBackupSync() {
             try {
                 const lightCopy = {
                     pages: albumData.pages.map((pg, idx) => ({
@@ -3075,7 +3125,7 @@
                                 id: sl.id,
                                 src: (sl.src && !sl.src.startsWith('data:')) ? sl.src : (sl.path || ''),
                                 path: sl.path || `album/${sl.id}.jpg`,
-                                caption: sl.caption || '',
+                                caption: typeof sl.caption === 'string' ? sl.caption : '',
                                 synced: Boolean(sl.synced)
                             };
                         })
@@ -3083,6 +3133,13 @@
                 };
                 localStorage.setItem(ALBUM_STORAGE_KEY, JSON.stringify(lightCopy));
             } catch (e) {}
+        }
+
+        async function saveAlbumLocally() {
+            // 1. Backup sincrono immediato (salva subito dediche, struttura pagine e percorsi)
+            saveAlbumLightBackupSync();
+            // 2. Salvataggio completo in IndexedDB (inclusi tutti i dataURL ad alta risoluzione)
+            await saveAlbumToIDB(albumData);
         }
 
         function detectGitHubRepoFromLocation() {
@@ -3109,6 +3166,20 @@
                 token: savedCfg.token || ''
             };
         } catch (e) {}
+
+        function countTotalPhotosAndCaptions(dataObj) {
+            let photos = 0;
+            let captions = 0;
+            for (const pg of (dataObj?.pages || [])) {
+                for (const sl of (pg.slots || [])) {
+                    if (sl && sl.src) {
+                        photos++;
+                        if (sl.caption && sl.caption.trim()) captions++;
+                    }
+                }
+            }
+            return { photos, captions };
+        }
 
         function updateAlbumStatusUI(state, text) {
             albumStatusText.textContent = text;
@@ -3156,7 +3227,7 @@
             return { pages };
         }
 
-        // Unisce i dati locali (IndexedDB) con quelli di GitHub preservando tutte le pagine, le dediche e le foto non ancora deployate
+        // Unisce i dati locali con quelli di GitHub preservando TUTTE le foto, pagine e dediche senza mai sovrascrivere
         function mergeAlbumWithRemote(localObj, remoteObj) {
             const localPages = localObj?.pages || [];
             const remotePages = remoteObj?.pages || [];
@@ -3178,40 +3249,56 @@
                 const lpg = localPages[idx];
 
                 if (!rpg && lpg) {
-                    // Pagina creata localmente e non ancora su GitHub: mantienila!
                     mergedPages.push(lpg);
                     continue;
                 }
 
                 const rSlots = rpg.slots || [];
                 const lSlots = lpg?.slots || [];
-                const maxSlotsLen = Math.max(rSlots.length, lSlots.length);
                 const mergedSlots = [];
+                const seenIds = new Set();
 
-                for (let sIdx = 0; sIdx < maxSlotsLen; sIdx++) {
+                // 1. Inserisci tutte le foto presenti su GitHub arricchendole con eventuali dataURL o dediche locali
+                for (let sIdx = 0; sIdx < rSlots.length; sIdx++) {
                     const rs = rSlots[sIdx];
                     const ls = lSlots[sIdx];
 
                     if (rs) {
-                        const match = localPhotoMap.get(rs.id) || localPhotoMap.get(rs.path) || ls;
+                        const match = localPhotoMap.get(rs.id) || localPhotoMap.get(rs.path) || (ls && ls.id === rs.id ? ls : null);
                         const isLocalDataUrl = match && typeof match.src === 'string' && match.src.startsWith('data:image/');
                         const localCaption = match && typeof match.caption === 'string' ? match.caption : '';
                         const remoteCaption = typeof rs.caption === 'string' ? rs.caption : '';
 
+                        if (rs.id) seenIds.add(rs.id);
+                        if (rs.path) seenIds.add(rs.path);
+
                         mergedSlots.push({
                             id: rs.id,
                             path: rs.path || (match ? match.path : '') || rs.src,
-                            // Se localmente abbiamo ancora il dataURL ad alta disponibilità, usalo finché GitHub Pages non pubblica il file
                             src: isLocalDataUrl ? match.src : (rs.src || rs.path || (match ? match.src : '')),
-                            // La dedica locale più recente ha priorità se presente
                             caption: localCaption !== '' ? localCaption : remoteCaption,
                             synced: true
                         });
                     } else if (ls) {
-                        // Foto/scomparto locale aggiuntivo presente in questa pagina: non cancellarlo!
+                        if (ls.id) seenIds.add(ls.id);
+                        if (ls.path) seenIds.add(ls.path);
                         mergedSlots.push(ls);
                     } else {
                         mergedSlots.push(null);
+                    }
+                }
+
+                // 2. Preserva TUTTE le foto locali aggiuntive di questa pagina che non sono ancora su GitHub
+                for (let sIdx = 0; sIdx < lSlots.length; sIdx++) {
+                    const ls = lSlots[sIdx];
+                    if (!ls) {
+                        if (sIdx >= mergedSlots.length) mergedSlots.push(null);
+                        continue;
+                    }
+                    if (!seenIds.has(ls.id) && !seenIds.has(ls.path)) {
+                        if (ls.id) seenIds.add(ls.id);
+                        if (ls.path) seenIds.add(ls.path);
+                        mergedSlots.push(ls);
                     }
                 }
 
@@ -3224,15 +3311,56 @@
             return { pages: mergedPages };
         }
 
-        async function initAlbumData() {
-            // 1. Leggi da IndexedDB (che contiene tutte le foto di tutte le pagine e le dediche)
-            let loadedLocal = await loadAlbumFromIDB();
+        // Legge l'album più recente direttamente dall'API GitHub (senza cache CDN) o da album/album.json
+        async function fetchLatestRemoteAlbum() {
+            if (ghConfig.owner && ghConfig.repo && ghConfig.token) {
+                try {
+                    const apiUrl = `https://api.github.com/repos/${encodeURIComponent(ghConfig.owner)}/${encodeURIComponent(ghConfig.repo)}/contents/album/album.json?ref=${encodeURIComponent(ghConfig.branch || 'main')}&t=${Date.now()}`;
+                    const resp = await fetch(apiUrl, {
+                        headers: {
+                            'Authorization': `Bearer ${ghConfig.token}`,
+                            'Accept': 'application/vnd.github+json'
+                        },
+                        cache: 'no-store'
+                    });
+                    if (resp.ok) {
+                        const meta = await resp.json();
+                        if (meta && meta.content) {
+                            const bin = atob(meta.content.replace(/
+/g, ''));
+                            const bytes = new Uint8Array(bin.length);
+                            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                            const jsonStr = new TextDecoder().decode(bytes);
+                            return JSON.parse(jsonStr);
+                        }
+                    }
+                } catch (e) {}
+            }
 
-            // 2. Fallback da localStorage (v3 o vecchio v2)
+            try {
+                const resp = await fetch('album/album.json?t=' + Date.now(), { cache: 'no-store' });
+                if (resp.ok) {
+                    return await resp.json();
+                }
+            } catch (e) {}
+
+            return null;
+        }
+
+        async function initAlbumData() {
+            // 1. Leggi da IndexedDB v3, oppure migra dal vecchio v2
+            let loadedLocal = await loadAlbumFromIDB();
+            if (!loadedLocal) {
+                loadedLocal = await loadLegacyAlbumFromIDBv2();
+            }
+
+            // 2. Fallback da localStorage (v5, v4 o v2)
             if (!loadedLocal) {
                 try {
-                    const rawV3 = localStorage.getItem(ALBUM_STORAGE_KEY) || localStorage.getItem('lovePhotoAlbumData_v2');
-                    if (rawV3) loadedLocal = JSON.parse(rawV3);
+                    const rawLS = localStorage.getItem(ALBUM_STORAGE_KEY)
+                        || localStorage.getItem('lovePhotoAlbumData_v4')
+                        || localStorage.getItem('lovePhotoAlbumData_v2');
+                    if (rawLS) loadedLocal = JSON.parse(rawLS);
                 } catch (e) {}
             }
 
@@ -3242,23 +3370,32 @@
 
             renderAlbumPage();
 
-            // 3. Carica eventuali aggiornamenti da `album/album.json` su GitHub senza mai sovrascrivere foto/dediche locali
-            try {
-                const resp = await fetch('album/album.json?t=' + Date.now(), { cache: 'no-store' });
-                if (resp.ok) {
-                    const remoteNormalized = normalizeAlbumStructure(await resp.json());
-                    albumData = mergeAlbumWithRemote(albumData, remoteNormalized);
-                    await saveAlbumLocally();
-                    renderAlbumPage();
-                    updateAlbumStatusUI('ok', ghConfig.token ? 'Auto-Save GitHub attivo ✓' : 'Album caricato da GitHub ✓');
-                    return;
-                }
-            } catch (e) {}
+            // 3. Carica eventuali aggiornamenti da GitHub senza mai perdere foto/dediche locali
+            const remoteRaw = await fetchLatestRemoteAlbum();
+            if (remoteRaw) {
+                const remoteNormalized = normalizeAlbumStructure(remoteRaw);
+                albumData = mergeAlbumWithRemote(albumData, remoteNormalized);
+                await saveAlbumLocally();
+                renderAlbumPage();
 
+                const stats = countTotalPhotosAndCaptions(albumData);
+                if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
+                    updateAlbumStatusUI('ok', `Auto-Save attivo ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
+                    const hasUnsynced = albumData.pages.some(pg => (pg.slots || []).some(sl => sl && sl.src && sl.src.startsWith('data:image/') && !sl.synced));
+                    if (hasUnsynced) {
+                        enqueueGitHubTask(() => syncManifestToGitHub());
+                    }
+                } else {
+                    updateAlbumStatusUI('ok', `Album caricato ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
+                }
+                return;
+            }
+
+            const stats = countTotalPhotosAndCaptions(albumData);
             if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
-                updateAlbumStatusUI('ok', 'Auto-Save GitHub attivo ✓');
+                updateAlbumStatusUI('ok', `Auto-Save attivo ✓ (${stats.photos} foto salvate)`);
             } else {
-                updateAlbumStatusUI('idle', 'Collega GitHub per salvare in automatico');
+                updateAlbumStatusUI('idle', 'Collega GitHub (Auto-Save) per salvare per sempre');
             }
         }
 
@@ -3424,7 +3561,7 @@
             albumPhotoUploadInput.click();
         }
 
-        // Modifica titolo della pagina in tempo reale + salvataggio su GitHub
+        // Modifica titolo della pagina in tempo reale + salvataggio in coda su GitHub
         let titleSyncTimer = null;
         albumPageTitleInput.addEventListener('input', (e) => {
             const page = albumData.pages[currentAlbumPageIdx];
@@ -3433,7 +3570,7 @@
             saveAlbumLocally();
             clearTimeout(titleSyncTimer);
             titleSyncTimer = setTimeout(() => {
-                syncManifestToGitHub();
+                enqueueGitHubTask(() => syncManifestToGitHub());
             }, 900);
         });
         albumPageTitleInput.addEventListener('blur', () => {
@@ -3443,7 +3580,7 @@
                 albumPageTitleInput.value = page.title;
                 saveAlbumLocally();
             }
-            syncManifestToGitHub();
+            enqueueGitHubTask(() => syncManifestToGitHub());
         });
         albumEditTitleBtn.addEventListener('click', () => {
             albumPageTitleInput.focus();
@@ -3463,7 +3600,7 @@
             await saveAlbumLocally();
             renderAlbumPage('prev');
             showToast(`Pagina "${removedPage.title || ''}" eliminata`);
-            await syncManifestToGitHub();
+            enqueueGitHubTask(() => syncManifestToGitHub());
         });
 
         // Navigazione tra pagine
@@ -3492,7 +3629,7 @@
             await saveAlbumLocally();
             renderAlbumPage('next');
             showToast(`Nuova pagina creata (foto illimitate)`);
-            await syncManifestToGitHub();
+            enqueueGitHubTask(() => syncManifestToGitHub());
         });
 
         // Pulsante "+ Aggiungi foto": aggiunge sempre un nuovo scomparto nella pagina corrente (NESSUN LIMITE)
@@ -3506,7 +3643,7 @@
                 albumPhotosGrid.scrollTo({ top: albumPhotosGrid.scrollHeight, behavior: 'smooth' });
             }
             showToast(`Scomparto ${page.slots.length} aggiunto: toccalo per mettere la foto!`);
-            await syncManifestToGitHub();
+            enqueueGitHubTask(() => syncManifestToGitHub());
         });
 
         function compressAlbumPhoto(file, maxDim = 1024) {
@@ -3534,53 +3671,71 @@
             });
         }
 
-        // Quando si sceglie il file per uno scomparto specifico
+        // Quando si scelgono uno o più file: li inserisce tutti negli scomparti e li mette in coda sequenziale per GitHub
         albumPhotoUploadInput.addEventListener('change', async (e) => {
-            const file = (e.target.files || [])[0];
-            if (!file) return;
+            const files = Array.from(e.target.files || []);
+            if (files.length === 0) return;
 
             try {
-                const dataUrl = await compressAlbumPhoto(file, 1024);
-
                 let targetPageIdx = currentAlbumPageIdx;
-                let targetSlotIdx = -1;
+                let firstTargetSlotIdx = -1;
 
                 if (pendingUploadSlot && albumData.pages[pendingUploadSlot.pageIdx]) {
                     targetPageIdx = pendingUploadSlot.pageIdx;
-                    targetSlotIdx = pendingUploadSlot.slotIdx;
+                    firstTargetSlotIdx = pendingUploadSlot.slotIdx;
                 }
+                pendingUploadSlot = null;
 
                 const page = albumData.pages[targetPageIdx];
+                const newlyAddedPhotos = [];
 
-                if (targetSlotIdx < 0) {
-                    targetSlotIdx = page.slots.findIndex(s => s === null);
-                    if (targetSlotIdx < 0) {
-                        page.slots.push(null);
-                        targetSlotIdx = page.slots.length - 1;
+                for (let fIdx = 0; fIdx < files.length; fIdx++) {
+                    const dataUrl = await compressAlbumPhoto(files[fIdx], 1024);
+
+                    let slotIdx = -1;
+                    if (fIdx === 0 && firstTargetSlotIdx >= 0) {
+                        slotIdx = firstTargetSlotIdx;
+                    } else {
+                        slotIdx = page.slots.findIndex(s => s === null);
+                        if (slotIdx < 0) {
+                            page.slots.push(null);
+                            slotIdx = page.slots.length - 1;
+                        }
                     }
+
+                    const photoId = 'p_' + Date.now() + '_' + fIdx + '_' + Math.random().toString(36).slice(2, 6);
+                    const filePath = `album/${photoId}.jpg`;
+                    const existingCaption = (page.slots[slotIdx] && page.slots[slotIdx].caption) || '';
+
+                    const photoObj = {
+                        id: photoId,
+                        src: dataUrl,
+                        path: filePath,
+                        caption: existingCaption,
+                        synced: false
+                    };
+
+                    page.slots[slotIdx] = photoObj;
+                    newlyAddedPhotos.push({ photoObj, dataUrl });
                 }
 
-                const photoId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-                const filePath = `album/${photoId}.jpg`;
-                const existingCaption = (page.slots[targetSlotIdx] && page.slots[targetSlotIdx].caption) || '';
-
-                const photoObj = {
-                    id: photoId,
-                    src: dataUrl,
-                    path: filePath,
-                    caption: existingCaption,
-                    synced: false
-                };
-
-                page.slots[targetSlotIdx] = photoObj;
-                pendingUploadSlot = null;
                 await saveAlbumLocally();
                 renderAlbumPage();
 
+                if (page.slots.length >= 3) {
+                    albumPhotosGrid.scrollTo({ top: albumPhotosGrid.scrollHeight, behavior: 'smooth' });
+                }
+
                 if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
-                    await uploadPhotoAndManifestToGitHub(photoObj, dataUrl);
+                    for (const item of newlyAddedPhotos) {
+                        enqueueGitHubTask(() => uploadSinglePhotoToGitHub(item.photoObj, item.dataUrl));
+                    }
+                    enqueueGitHubTask(() => syncManifestToGitHub());
                 } else {
-                    showToast("Foto salvata nello scomparto! Attiva Auto-Save per caricarla su GitHub.");
+                    const msg = newlyAddedPhotos.length > 1
+                        ? `${newlyAddedPhotos.length} foto salvate! Attiva Auto-Save per caricarle su GitHub.`
+                        : "Foto salvata nello scomparto! Attiva Auto-Save per caricarla su GitHub.";
+                    showToast(msg);
                 }
             } catch (err) {
                 console.error("Errore caricamento foto:", err);
@@ -3590,7 +3745,7 @@
             albumPhotoUploadInput.value = '';
         });
 
-        // Modale dettaglio foto: dedica salvata ESATTAMENTE sotto quella foto + rimozione foto dallo scomparto
+        // Modale dettaglio foto: dedica salvata in tempo reale E al click su Salva dedica
         function openPhotoDetail(pageIdx, slotIdx) {
             const page = albumData.pages[pageIdx];
             const slot = page?.slots?.[slotIdx];
@@ -3602,35 +3757,53 @@
             setTimeout(() => albumDetailCaptionInput.focus(), 60);
         }
 
-        closeAlbumPhotoDetailBtn.addEventListener('click', () => {
-            albumPhotoDetailModal.classList.add('hidden');
-            selectedPhotoDetail = null;
-        });
-
-        async function commitPhotoCaption() {
-            if (!selectedPhotoDetail) return;
+        function getSelectedPhotoObject() {
+            if (!selectedPhotoDetail) return null;
             const { pageIdx, slotIdx, photoId } = selectedPhotoDetail;
             const page = albumData.pages[pageIdx];
             let targetPhoto = page?.slots?.[slotIdx];
             if (!targetPhoto || (photoId && targetPhoto.id !== photoId)) {
                 targetPhoto = (page?.slots || []).find(s => s && s.id === photoId) || null;
             }
-            if (targetPhoto) {
-                targetPhoto.caption = albumDetailCaptionInput.value.trim();
-                await saveAlbumLocally();
-                renderAlbumPage();
-                albumPhotoDetailModal.classList.add('hidden');
-                selectedPhotoDetail = null;
-                showToast("Dedica salvata sotto la foto!");
-                await syncManifestToGitHub();
-            }
+            return targetPhoto;
         }
 
-        albumSaveCaptionBtn.addEventListener('click', commitPhotoCaption);
+        // Salva automaticamente la dedica in locale mentre si scrive (così non si perde mai neanche chiudendo di colpo)
+        albumDetailCaptionInput.addEventListener('input', () => {
+            const targetPhoto = getSelectedPhotoObject();
+            if (!targetPhoto) return;
+            targetPhoto.caption = albumDetailCaptionInput.value;
+            saveAlbumLightBackupSync();
+        });
+
+        async function closePhotoDetailAndSaveIfChanged(showNotification = false) {
+            const targetPhoto = getSelectedPhotoObject();
+            if (targetPhoto) {
+                const trimmed = albumDetailCaptionInput.value.trim();
+                targetPhoto.caption = trimmed;
+                await saveAlbumLocally();
+                renderAlbumPage();
+                if (showNotification) {
+                    showToast("Dedica salvata sotto la foto!");
+                }
+                enqueueGitHubTask(() => syncManifestToGitHub());
+            }
+            albumPhotoDetailModal.classList.add('hidden');
+            selectedPhotoDetail = null;
+        }
+
+        closeAlbumPhotoDetailBtn.addEventListener('click', () => {
+            closePhotoDetailAndSaveIfChanged(false);
+        });
+
+        albumSaveCaptionBtn.addEventListener('click', () => {
+            closePhotoDetailAndSaveIfChanged(true);
+        });
+
         albumDetailCaptionInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                commitPhotoCaption();
+                closePhotoDetailAndSaveIfChanged(true);
             }
         });
 
@@ -3645,13 +3818,13 @@
                 albumPhotoDetailModal.classList.add('hidden');
                 selectedPhotoDetail = null;
                 showToast("Foto rimossa dallo scomparto");
-                await syncManifestToGitHub();
+                enqueueGitHubTask(() => syncManifestToGitHub());
             }
         });
 
         /**
          * ============================================================================
-         * 6B. MOTORE DI SALVATAGGIO AUTOMATICO SU GITHUB (Contents API - TUTTE LE PAGINE)
+         * 6B. MOTORE DI SALVATAGGIO AUTOMATICO SU GITHUB (Contents API SEQUENZIALE)
          * ============================================================================
          */
         openAlbumGitHubModalBtn.addEventListener('click', () => {
@@ -3681,8 +3854,8 @@
 
             if (ghConfig.owner && ghConfig.repo && ghConfig.token) {
                 updateAlbumStatusUI('ok', 'Auto-Save GitHub attivo ✓');
-                showToast("Collegato a GitHub! Sincronizzo tutte le pagine e le foto...");
-                await syncAllLocalPhotosToGitHub();
+                showToast("Collegato a GitHub! Sincronizzo tutte le pagine, le foto e le dediche...");
+                enqueueGitHubTask(() => syncAllLocalPhotosToGitHub());
             } else {
                 updateAlbumStatusUI('idle', 'Collega GitHub per salvare in automatico');
             }
@@ -3699,7 +3872,7 @@
                 localStorage.setItem(ALBUM_GH_CONFIG_KEY, JSON.stringify(ghConfig));
             } catch (e) {}
             albumGitHubModal.classList.add('hidden');
-            await syncAllLocalPhotosToGitHub();
+            enqueueGitHubTask(() => syncAllLocalPhotosToGitHub());
         });
 
         function utf8ToBase64(str) {
@@ -3709,7 +3882,7 @@
             return btoa(bin);
         }
 
-        async function githubPutFile(filePath, base64Content, commitMessage) {
+        async function githubPutFile(filePath, base64Content, commitMessage, retryCount = 0) {
             const { owner, repo, branch, token } = ghConfig;
             const apiUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${filePath}`;
 
@@ -3719,7 +3892,8 @@
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/vnd.github+json'
-                    }
+                    },
+                    cache: 'no-store'
                 });
                 if (getResp.ok) {
                     const existing = await getResp.json();
@@ -3744,6 +3918,12 @@
                 body: JSON.stringify(body)
             });
 
+            // Retry automatico in caso di conflitto SHA temporaneo (409 / 422)
+            if ((putResp.status === 409 || putResp.status === 422) && retryCount < 3) {
+                await new Promise(r => setTimeout(r, 450 * (retryCount + 1)));
+                return githubPutFile(filePath, base64Content, commitMessage, retryCount + 1);
+            }
+
             if (!putResp.ok) {
                 const errText = await putResp.text();
                 throw new Error(`GitHub API ${putResp.status}: ${errText}`);
@@ -3751,33 +3931,28 @@
             return await putResp.json();
         }
 
-        async function uploadPhotoAndManifestToGitHub(photoObj, dataUrl) {
+        async function uploadSinglePhotoToGitHub(photoObj, dataUrl) {
             if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
             try {
                 updateAlbumStatusUI('syncing', 'Salvataggio foto su GitHub...');
                 const base64Img = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
                 await githubPutFile(photoObj.path, base64Img, `Aggiunta foto album (${photoObj.id})`);
-
-                // Segna come sincronizzata su GitHub mantenendo il dataURL in IndexedDB per visualizzazione immediata senza ritardi CDN
                 photoObj.synced = true;
                 await saveAlbumLocally();
-
-                await syncManifestToGitHub();
-                updateAlbumStatusUI('ok', 'Salvato su GitHub ✓');
-                showToast("Foto salvata automaticamente su GitHub!");
             } catch (err) {
                 console.error(err);
                 updateAlbumStatusUI('error', 'Errore sync GitHub (controlla token)');
                 showToast("Errore salvataggio GitHub: verifica repository e token.");
+                throw err;
             }
         }
 
         async function syncManifestToGitHub() {
             if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
             try {
-                updateAlbumStatusUI('syncing', 'Aggiorno album su GitHub...');
+                updateAlbumStatusUI('syncing', 'Salvataggio foto e dediche su GitHub...');
 
-                // Prima carica su GitHub qualsiasi foto di qualsiasi pagina che non fosse ancora stata caricata
+                // 1. Prima carica su GitHub qualsiasi foto di qualsiasi pagina che non fosse ancora stata caricata
                 for (let pIdx = 0; pIdx < albumData.pages.length; pIdx++) {
                     const page = albumData.pages[pIdx];
                     for (let sIdx = 0; sIdx < (page.slots || []).length; sIdx++) {
@@ -3788,12 +3963,12 @@
                             await githubPutFile(targetPath, base64Img, `Sync foto pagina ${pIdx + 1} (${sl.id})`);
                             sl.path = targetPath;
                             sl.synced = true;
+                            await saveAlbumLocally();
                         }
                     }
                 }
-                await saveAlbumLocally();
 
-                // Poi aggiorna album/album.json con TUTTE le pagine, TUTTE le foto e TUTTE le dediche
+                // 2. Poi aggiorna album/album.json con TUTTE le pagine, TUTTE le foto e TUTTE le dediche
                 const cleanManifest = {
                     updatedAt: new Date().toISOString(),
                     pages: albumData.pages.map((pg, idx) => ({
@@ -3812,7 +3987,9 @@
                 };
                 const jsonBase64 = utf8ToBase64(JSON.stringify(cleanManifest, null, 2));
                 await githubPutFile('album/album.json', jsonBase64, 'Aggiornamento album fotografico e dediche');
-                updateAlbumStatusUI('ok', 'Salvato su GitHub ✓');
+
+                const stats = countTotalPhotosAndCaptions(albumData);
+                updateAlbumStatusUI('ok', `Salvato su GitHub ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
             } catch (err) {
                 console.error(err);
                 updateAlbumStatusUI('error', 'Errore sync GitHub');
@@ -3825,7 +4002,7 @@
                 return;
             }
             try {
-                updateAlbumStatusUI('syncing', 'Sincronizzazione tutte le pagine su GitHub...');
+                updateAlbumStatusUI('syncing', 'Sincronizzazione completa su GitHub...');
                 let uploadedCount = 0;
                 for (let pIdx = 0; pIdx < albumData.pages.length; pIdx++) {
                     const page = albumData.pages[pIdx];
@@ -3838,19 +4015,28 @@
                             sl.path = targetPath;
                             sl.synced = true;
                             uploadedCount++;
+                            await saveAlbumLocally();
                         }
                     }
                 }
-                await saveAlbumLocally();
                 await syncManifestToGitHub();
                 renderAlbumPage();
-                showToast(`Sincronizzate ${albumData.pages.length} pagine (${uploadedCount} foto) su GitHub!`);
+                const stats = countTotalPhotosAndCaptions(albumData);
+                showToast(`Sincronizzate ${stats.photos} foto e ${stats.captions} dediche su GitHub!`);
             } catch (err) {
                 console.error(err);
                 updateAlbumStatusUI('error', 'Errore sincronizzazione');
                 showToast("Controlla che il Token abbia permessi 'Contents: Read and write'.");
             }
         }
+
+        // Salva subito prima della chiusura della pagina / cambio scheda
+        window.addEventListener('pagehide', () => {
+            saveAlbumLightBackupSync();
+        });
+        window.addEventListener('beforeunload', () => {
+            saveAlbumLightBackupSync();
+        });
 
         initAlbumData();
 
