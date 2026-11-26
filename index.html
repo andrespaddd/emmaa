@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -144,21 +144,6 @@
             background: linear-gradient(90deg, rgba(244, 152, 182, 0.55) 0%, rgba(250, 182, 204, 0.68) 50%, rgba(244, 152, 182, 0.55) 100%);
             backdrop-filter: blur(2px);
             box-shadow: 0 2px 5px rgba(136, 48, 78, 0.08);
-        }
-
-        .notebook-paper {
-            background-color: #F4EAD3;
-            background-image:
-                linear-gradient(90deg, transparent 36px, rgba(214, 128, 128, 0.48) 36px, rgba(214, 128, 128, 0.48) 37.5px, transparent 37.5px),
-                repeating-linear-gradient(
-                    to bottom,
-                    transparent 0px,
-                    transparent 27px,
-                    rgba(176, 160, 134, 0.45) 27px,
-                    rgba(176, 160, 134, 0.45) 28px
-                );
-            box-shadow: 0 12px 30px rgba(136, 48, 78, 0.14);
-            position: relative;
         }
 
         .notebook-textarea {
@@ -1614,15 +1599,24 @@
             }
         }
 
+        const DEFAULT_CAT_IMAGES = {
+            0: "gatto0.jpg",
+            1: "gatto1.jpg",
+            2: "gatto2.jpg",
+            3: "gatto3.jpg",
+            4: "gatto4.jpg"
+        };
+
         /**
-         * Renderizza il gattino (foto personalizzata scontornata se presente, altrimenti SVG)
+         * Renderizza il gattino (foto caricata al volo se presente, altrimenti gatto0.jpg..gatto4.jpg, infine SVG)
          */
         function renderCatVisual(stateIndex) {
             // Imposta classe animazione specifica per lo stato
             catContainer.className = `cat-media-box w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center mb-3 anim-cat-${stateIndex}`;
 
-            if (customCatImages[stateIndex]) {
-                catContainer.innerHTML = `<img src="${customCatImages[stateIndex]}" alt="Gattino stato ${stateIndex}" class="w-full h-full object-contain">`;
+            const imgSrc = customCatImages[stateIndex] || DEFAULT_CAT_IMAGES[stateIndex];
+            if (imgSrc) {
+                catContainer.innerHTML = `<img src="${imgSrc}" alt="Gattino stato ${stateIndex}" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML = DEFAULT_CAT_SVGS[${stateIndex}];">`;
             } else {
                 catContainer.innerHTML = DEFAULT_CAT_SVGS[stateIndex];
             }
@@ -2058,7 +2052,10 @@
         const songPrevBtn = document.getElementById('songPrevBtn');
         const songNextBtn = document.getElementById('songNextBtn');
 
-        let hasLocalAudio = false;
+        const DEFAULT_COVER_IMAGE = "copertina.jpg";
+        const DEFAULT_AUDIO_FILE = "canzone.m4a";
+
+        let hasLocalAudio = true;
         let simPlaying = false;
         let simTimer = null;
         let simElapsed = 0;
@@ -2071,7 +2068,22 @@
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        // Ripristina eventuali impostazioni salvate della canzone/polaroid
+        // Imposta la canzone predefinita dal repository (canzone.m4a)
+        localAudioPlayer.src = DEFAULT_AUDIO_FILE;
+        audioFileNameLabel.textContent = DEFAULT_AUDIO_FILE;
+        localAudioPlayer.addEventListener('loadedmetadata', () => {
+            if (localAudioPlayer.duration && isFinite(localAudioPlayer.duration)) {
+                const dur = Math.floor(localAudioPlayer.duration);
+                songProgressSlider.max = dur;
+                songTotalTime.textContent = formatSeconds(dur);
+            }
+        });
+        localAudioPlayer.addEventListener('error', () => {
+            hasLocalAudio = false;
+        });
+
+        // Ripristina eventuali impostazioni salvate oppure usa copertina.jpg di default
+        let coverApplied = false;
         try {
             const savedMeta = JSON.parse(localStorage.getItem('loveGiftSongMeta_v1') || '{}');
             if (savedMeta.title) {
@@ -2086,6 +2098,7 @@
                 songCoverImg.src = savedMeta.cover;
                 songCoverImg.classList.remove('hidden');
                 defaultCoverArt.classList.add('hidden');
+                coverApplied = true;
             }
             if (savedMeta.polaroid) {
                 polaroidPhotoImg.src = savedMeta.polaroid;
@@ -2093,6 +2106,16 @@
                 polaroidEmptyOverlay.classList.add('hidden');
             }
         } catch (e) {}
+
+        if (!coverApplied && DEFAULT_COVER_IMAGE) {
+            songCoverImg.src = DEFAULT_COVER_IMAGE;
+            songCoverImg.classList.remove('hidden');
+            defaultCoverArt.classList.add('hidden');
+            songCoverImg.onerror = () => {
+                songCoverImg.classList.add('hidden');
+                defaultCoverArt.classList.remove('hidden');
+            };
+        }
 
         function persistSongMeta(patch) {
             try {
