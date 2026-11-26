@@ -3136,9 +3136,7 @@
         }
 
         async function saveAlbumLocally() {
-            // 1. Backup sincrono immediato (salva subito dediche, struttura pagine e percorsi)
             saveAlbumLightBackupSync();
-            // 2. Salvataggio completo in IndexedDB (inclusi tutti i dataURL ad alta risoluzione)
             await saveAlbumToIDB(albumData);
         }
 
@@ -3326,8 +3324,7 @@
                     if (resp.ok) {
                         const meta = await resp.json();
                         if (meta && meta.content) {
-                            const bin = atob(meta.content.replace(/
-/g, ''));
+                            const bin = atob(meta.content.replace(/\s+/g, ''));
                             const bytes = new Uint8Array(bin.length);
                             for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
                             const jsonStr = new TextDecoder().decode(bytes);
@@ -3348,13 +3345,11 @@
         }
 
         async function initAlbumData() {
-            // 1. Leggi da IndexedDB v3, oppure migra dal vecchio v2
             let loadedLocal = await loadAlbumFromIDB();
             if (!loadedLocal) {
                 loadedLocal = await loadLegacyAlbumFromIDBv2();
             }
 
-            // 2. Fallback da localStorage (v5, v4 o v2)
             if (!loadedLocal) {
                 try {
                     const rawLS = localStorage.getItem(ALBUM_STORAGE_KEY)
@@ -3370,7 +3365,6 @@
 
             renderAlbumPage();
 
-            // 3. Carica eventuali aggiornamenti da GitHub senza mai perdere foto/dediche locali
             const remoteRaw = await fetchLatestRemoteAlbum();
             if (remoteRaw) {
                 const remoteNormalized = normalizeAlbumStructure(remoteRaw);
@@ -3428,7 +3422,6 @@
             albumNextPageBtn.disabled = currentAlbumPageIdx === albumData.pages.length - 1;
             albumDeletePageBtn.disabled = albumData.pages.length <= 1;
 
-            // Pallini indicatore pagine
             albumPageDots.innerHTML = '';
             albumData.pages.forEach((_, idx) => {
                 const dot = document.createElement('button');
@@ -3446,7 +3439,6 @@
 
             albumPhotosGrid.innerHTML = '';
 
-            // Pagina vuota: primo scomparto pronto al tocco
             if (slots.length === 0) {
                 albumPhotosGrid.className = 'relative z-20 flex-1 w-full overflow-hidden flex items-center justify-center pl-1.5';
                 const emptySlotBtn = document.createElement('button');
@@ -3468,7 +3460,6 @@
                 return;
             }
 
-            // Layout adattivo: 1 foto grande centrata, 2 foto affiancate/diagonali, 3+ foto in griglia 2 colonne scorrevole
             const totalSlots = slots.length;
             const isScrollable = totalSlots >= 3;
             albumPhotosGrid.className = isScrollable
@@ -3530,7 +3521,6 @@
 
             albumPhotosGrid.innerHTML = `<div class="${containerCls}">${cardsHtml}</div>`;
 
-            // Collega click su scomparto vuoto per caricare foto
             albumPhotosGrid.querySelectorAll('[data-fill-slot]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const sIdx = parseInt(btn.getAttribute('data-fill-slot'), 10);
@@ -3538,7 +3528,6 @@
                 });
             });
 
-            // Collega click su foto esistente per aprire dedica / ingrandimento / elimina
             albumPhotosGrid.querySelectorAll('[data-open-slot]').forEach(el => {
                 el.addEventListener('click', () => {
                     const sIdx = parseInt(el.getAttribute('data-open-slot'), 10);
@@ -3561,7 +3550,6 @@
             albumPhotoUploadInput.click();
         }
 
-        // Modifica titolo della pagina in tempo reale + salvataggio in coda su GitHub
         let titleSyncTimer = null;
         albumPageTitleInput.addEventListener('input', (e) => {
             const page = albumData.pages[currentAlbumPageIdx];
@@ -3587,7 +3575,6 @@
             albumPageTitleInput.select();
         });
 
-        // Eliminazione della pagina corrente
         albumDeletePageBtn.addEventListener('click', async () => {
             if (albumData.pages.length <= 1) {
                 showToast("Deve restare almeno una pagina nell'album!");
@@ -3603,7 +3590,6 @@
             enqueueGitHubTask(() => syncManifestToGitHub());
         });
 
-        // Navigazione tra pagine
         albumPrevPageBtn.addEventListener('click', () => {
             if (currentAlbumPageIdx > 0) {
                 currentAlbumPageIdx--;
@@ -3618,7 +3604,6 @@
             }
         });
 
-        // Crea nuova pagina vuota
         albumNewPageBtn.addEventListener('click', async () => {
             const newIdx = albumData.pages.length;
             albumData.pages.push({
@@ -3632,7 +3617,6 @@
             enqueueGitHubTask(() => syncManifestToGitHub());
         });
 
-        // Pulsante "+ Aggiungi foto": aggiunge sempre un nuovo scomparto nella pagina corrente (NESSUN LIMITE)
         albumAddSlotBtn.addEventListener('click', async () => {
             const page = albumData.pages[currentAlbumPageIdx];
             if (!page) return;
@@ -3671,7 +3655,6 @@
             });
         }
 
-        // Quando si scelgono uno o più file: li inserisce tutti negli scomparti e li mette in coda sequenziale per GitHub
         albumPhotoUploadInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files || []);
             if (files.length === 0) return;
@@ -3745,7 +3728,6 @@
             albumPhotoUploadInput.value = '';
         });
 
-        // Modale dettaglio foto: dedica salvata in tempo reale E al click su Salva dedica
         function openPhotoDetail(pageIdx, slotIdx) {
             const page = albumData.pages[pageIdx];
             const slot = page?.slots?.[slotIdx];
@@ -3768,7 +3750,6 @@
             return targetPhoto;
         }
 
-        // Salva automaticamente la dedica in locale mentre si scrive (così non si perde mai neanche chiudendo di colpo)
         albumDetailCaptionInput.addEventListener('input', () => {
             const targetPhoto = getSelectedPhotoObject();
             if (!targetPhoto) return;
@@ -3918,7 +3899,6 @@
                 body: JSON.stringify(body)
             });
 
-            // Retry automatico in caso di conflitto SHA temporaneo (409 / 422)
             if ((putResp.status === 409 || putResp.status === 422) && retryCount < 3) {
                 await new Promise(r => setTimeout(r, 450 * (retryCount + 1)));
                 return githubPutFile(filePath, base64Content, commitMessage, retryCount + 1);
@@ -3952,7 +3932,6 @@
             try {
                 updateAlbumStatusUI('syncing', 'Salvataggio foto e dediche su GitHub...');
 
-                // 1. Prima carica su GitHub qualsiasi foto di qualsiasi pagina che non fosse ancora stata caricata
                 for (let pIdx = 0; pIdx < albumData.pages.length; pIdx++) {
                     const page = albumData.pages[pIdx];
                     for (let sIdx = 0; sIdx < (page.slots || []).length; sIdx++) {
@@ -3968,7 +3947,6 @@
                     }
                 }
 
-                // 2. Poi aggiorna album/album.json con TUTTE le pagine, TUTTE le foto e TUTTE le dediche
                 const cleanManifest = {
                     updatedAt: new Date().toISOString(),
                     pages: albumData.pages.map((pg, idx) => ({
@@ -4030,7 +4008,6 @@
             }
         }
 
-        // Salva subito prima della chiusura della pagina / cambio scheda
         window.addEventListener('pagehide', () => {
             saveAlbumLightBackupSync();
         });
