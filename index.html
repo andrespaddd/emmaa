@@ -2068,18 +2068,37 @@
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        // Imposta la canzone predefinita dal repository (canzone.m4a)
+        // Configura l'audio predefinito (canzone.m4a) compatibile con iPhone/Safari/Android e GitHub Pages
+        localAudioPlayer.setAttribute('playsinline', '');
+        localAudioPlayer.setAttribute('webkit-playsinline', '');
+        localAudioPlayer.preload = 'auto';
         localAudioPlayer.src = DEFAULT_AUDIO_FILE;
+        localAudioPlayer.load();
         audioFileNameLabel.textContent = DEFAULT_AUDIO_FILE;
-        localAudioPlayer.addEventListener('loadedmetadata', () => {
-            if (localAudioPlayer.duration && isFinite(localAudioPlayer.duration)) {
+
+        function syncAudioDuration() {
+            if (localAudioPlayer.duration && isFinite(localAudioPlayer.duration) && localAudioPlayer.duration > 0) {
                 const dur = Math.floor(localAudioPlayer.duration);
                 songProgressSlider.max = dur;
                 songTotalTime.textContent = formatSeconds(dur);
             }
-        });
+        }
+        localAudioPlayer.addEventListener('loadedmetadata', syncAudioDuration);
+        localAudioPlayer.addEventListener('durationchange', syncAudioDuration);
+        localAudioPlayer.addEventListener('canplay', syncAudioDuration);
         localAudioPlayer.addEventListener('error', () => {
-            hasLocalAudio = false;
+            // Riprova anche con percorso relativo ./canzone.m4a o maiuscola iniziale se necessario
+            if (!localAudioPlayer.dataset.retryStep) {
+                localAudioPlayer.dataset.retryStep = '1';
+                localAudioPlayer.src = './' + DEFAULT_AUDIO_FILE;
+                localAudioPlayer.load();
+            } else if (localAudioPlayer.dataset.retryStep === '1') {
+                localAudioPlayer.dataset.retryStep = '2';
+                localAudioPlayer.src = 'Canzone.m4a';
+                localAudioPlayer.load();
+            } else {
+                hasLocalAudio = false;
+            }
         });
 
         // Ripristina eventuali impostazioni salvate oppure usa copertina.jpg di default
@@ -2239,12 +2258,29 @@
             simTimer = null;
         }
 
-        // Play / Pausa (reale se c'è un file locale, oppure simulazione fluida se non è stato ancora caricato)
+        // Play / Pausa (sblocco audio su iPhone/Safari + riavvio pulito se il file era in sospeso)
         songPlayPauseBtn.addEventListener('click', () => {
             if (hasLocalAudio) {
                 if (localAudioPlayer.paused) {
-                    localAudioPlayer.play();
-                    songPlayIcon.className = "fa-solid fa-pause text-xs";
+                    if (localAudioPlayer.readyState === 0) {
+                        localAudioPlayer.load();
+                    }
+                    const playPromise = localAudioPlayer.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            songPlayIcon.className = "fa-solid fa-pause text-xs";
+                        }).catch(() => {
+                            localAudioPlayer.load();
+                            localAudioPlayer.play().then(() => {
+                                songPlayIcon.className = "fa-solid fa-pause text-xs";
+                            }).catch(() => {
+                                songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
+                                showToast("Tocca di nuovo Play o alza il volume");
+                            });
+                        });
+                    } else {
+                        songPlayIcon.className = "fa-solid fa-pause text-xs";
+                    }
                 } else {
                     localAudioPlayer.pause();
                     songPlayIcon.className = "fa-solid fa-play text-xs ml-0.5";
