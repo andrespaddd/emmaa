@@ -2943,7 +2943,7 @@
 
         /**
          * ============================================================================
-         * 6. ALBUM FOTOGRAFICO A LIBRO CON SCOMPARTI, TITOLI, ELIMINA PAGINA & SYNC
+         * 6. ALBUM FOTOGRAFICO A LIBRO (INFINITE FOTO PER PAGINA, DEDICHE & SYNC GITHUB)
          * ============================================================================
          */
         const albumPageSheet = document.getElementById('albumPageSheet');
@@ -2981,11 +2981,11 @@
         const albumDeletePhotoBtn = document.getElementById('albumDeletePhotoBtn');
         const albumSaveCaptionBtn = document.getElementById('albumSaveCaptionBtn');
 
-        const ALBUM_STORAGE_KEY = 'lovePhotoAlbumData_v2';
+        const ALBUM_STORAGE_KEY = 'lovePhotoAlbumData_v3';
         const ALBUM_GH_CONFIG_KEY = 'lovePhotoAlbumGitHubCfg_v1';
+        const ALBUM_DB_NAME = 'LovePhotoAlbumIndexedDB_v1';
+        const ALBUM_DB_STORE = 'albumStore';
 
-        // Ogni pagina ha una capienza diversa di scomparti (1, 2 o 3 scomparti) per layout sempre vari
-        const PAGE_CAPACITY_PATTERN = [1, 2, 3, 2, 1, 3, 2, 3];
         const DEFAULT_PAGE_TITLES = [
             "I nostri inizi",
             "Momenti insieme",
@@ -3001,21 +3001,89 @@
             return `Pagina ${idx + 1} • ${DEFAULT_PAGE_TITLES[idx % DEFAULT_PAGE_TITLES.length]}`;
         }
 
-        function getPageMaxSlots(idx) {
-            return PAGE_CAPACITY_PATTERN[idx % PAGE_CAPACITY_PATTERN.length];
-        }
-
-        // Struttura dati:
-        // pages: [ { title: "...", maxSlots: 1, slots: [ { id, src, path, caption } | null ] } ]
-        // Nota: slots può contenere scomparti vuoti (`null`) creati tramite "Aggiungi foto" o scomparti pieni con foto + dedica!
+        // Ogni pagina può contenere INFINITE foto (nessun limite massimo)
         let albumData = {
             pages: [
-                { title: getDefaultPageTitle(0), maxSlots: 1, slots: [] }
+                { title: getDefaultPageTitle(0), slots: [] }
             ]
         };
         let currentAlbumPageIdx = 0;
         let pendingUploadSlot = null; // { pageIdx, slotIdx }
-        let selectedPhotoDetail = null; // { pageIdx, slotIdx }
+        let selectedPhotoDetail = null; // { pageIdx, slotIdx, photoId }
+
+        // ============================================================================
+        // IndexedDB senza limiti di 5MB (risolve il blocco localStorage con tante foto)
+        // ============================================================================
+        function openAlbumIDB() {
+            return new Promise((resolve, reject) => {
+                if (!window.indexedDB) {
+                    reject(new Error('IndexedDB non supportato'));
+                    return;
+                }
+                const req = indexedDB.open(ALBUM_DB_NAME, 1);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(ALBUM_DB_STORE)) {
+                        db.createObjectStore(ALBUM_DB_STORE);
+                    }
+                };
+                req.onsuccess = (e) => resolve(e.target.result);
+                req.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function saveAlbumToIDB(dataObj) {
+            try {
+                const db = await openAlbumIDB();
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction(ALBUM_DB_STORE, 'readwrite');
+                    tx.objectStore(ALBUM_DB_STORE).put(dataObj, 'albumData');
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = (e) => reject(e.target.error);
+                });
+            } catch (e) {
+                console.warn("Errore salvataggio IndexedDB:", e);
+            }
+        }
+
+        async function loadAlbumFromIDB() {
+            try {
+                const db = await openAlbumIDB();
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction(ALBUM_DB_STORE, 'readonly');
+                    const req = tx.objectStore(ALBUM_DB_STORE).get('albumData');
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = (e) => reject(e.target.error);
+                });
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function saveAlbumLocally() {
+            // 1. Salva sempre l'intero album (inclusi tutti i dataURL e tutte le dediche) in IndexedDB (senza limite di 5MB)
+            await saveAlbumToIDB(albumData);
+
+            // 2. Salva anche una copia leggera in localStorage (metadati + dediche + percorsi) come backup istantaneo
+            try {
+                const lightCopy = {
+                    pages: albumData.pages.map((pg, idx) => ({
+                        title: pg.title || getDefaultPageTitle(idx),
+                        slots: (pg.slots || []).map(sl => {
+                            if (!sl) return null;
+                            return {
+                                id: sl.id,
+                                src: (sl.src && !sl.src.startsWith('data:')) ? sl.src : (sl.path || ''),
+                                path: sl.path || `album/${sl.id}.jpg`,
+                                caption: sl.caption || '',
+                                synced: Boolean(sl.synced)
+                            };
+                        })
+                    }))
+                };
+                localStorage.setItem(ALBUM_STORAGE_KEY, JSON.stringify(lightCopy));
+            } catch (e) {}
+        }
 
         function detectGitHubRepoFromLocation() {
             try {
@@ -3055,21 +3123,12 @@
             }
         }
 
-        function saveAlbumLocally() {
-            try {
-                localStorage.setItem(ALBUM_STORAGE_KEY, JSON.stringify(albumData));
-            } catch (e) {
-                console.warn("Spazio locale pieno, le foto restano su GitHub se collegato.");
-            }
-        }
-
-        // Normalizza vecchie strutture (se presenti) nella struttura a scomparti con dediche preservate
+        // Normalizza qualsiasi struttura precedente senza mai imporre limiti di foto per pagina
         function normalizeAlbumStructure(raw) {
             if (!raw || !Array.isArray(raw.pages) || raw.pages.length === 0) {
-                return { pages: [{ title: getDefaultPageTitle(0), maxSlots: 1, slots: [] }] };
+                return { pages: [{ title: getDefaultPageTitle(0), slots: [] }] };
             }
             const pages = raw.pages.map((pg, idx) => {
-                const maxSlots = pg.maxSlots || pg.capacity || getPageMaxSlots(idx);
                 const title = (typeof pg.title === 'string' && pg.title.trim()) ? pg.title : getDefaultPageTitle(idx);
                 let slots = [];
                 if (Array.isArray(pg.slots)) {
@@ -3079,7 +3138,8 @@
                             id: s.id || ('p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
                             src: s.src || s.path || '',
                             path: s.path || s.src || '',
-                            caption: s.caption || ''
+                            caption: typeof s.caption === 'string' ? s.caption : '',
+                            synced: Boolean(s.synced)
                         };
                     });
                 } else if (Array.isArray(pg.photos)) {
@@ -3087,21 +3147,21 @@
                         id: ph.id || ('p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
                         src: ph.src || ph.path || '',
                         path: ph.path || ph.src || '',
-                        caption: ph.caption || ''
+                        caption: typeof ph.caption === 'string' ? ph.caption : '',
+                        synced: Boolean(ph.synced)
                     }));
                 }
-                return { title, maxSlots, slots };
+                return { title, slots };
             });
             return { pages };
         }
 
-        // Unisce i dati locali (che mantengono eventuali dediche recenti o dataURL non ancora serviti da CDN) con quelli di GitHub
+        // Unisce i dati locali (IndexedDB) con quelli di GitHub preservando tutte le pagine, le dediche e le foto non ancora deployate
         function mergeAlbumWithRemote(localObj, remoteObj) {
             const localPages = localObj?.pages || [];
             const remotePages = remoteObj?.pages || [];
             if (remotePages.length === 0) return localObj;
 
-            // Mappa di tutte le foto locali per id e per path
             const localPhotoMap = new Map();
             for (const pg of localPages) {
                 for (const s of (pg.slots || [])) {
@@ -3110,48 +3170,85 @@
                 }
             }
 
-            const mergedPages = remotePages.map((rpg, idx) => {
-                const lpg = localPages[idx];
-                const mergedSlots = (rpg.slots || []).map(rs => {
-                    if (!rs) return null;
-                    const match = localPhotoMap.get(rs.id) || localPhotoMap.get(rs.path);
-                    const isLocalDataUrl = match && typeof match.src === 'string' && match.src.startsWith('data:image/');
-                    return {
-                        id: rs.id,
-                        path: rs.path || (match ? match.path : '') || rs.src,
-                        // Se la foto locale ha ancora il dataURL e su GitHub è appena stata caricata, mostra comunque subito l'immagine
-                        src: isLocalDataUrl ? match.src : (rs.src || rs.path || (match ? match.src : '')),
-                        caption: (rs.caption && rs.caption.trim()) ? rs.caption : (match && match.caption ? match.caption : '')
-                    };
-                });
+            const maxLen = Math.max(localPages.length, remotePages.length);
+            const mergedPages = [];
 
-                return {
-                    title: (lpg && lpg.title && lpg.title !== rpg.title) ? lpg.title : (rpg.title || getDefaultPageTitle(idx)),
-                    maxSlots: rpg.maxSlots || getPageMaxSlots(idx),
+            for (let idx = 0; idx < maxLen; idx++) {
+                const rpg = remotePages[idx];
+                const lpg = localPages[idx];
+
+                if (!rpg && lpg) {
+                    // Pagina creata localmente e non ancora su GitHub: mantienila!
+                    mergedPages.push(lpg);
+                    continue;
+                }
+
+                const rSlots = rpg.slots || [];
+                const lSlots = lpg?.slots || [];
+                const maxSlotsLen = Math.max(rSlots.length, lSlots.length);
+                const mergedSlots = [];
+
+                for (let sIdx = 0; sIdx < maxSlotsLen; sIdx++) {
+                    const rs = rSlots[sIdx];
+                    const ls = lSlots[sIdx];
+
+                    if (rs) {
+                        const match = localPhotoMap.get(rs.id) || localPhotoMap.get(rs.path) || ls;
+                        const isLocalDataUrl = match && typeof match.src === 'string' && match.src.startsWith('data:image/');
+                        const localCaption = match && typeof match.caption === 'string' ? match.caption : '';
+                        const remoteCaption = typeof rs.caption === 'string' ? rs.caption : '';
+
+                        mergedSlots.push({
+                            id: rs.id,
+                            path: rs.path || (match ? match.path : '') || rs.src,
+                            // Se localmente abbiamo ancora il dataURL ad alta disponibilità, usalo finché GitHub Pages non pubblica il file
+                            src: isLocalDataUrl ? match.src : (rs.src || rs.path || (match ? match.src : '')),
+                            // La dedica locale più recente ha priorità se presente
+                            caption: localCaption !== '' ? localCaption : remoteCaption,
+                            synced: true
+                        });
+                    } else if (ls) {
+                        // Foto/scomparto locale aggiuntivo presente in questa pagina: non cancellarlo!
+                        mergedSlots.push(ls);
+                    } else {
+                        mergedSlots.push(null);
+                    }
+                }
+
+                mergedPages.push({
+                    title: (lpg && lpg.title && lpg.title.trim()) ? lpg.title : (rpg.title || getDefaultPageTitle(idx)),
                     slots: mergedSlots
-                };
-            });
+                });
+            }
 
             return { pages: mergedPages };
         }
 
         async function initAlbumData() {
-            try {
-                const localRaw = localStorage.getItem(ALBUM_STORAGE_KEY);
-                if (localRaw) {
-                    albumData = normalizeAlbumStructure(JSON.parse(localRaw));
-                }
-            } catch (e) {}
+            // 1. Leggi da IndexedDB (che contiene tutte le foto di tutte le pagine e le dediche)
+            let loadedLocal = await loadAlbumFromIDB();
+
+            // 2. Fallback da localStorage (v3 o vecchio v2)
+            if (!loadedLocal) {
+                try {
+                    const rawV3 = localStorage.getItem(ALBUM_STORAGE_KEY) || localStorage.getItem('lovePhotoAlbumData_v2');
+                    if (rawV3) loadedLocal = JSON.parse(rawV3);
+                } catch (e) {}
+            }
+
+            if (loadedLocal) {
+                albumData = normalizeAlbumStructure(loadedLocal);
+            }
 
             renderAlbumPage();
 
-            // Carica anche `album/album.json` da GitHub evitando di perdere foto/dediche locali
+            // 3. Carica eventuali aggiornamenti da `album/album.json` su GitHub senza mai sovrascrivere foto/dediche locali
             try {
                 const resp = await fetch('album/album.json?t=' + Date.now(), { cache: 'no-store' });
                 if (resp.ok) {
                     const remoteNormalized = normalizeAlbumStructure(await resp.json());
                     albumData = mergeAlbumWithRemote(albumData, remoteNormalized);
-                    saveAlbumLocally();
+                    await saveAlbumLocally();
                     renderAlbumPage();
                     updateAlbumStatusUI('ok', ghConfig.token ? 'Auto-Save GitHub attivo ✓' : 'Album caricato da GitHub ✓');
                     return;
@@ -3165,10 +3262,10 @@
             }
         }
 
-        // Renderizza la pagina corrente con gli scomparti (pieni o vuoti) e titolo modificabile
+        // Renderizza la pagina corrente con supporto a INFINITE foto (griglia scorrevole se > 2 foto)
         function renderAlbumPage(flipDirection = null) {
             if (!albumData.pages || albumData.pages.length === 0) {
-                albumData.pages = [{ title: getDefaultPageTitle(0), maxSlots: 1, slots: [] }];
+                albumData.pages = [{ title: getDefaultPageTitle(0), slots: [] }];
             }
             if (currentAlbumPageIdx >= albumData.pages.length) {
                 currentAlbumPageIdx = albumData.pages.length - 1;
@@ -3176,7 +3273,6 @@
             if (currentAlbumPageIdx < 0) currentAlbumPageIdx = 0;
 
             const page = albumData.pages[currentAlbumPageIdx];
-            const maxSlots = page.maxSlots || getPageMaxSlots(currentAlbumPageIdx);
             if (!Array.isArray(page.slots)) page.slots = [];
             const slots = page.slots;
 
@@ -3188,7 +3284,7 @@
 
             albumPageTitleInput.value = page.title || getDefaultPageTitle(currentAlbumPageIdx);
             const photoCount = slots.filter(Boolean).length;
-            albumPageBadge.textContent = `${photoCount} / ${maxSlots} scomparti`;
+            albumPageBadge.textContent = `${photoCount} ${photoCount === 1 ? 'foto' : 'foto'} • ∞`;
             albumPageCounter.textContent = `${currentAlbumPageIdx + 1} / ${albumData.pages.length}`;
 
             albumPrevPageBtn.disabled = currentAlbumPageIdx === 0;
@@ -3201,8 +3297,8 @@
                 const dot = document.createElement('button');
                 dot.type = 'button';
                 dot.className = idx === currentAlbumPageIdx
-                    ? 'w-4 h-2 rounded-full bg-[#9E0B3D] transition-all'
-                    : 'w-2 h-2 rounded-full bg-[#E5B8C6] hover:bg-[#C96B88] transition-all';
+                    ? 'w-4 h-2 rounded-full bg-[#9E0B3D] transition-all shrink-0'
+                    : 'w-2 h-2 rounded-full bg-[#E5B8C6] hover:bg-[#C96B88] transition-all shrink-0';
                 dot.addEventListener('click', () => {
                     const dir = idx > currentAlbumPageIdx ? 'next' : 'prev';
                     currentAlbumPageIdx = idx;
@@ -3213,8 +3309,9 @@
 
             albumPhotosGrid.innerHTML = '';
 
-            // Se non ci sono ancora scomparti creati nella pagina, mostra uno scomparto vuoto pronto per la foto
+            // Pagina vuota: primo scomparto pronto al tocco
             if (slots.length === 0) {
+                albumPhotosGrid.className = 'relative z-20 flex-1 w-full overflow-hidden flex items-center justify-center pl-1.5';
                 const emptySlotBtn = document.createElement('button');
                 emptySlotBtn.type = 'button';
                 emptySlotBtn.className = 'w-full h-full max-h-[255px] rounded-2xl border-2 border-dashed border-[#E8B8C7] bg-[#FDF5F8]/75 hover:bg-[#FCE8EF] flex flex-col items-center justify-center text-center p-4 cursor-pointer transition group';
@@ -3222,11 +3319,10 @@
                     <div class="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-[#9E0B3D] mb-2 group-hover:scale-110 transition">
                         <i class="fa-solid fa-camera-retro text-lg"></i>
                     </div>
-                    <div class="text-xs font-extrabold text-[#6E1E3B]">Scomparto 1 pronto (max ${maxSlots} in questa pagina)</div>
-                    <div class="text-[11px] text-[#8C4A60] mt-0.5">Tocca qui per mettere la foto oppure premi "+ Aggiungi foto"</div>
+                    <div class="text-xs font-extrabold text-[#6E1E3B]">Pagina vuota (foto illimitate)</div>
+                    <div class="text-[11px] text-[#8C4A60] mt-0.5">Tocca qui per aggiungere la prima foto oppure premi "+ Aggiungi foto"</div>
                 `;
                 emptySlotBtn.addEventListener('click', () => {
-                    // Crea lo scomparto 0 e apre subito la selezione foto per quello scomparto
                     page.slots.push(null);
                     saveAlbumLocally();
                     triggerUploadForSlot(currentAlbumPageIdx, 0);
@@ -3235,18 +3331,23 @@
                 return;
             }
 
-            // Layout dinamico in base al numero di scomparti della pagina (1, 2 o 3)
+            // Layout adattivo: 1 foto grande centrata, 2 foto affiancate/diagonali, 3+ foto in griglia 2 colonne scorrevole
             const totalSlots = slots.length;
+            const isScrollable = totalSlots >= 3;
+            albumPhotosGrid.className = isScrollable
+                ? 'relative z-20 flex-1 w-full overflow-y-auto overflow-x-hidden pl-1.5 pr-1 py-1'
+                : 'relative z-20 flex-1 w-full overflow-hidden flex items-center justify-center pl-1.5';
+
             const isDiagonal = totalSlots === 2 && (currentAlbumPageIdx % 2 === 1);
 
             const containerCls = totalSlots === 1
                 ? 'w-full h-full flex items-center justify-center p-2'
                 : totalSlots === 2
                     ? (isDiagonal ? 'w-full h-full flex flex-col justify-center gap-2.5 px-2' : 'w-full h-full grid grid-cols-2 gap-2.5 items-center px-1')
-                    : 'w-full h-full grid grid-cols-2 gap-2 items-center content-center px-1';
+                    : 'w-full grid grid-cols-2 gap-2.5 items-start py-1 px-0.5';
 
             const cardsHtml = slots.map((slotData, slotIdx) => {
-                const rots = ['-1.8deg', '2deg', '-1.4deg'];
+                const rots = ['-1.6deg', '1.8deg', '-1.2deg', '1.4deg'];
                 const rot = rots[slotIdx % rots.length];
                 let frameCls = 'w-[84%] max-w-[235px]';
                 let aspectCls = 'aspect-[4/4.2]';
@@ -3257,27 +3358,25 @@
                         ? (slotIdx === 0 ? 'self-start w-[66%]' : 'self-end w-[66%] -mt-3')
                         : 'w-full';
                 } else if (totalSlots >= 3) {
-                    aspectCls = slotIdx === 0 ? 'aspect-[16/10]' : 'aspect-[4/3.5]';
-                    frameCls = slotIdx === 0 ? 'col-span-2 w-[78%] mx-auto' : 'col-span-1 w-full';
+                    aspectCls = 'aspect-[4/3.8]';
+                    frameCls = 'w-full';
                 }
 
                 if (slotData && slotData.src) {
-                    const ded = slotData.caption && slotData.caption.trim()
-                        ? slotData.caption.trim()
-                        : 'Tocca per scrivere una dedica ♥';
+                    const hasCaption = typeof slotData.caption === 'string' && slotData.caption.trim().length > 0;
+                    const ded = hasCaption ? slotData.caption.trim() : 'Tocca per scrivere una dedica ♥';
                     return `
-                        <div data-open-slot="${slotIdx}" class="album-photo-frame ${frameCls} cursor-pointer" style="transform: rotate(${rot}); padding-bottom: ${totalSlots >= 3 ? '14px' : '18px'};">
+                        <div data-open-slot="${slotIdx}" class="album-photo-frame ${frameCls} cursor-pointer" style="transform: rotate(${rot}); padding-bottom: ${totalSlots >= 3 ? '12px' : '16px'};">
                             ${totalSlots <= 2 ? '<div class="album-tape" style="width: 34px; height: 10px;"></div>' : ''}
                             <div class="w-full ${aspectCls} bg-[#FDF0F2] overflow-hidden rounded-[2px]">
                                 <img src="${slotData.src}" alt="Ricordo" class="w-full h-full object-cover" onerror="this.style.opacity='0.25'">
                             </div>
-                            <div class="font-caveat ${totalSlots === 1 ? 'text-base' : 'text-xs sm:text-sm'} font-bold text-[#6E1E3B] text-center truncate mt-1 px-1">
+                            <div class="font-caveat ${totalSlots === 1 ? 'text-base' : 'text-xs sm:text-sm'} font-bold ${hasCaption ? 'text-[#9E0B3D]' : 'text-[#8C4A60]/75'} text-center truncate mt-1 px-1">
                                 ${escapeHtml(ded)}
                             </div>
                         </div>
                     `;
                 } else {
-                    // Scomparto vuoto creato da "+ Aggiungi foto": cliccando qui si sceglie la foto da mettere in questo scomparto!
                     return `
                         <button type="button" data-fill-slot="${slotIdx}"
                             class="${frameCls} ${aspectCls} rounded-xl border-2 border-dashed border-[#D9829B] bg-[#FDF5F8]/85 hover:bg-[#FCE4EC] flex flex-col items-center justify-center text-[#9E0B3D] cursor-pointer transition p-2"
@@ -3325,7 +3424,7 @@
             albumPhotoUploadInput.click();
         }
 
-        // 1) Modifica titolo della pagina in tempo reale + salvataggio su GitHub
+        // Modifica titolo della pagina in tempo reale + salvataggio su GitHub
         let titleSyncTimer = null;
         albumPageTitleInput.addEventListener('input', (e) => {
             const page = albumData.pages[currentAlbumPageIdx];
@@ -3351,7 +3450,7 @@
             albumPageTitleInput.select();
         });
 
-        // 2) Eliminazione della pagina corrente
+        // Eliminazione della pagina corrente
         albumDeletePageBtn.addEventListener('click', async () => {
             if (albumData.pages.length <= 1) {
                 showToast("Deve restare almeno una pagina nell'album!");
@@ -3361,7 +3460,7 @@
             if (currentAlbumPageIdx >= albumData.pages.length) {
                 currentAlbumPageIdx = albumData.pages.length - 1;
             }
-            saveAlbumLocally();
+            await saveAlbumLocally();
             renderAlbumPage('prev');
             showToast(`Pagina "${removedPage.title || ''}" eliminata`);
             await syncManifestToGitHub();
@@ -3387,51 +3486,27 @@
             const newIdx = albumData.pages.length;
             albumData.pages.push({
                 title: getDefaultPageTitle(newIdx),
-                maxSlots: getPageMaxSlots(newIdx),
                 slots: []
             });
             currentAlbumPageIdx = newIdx;
-            saveAlbumLocally();
+            await saveAlbumLocally();
             renderAlbumPage('next');
-            showToast(`Nuova pagina creata (${getPageMaxSlots(newIdx)} scomparti)`);
+            showToast(`Nuova pagina creata (foto illimitate)`);
             await syncManifestToGitHub();
         });
 
-        // 3) Pulsante "+ Aggiungi foto": crea uno scomparto vuoto (o va alla pagina dopo se la pagina attuale è già piena)
+        // Pulsante "+ Aggiungi foto": aggiunge sempre un nuovo scomparto nella pagina corrente (NESSUN LIMITE)
         albumAddSlotBtn.addEventListener('click', async () => {
-            let page = albumData.pages[currentAlbumPageIdx];
-            let maxSlots = page.maxSlots || getPageMaxSlots(currentAlbumPageIdx);
-
-            // Se la pagina corrente ha già raggiunto il massimo degli scomparti, passa o crea la pagina successiva
-            if (page.slots.length >= maxSlots) {
-                const nextIdx = currentAlbumPageIdx + 1;
-                if (nextIdx < albumData.pages.length) {
-                    currentAlbumPageIdx = nextIdx;
-                    page = albumData.pages[currentAlbumPageIdx];
-                    maxSlots = page.maxSlots || getPageMaxSlots(currentAlbumPageIdx);
-                    renderAlbumPage('next');
-                } else {
-                    albumData.pages.push({
-                        title: getDefaultPageTitle(nextIdx),
-                        maxSlots: getPageMaxSlots(nextIdx),
-                        slots: [null]
-                    });
-                    currentAlbumPageIdx = nextIdx;
-                    saveAlbumLocally();
-                    renderAlbumPage('next');
-                    showToast("Pagina piena: creata pagina successiva con 1 scomparto!");
-                    await syncManifestToGitHub();
-                    return;
-                }
+            const page = albumData.pages[currentAlbumPageIdx];
+            if (!page) return;
+            page.slots.push(null);
+            await saveAlbumLocally();
+            renderAlbumPage();
+            if (page.slots.length >= 3) {
+                albumPhotosGrid.scrollTo({ top: albumPhotosGrid.scrollHeight, behavior: 'smooth' });
             }
-
-            if (page.slots.length < maxSlots) {
-                page.slots.push(null);
-                saveAlbumLocally();
-                renderAlbumPage();
-                showToast(`Scomparto ${page.slots.length} aggiunto: toccalo per mettere la foto!`);
-                await syncManifestToGitHub();
-            }
+            showToast(`Scomparto ${page.slots.length} aggiunto: toccalo per mettere la foto!`);
+            await syncManifestToGitHub();
         });
 
         function compressAlbumPhoto(file, maxDim = 1024) {
@@ -3459,7 +3534,7 @@
             });
         }
 
-        // Quando si sceglie il file per uno scomparto specifico (o se si clicca direttamente su uno scomparto)
+        // Quando si sceglie il file per uno scomparto specifico
         albumPhotoUploadInput.addEventListener('change', async (e) => {
             const file = (e.target.files || [])[0];
             if (!file) return;
@@ -3476,27 +3551,12 @@
                 }
 
                 const page = albumData.pages[targetPageIdx];
-                const maxSlots = page.maxSlots || getPageMaxSlots(targetPageIdx);
 
                 if (targetSlotIdx < 0) {
-                    // Cerca il primo scomparto vuoto nella pagina corrente
                     targetSlotIdx = page.slots.findIndex(s => s === null);
                     if (targetSlotIdx < 0) {
-                        if (page.slots.length < maxSlots) {
-                            page.slots.push(null);
-                            targetSlotIdx = page.slots.length - 1;
-                        } else {
-                            // Crea nuova pagina e inserisci lì
-                            const nextIdx = albumData.pages.length;
-                            albumData.pages.push({
-                                title: getDefaultPageTitle(nextIdx),
-                                maxSlots: getPageMaxSlots(nextIdx),
-                                slots: [null]
-                            });
-                            currentAlbumPageIdx = nextIdx;
-                            targetPageIdx = nextIdx;
-                            targetSlotIdx = 0;
-                        }
+                        page.slots.push(null);
+                        targetSlotIdx = page.slots.length - 1;
                     }
                 }
 
@@ -3508,18 +3568,19 @@
                     id: photoId,
                     src: dataUrl,
                     path: filePath,
-                    caption: existingCaption
+                    caption: existingCaption,
+                    synced: false
                 };
 
                 page.slots[targetSlotIdx] = photoObj;
                 pendingUploadSlot = null;
-                saveAlbumLocally();
+                await saveAlbumLocally();
                 renderAlbumPage();
 
                 if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
                     await uploadPhotoAndManifestToGitHub(photoObj, dataUrl);
                 } else {
-                    showToast("Foto inserita nello scomparto! Attiva Auto-Save per salvarla su GitHub.");
+                    showToast("Foto salvata nello scomparto! Attiva Auto-Save per caricarla su GitHub.");
                 }
             } catch (err) {
                 console.error("Errore caricamento foto:", err);
@@ -3529,7 +3590,7 @@
             albumPhotoUploadInput.value = '';
         });
 
-        // 4) Modale dettaglio foto: dedica salvata ESATTAMENTE sotto quella foto + rimozione foto dallo scomparto
+        // Modale dettaglio foto: dedica salvata ESATTAMENTE sotto quella foto + rimozione foto dallo scomparto
         function openPhotoDetail(pageIdx, slotIdx) {
             const page = albumData.pages[pageIdx];
             const slot = page?.slots?.[slotIdx];
@@ -3546,23 +3607,30 @@
             selectedPhotoDetail = null;
         });
 
-        albumSaveCaptionBtn.addEventListener('click', async () => {
+        async function commitPhotoCaption() {
             if (!selectedPhotoDetail) return;
             const { pageIdx, slotIdx, photoId } = selectedPhotoDetail;
             const page = albumData.pages[pageIdx];
-            // Trova la foto per id oppure per slotIdx così la dedica va sempre sotto la foto giusta
             let targetPhoto = page?.slots?.[slotIdx];
             if (!targetPhoto || (photoId && targetPhoto.id !== photoId)) {
                 targetPhoto = (page?.slots || []).find(s => s && s.id === photoId) || null;
             }
             if (targetPhoto) {
                 targetPhoto.caption = albumDetailCaptionInput.value.trim();
-                saveAlbumLocally();
+                await saveAlbumLocally();
                 renderAlbumPage();
                 albumPhotoDetailModal.classList.add('hidden');
                 selectedPhotoDetail = null;
                 showToast("Dedica salvata sotto la foto!");
                 await syncManifestToGitHub();
+            }
+        }
+
+        albumSaveCaptionBtn.addEventListener('click', commitPhotoCaption);
+        albumDetailCaptionInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                commitPhotoCaption();
             }
         });
 
@@ -3571,9 +3639,8 @@
             const { pageIdx, slotIdx } = selectedPhotoDetail;
             const page = albumData.pages[pageIdx];
             if (page && page.slots && page.slots[slotIdx]) {
-                // Lascia lo scomparto vuoto (`null`) così il layout resta ordinato
                 page.slots[slotIdx] = null;
-                saveAlbumLocally();
+                await saveAlbumLocally();
                 renderAlbumPage();
                 albumPhotoDetailModal.classList.add('hidden');
                 selectedPhotoDetail = null;
@@ -3584,7 +3651,7 @@
 
         /**
          * ============================================================================
-         * 6B. MOTORE DI SALVATAGGIO AUTOMATICO SU GITHUB (Contents API)
+         * 6B. MOTORE DI SALVATAGGIO AUTOMATICO SU GITHUB (Contents API - TUTTE LE PAGINE)
          * ============================================================================
          */
         openAlbumGitHubModalBtn.addEventListener('click', () => {
@@ -3614,7 +3681,7 @@
 
             if (ghConfig.owner && ghConfig.repo && ghConfig.token) {
                 updateAlbumStatusUI('ok', 'Auto-Save GitHub attivo ✓');
-                showToast("Collegato a GitHub! Sincronizzo l'album...");
+                showToast("Collegato a GitHub! Sincronizzo tutte le pagine e le foto...");
                 await syncAllLocalPhotosToGitHub();
             } else {
                 updateAlbumStatusUI('idle', 'Collega GitHub per salvare in automatico');
@@ -3648,7 +3715,7 @@
 
             let sha = null;
             try {
-                const getResp = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, {
+                const getResp = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}&t=${Date.now()}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/vnd.github+json'
@@ -3691,9 +3758,9 @@
                 const base64Img = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
                 await githubPutFile(photoObj.path, base64Img, `Aggiunta foto album (${photoObj.id})`);
 
-                // Aggiorna `src` al percorso relativo del repository mantenendo l'immagine visibile
-                photoObj.src = photoObj.path;
-                saveAlbumLocally();
+                // Segna come sincronizzata su GitHub mantenendo il dataURL in IndexedDB per visualizzazione immediata senza ritardi CDN
+                photoObj.synced = true;
+                await saveAlbumLocally();
 
                 await syncManifestToGitHub();
                 updateAlbumStatusUI('ok', 'Salvato su GitHub ✓');
@@ -3709,11 +3776,28 @@
             if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
             try {
                 updateAlbumStatusUI('syncing', 'Aggiorno album su GitHub...');
+
+                // Prima carica su GitHub qualsiasi foto di qualsiasi pagina che non fosse ancora stata caricata
+                for (let pIdx = 0; pIdx < albumData.pages.length; pIdx++) {
+                    const page = albumData.pages[pIdx];
+                    for (let sIdx = 0; sIdx < (page.slots || []).length; sIdx++) {
+                        const sl = page.slots[sIdx];
+                        if (sl && sl.src && sl.src.startsWith('data:image/') && !sl.synced) {
+                            const base64Img = sl.src.split(',')[1];
+                            const targetPath = sl.path || `album/${sl.id}.jpg`;
+                            await githubPutFile(targetPath, base64Img, `Sync foto pagina ${pIdx + 1} (${sl.id})`);
+                            sl.path = targetPath;
+                            sl.synced = true;
+                        }
+                    }
+                }
+                await saveAlbumLocally();
+
+                // Poi aggiorna album/album.json con TUTTE le pagine, TUTTE le foto e TUTTE le dediche
                 const cleanManifest = {
                     updatedAt: new Date().toISOString(),
                     pages: albumData.pages.map((pg, idx) => ({
                         title: pg.title || getDefaultPageTitle(idx),
-                        maxSlots: pg.maxSlots || getPageMaxSlots(idx),
                         slots: (pg.slots || []).map(sl => {
                             if (!sl) return null;
                             const cleanPath = sl.path || (sl.src && !sl.src.startsWith('data:') ? sl.src : `album/${sl.id}.jpg`);
@@ -3721,13 +3805,13 @@
                                 id: sl.id,
                                 src: cleanPath,
                                 path: cleanPath,
-                                caption: sl.caption || ''
+                                caption: typeof sl.caption === 'string' ? sl.caption : ''
                             };
                         })
                     }))
                 };
                 const jsonBase64 = utf8ToBase64(JSON.stringify(cleanManifest, null, 2));
-                await githubPutFile('album/album.json', jsonBase64, 'Aggiornamento album fotografico');
+                await githubPutFile('album/album.json', jsonBase64, 'Aggiornamento album fotografico e dediche');
                 updateAlbumStatusUI('ok', 'Salvato su GitHub ✓');
             } catch (err) {
                 console.error(err);
@@ -3741,22 +3825,26 @@
                 return;
             }
             try {
-                updateAlbumStatusUI('syncing', 'Sincronizzazione foto su GitHub...');
-                for (const page of albumData.pages) {
-                    for (const sl of (page.slots || [])) {
+                updateAlbumStatusUI('syncing', 'Sincronizzazione tutte le pagine su GitHub...');
+                let uploadedCount = 0;
+                for (let pIdx = 0; pIdx < albumData.pages.length; pIdx++) {
+                    const page = albumData.pages[pIdx];
+                    for (let sIdx = 0; sIdx < (page.slots || []).length; sIdx++) {
+                        const sl = page.slots[sIdx];
                         if (sl && sl.src && sl.src.startsWith('data:image/')) {
                             const base64Img = sl.src.split(',')[1];
                             const targetPath = sl.path || `album/${sl.id}.jpg`;
-                            await githubPutFile(targetPath, base64Img, `Sync foto album (${sl.id})`);
+                            await githubPutFile(targetPath, base64Img, `Sync foto pagina ${pIdx + 1} (${sl.id})`);
                             sl.path = targetPath;
-                            sl.src = targetPath;
+                            sl.synced = true;
+                            uploadedCount++;
                         }
                     }
                 }
-                saveAlbumLocally();
+                await saveAlbumLocally();
                 await syncManifestToGitHub();
                 renderAlbumPage();
-                showToast("Tutte le foto sono ora su GitHub!");
+                showToast(`Sincronizzate ${albumData.pages.length} pagine (${uploadedCount} foto) su GitHub!`);
             } catch (err) {
                 console.error(err);
                 updateAlbumStatusUI('error', 'Errore sincronizzazione');
