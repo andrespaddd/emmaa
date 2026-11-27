@@ -721,28 +721,28 @@
                         </g>
                     </svg>
 
-                    <!-- Barra superiore: Titolo Album + Stato Sync GitHub + Impostazioni -->
+                    <!-- Barra superiore: Titolo Album + Stato Sync + Condividi / Auto-Save -->
                     <div class="relative z-20 w-full max-w-[385px] sm:max-w-[440px] flex items-center justify-between gap-2 mb-2 px-1">
-                        <div>
-                            <h2 class="text-[1.3rem] sm:text-[1.6rem] font-black text-[#B32851] leading-tight tracking-tight">
+                        <div class="min-w-0">
+                            <h2 class="text-[1.3rem] sm:text-[1.6rem] font-black text-[#B32851] leading-tight tracking-tight truncate">
                                 Our Photo Album
                             </h2>
                             <div id="albumGitHubStatus" class="text-[10px] sm:text-[11px] font-bold text-[#8C4A60] flex items-center gap-1">
-                                <span id="albumStatusDot" class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                                <span id="albumStatusText">Salvataggio automatico attivo</span>
+                                <span id="albumStatusDot" class="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span id="albumStatusText" class="truncate">Caricamento...</span>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-1.5">
+                        <div class="flex items-center gap-1.5 shrink-0">
                             <button type="button" id="albumDeletePageBtn" title="Elimina questa pagina"
-                                class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/90 hover:bg-[#FCE4EC] text-[#9E0B3D] text-[11px] font-extrabold shadow-sm border border-[#F3C5D5] transition active:scale-95">
+                                class="flex items-center gap-1 px-2 py-1.5 rounded-full bg-white/90 hover:bg-[#FCE4EC] text-[#9E0B3D] text-[11px] font-extrabold shadow-sm border border-[#F3C5D5] transition active:scale-95">
                                 <i class="fa-solid fa-trash-can text-xs"></i>
-                                <span>Elimina pag.</span>
+                                <span class="hidden sm:inline">Elimina</span>
                             </button>
-                            <button type="button" id="openAlbumGitHubModalBtn" title="Collega salvataggio automatico su GitHub"
-                                class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-[#6E1E3B] text-[11px] font-extrabold shadow-sm border border-[#F3C5D5] transition active:scale-95">
-                                <i class="fa-brands fa-github text-[#9E0B3D] text-xs"></i>
-                                <span>Auto-Save</span>
+                            <button type="button" id="openAlbumGitHubModalBtn" title="Condividi su altri telefoni / GitHub Auto-Save"
+                                class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#9E0B3D] hover:bg-[#b30d45] text-white text-[11px] font-extrabold shadow-sm transition active:scale-95">
+                                <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                                <span>Condividi</span>
                             </button>
                         </div>
                     </div>
@@ -1308,16 +1308,16 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- MODALE COLLEGAMENTO AUTOMATICO GITHUB PER L'ALBUM FOTOGRAFICO         -->
+    <!-- MODALE CONDIVISIONE SU TUTTI I TELEFONI (GITHUB AUTO-SAVE + EXPORT)   -->
     <!-- ===================================================================== -->
     <div id="albumGitHubModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-[#FDF0F2] border-2 border-[#EED5DA] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden screen-enter">
-            <div class="px-5 py-4 bg-white/85 border-b border-[#EED5DA] flex items-center justify-between">
+        <div class="bg-[#FDF0F2] border-2 border-[#EED5DA] rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl overflow-hidden screen-enter">
+            <div class="px-5 py-4 bg-white/85 border-b border-[#EED5DA] flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-2">
-                    <i class="fa-brands fa-github text-xl text-[#6E1E3B]"></i>
+                    <i class="fa-solid fa-globe text-lg text-[#9E0B3D]"></i>
                     <div>
-                        <h3 class="text-base font-extrabold text-[#6E1E3B]">Salvataggio Automatico GitHub</h3>
-                        <p class="text-[11px] text-[#8C4A60]">Sincronizza foto, album e dediche su tutti i dispositivi</p>
+                        <h3 class="text-base font-extrabold text-[#6E1E3B]">Rendi Visibile a Tutti</h3>
+                        <p class="text-[11px] text-[#8C4A60]">Sincronizza foto, album e dediche su ogni telefono</p>
                     </div>
                 </div>
                 <button id="closeAlbumGitHubModalBtn" class="w-8 h-8 rounded-full bg-[#FDF0F2] hover:bg-[#F6B9C8] text-[#6E1E3B] flex items-center justify-center transition">
@@ -1325,47 +1325,74 @@
                 </button>
             </div>
 
-            <div class="p-5 space-y-3 text-left">
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div>
-                        <label class="block text-[11px] font-extrabold text-[#6E1E3B] mb-1">Username GitHub</label>
-                        <input type="text" id="ghOwnerInput" placeholder="es. mario-rossi"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
+            <div class="p-5 space-y-3.5 text-left overflow-y-auto flex-1">
+                <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
+                    <strong>Perché gli altri non vedono le foto?</strong><br>
+                    Quando carichi una foto dal telefono, resta salvata solo nella memoria del <em>tuo</em> telefono finché non la pubblichi online. Hai <strong>2 modi</strong> per farla vedere a chiunque apra il sito:
+                </div>
+
+                <!-- OPZIONE 1: GITHUB AUTO-SAVE -->
+                <div class="p-3.5 rounded-2xl bg-white border border-[#EED5DA] space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black text-[#6E1E3B] flex items-center gap-1.5">
+                            <i class="fa-brands fa-github text-sm"></i> 1. Auto-Save su GitHub (Automatico)
+                        </span>
+                        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener"
+                           class="text-[10px] font-extrabold text-[#9E0B3D] underline">Crea Token &rarr;</a>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-extrabold text-[#6E1E3B] mb-1">Nome Repository</label>
-                        <input type="text" id="ghRepoInput" placeholder="es. love-gift"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-[#6E1E3B] mb-0.5">Username GitHub</label>
+                            <input type="text" id="ghOwnerInput" placeholder="es. mario-rossi"
+                                class="w-full px-2.5 py-1.5 rounded-xl bg-[#FDF0F2]/60 border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-[#6E1E3B] mb-0.5">Nome Repository</label>
+                            <input type="text" id="ghRepoInput" placeholder="es. love-gift"
+                                class="w-full px-2.5 py-1.5 rounded-xl bg-[#FDF0F2]/60 border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-extrabold text-[#6E1E3B] mb-0.5">Branch</label>
+                            <input type="text" id="ghBranchInput" value="main"
+                                class="w-full px-2.5 py-1.5 rounded-xl bg-[#FDF0F2]/60 border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-[10px] font-extrabold text-[#6E1E3B] mb-0.5">GitHub Token (Contents: Read & Write)</label>
+                            <input type="password" id="ghTokenInput" placeholder="github_pat_..."
+                                class="w-full px-2.5 py-1.5 rounded-xl bg-[#FDF0F2]/60 border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-2 pt-1">
+                        <button type="button" id="syncAlbumNowBtn"
+                            class="px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] transition">
+                            <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Pubblica ora su GitHub
+                        </button>
+                        <button type="button" id="saveAlbumGitHubConfigBtn"
+                            class="px-4 py-1.5 rounded-full text-[11px] font-extrabold bg-[#9E0B3D] text-white shadow hover:bg-[#b30d45] transition">
+                            Salva & Sincronizza
+                        </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2.5">
-                    <div class="col-span-1">
-                        <label class="block text-[11px] font-extrabold text-[#6E1E3B] mb-1">Branch</label>
-                        <input type="text" id="ghBranchInput" value="main"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
+                <!-- OPZIONE 2: SCARICA FILE HTML AUTONOMO CON TUTTE LE FOTO DENTRO -->
+                <div class="p-3.5 rounded-2xl bg-white border border-[#EED5DA] space-y-2">
+                    <div class="text-xs font-black text-[#6E1E3B] flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-arrow-down text-[#9E0B3D]"></i> 2. Oppure Scarica il Sito Completo (Senza Token)
                     </div>
-                    <div class="col-span-2">
-                        <label class="block text-[11px] font-extrabold text-[#6E1E3B] mb-1">GitHub Token (Contents: Read & Write)</label>
-                        <input type="password" id="ghTokenInput" placeholder="github_pat_..."
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
-                    </div>
+                    <p class="text-[11px] text-[#7D4B5A] leading-relaxed">
+                        Scarica una copia di <strong>index.html</strong> con tutte le foto dell'album, le dediche, la Polaroid e la lettera già incorporate dentro. Ti basta ricaricare quel file su GitHub / Netlify per farlo vedere a tutti!
+                    </p>
+                    <button type="button" id="exportStandaloneHtmlBtn"
+                        class="w-full py-2 rounded-full text-xs font-extrabold bg-[#6E1E3B] hover:bg-[#54152C] text-white shadow-sm transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Scarica index.html con tutte le foto incluse</span>
+                    </button>
                 </div>
-
-                <p class="text-[11px] text-[#7D4B5A] bg-white/80 p-2.5 rounded-xl border border-[#EED5DA] leading-relaxed">
-                    <strong>Nota:</strong> Le foto e le dediche restano comunque salvate in modo permanente sul tuo dispositivo anche senza GitHub. Con il Token GitHub vengono salvate anche online per vederle da qualsiasi telefono.
-                </p>
-            </div>
-
-            <div class="px-5 py-3.5 bg-white/85 border-t border-[#EED5DA] flex items-center justify-between gap-2">
-                <button type="button" id="syncAlbumNowBtn"
-                    class="px-3.5 py-2 rounded-full text-xs font-extrabold bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] transition">
-                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Sincronizza ora
-                </button>
-                <button type="button" id="saveAlbumGitHubConfigBtn"
-                    class="px-5 py-2 rounded-full text-xs font-extrabold bg-[#9E0B3D] text-white shadow hover:bg-[#b30d45] transition">
-                    Attiva Auto-Save
-                </button>
             </div>
         </div>
     </div>
@@ -1404,6 +1431,9 @@
     <div id="toastMsg" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-[#6E1E3B] text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300">
         Salvato!
     </div>
+
+    <!-- DATI INCORPORATI PER CONDIVISIONE UNIVERSALE SU QUALSIASI DISPOSITIVO -->
+    <script id="embeddedGiftData" type="application/json">null</script>
 
     <script>
         /**
@@ -1502,8 +1532,18 @@
         ];
 
         // ============================================================================
+        // LETTURA EVENTUALI DATI INCORPORATI NELL'HTML (PER CONDIVISIONE UNIVERSALE)
+        // ============================================================================
+        let EMBEDDED_SNAPSHOT = null;
+        try {
+            const embEl = document.getElementById('embeddedGiftData');
+            if (embEl && embEl.textContent && embEl.textContent.trim() !== 'null') {
+                EMBEDDED_SNAPSHOT = JSON.parse(embEl.textContent);
+            }
+        } catch (e) {}
+
+        // ============================================================================
         // DATABASE PERSISTENTE UNIFICATO (IndexedDB + localStorage di backup)
-        // Garantisce che foto, dediche, lettera, Polaroid e gattini NON spariscano MAI
         // ============================================================================
         const UNIFIED_DB_NAME = 'LoveGiftPersistentDB_v1';
         const UNIFIED_DB_STORE = 'kvStore';
@@ -1552,7 +1592,6 @@
             }
         }
 
-        // Richiedi storage persistente al browser (evita che Safari/Chrome puliscano i dati in automatico)
         if (navigator.storage && navigator.storage.persist) {
             navigator.storage.persist().catch(() => {});
         }
@@ -1562,14 +1601,17 @@
         let celebrationRunning = false;
         let celebrationTimers = [];
 
+        if (EMBEDDED_SNAPSHOT && EMBEDDED_SNAPSHOT.customCatImages) {
+            customCatImages = { ...EMBEDDED_SNAPSHOT.customCatImages };
+        }
         try {
             const saved = localStorage.getItem('loveMeterCustomCats_v1');
-            if (saved) customCatImages = JSON.parse(saved);
+            if (saved) customCatImages = { ...customCatImages, ...JSON.parse(saved) };
         } catch (e) {}
 
         idbGet('customCatImages').then(res => {
-            if (res && Object.keys(res).length > 0 && Object.keys(customCatImages).length === 0) {
-                customCatImages = res;
+            if (res && Object.keys(res).length > 0) {
+                customCatImages = { ...customCatImages, ...res };
                 if (currentCatState >= 0) renderCatVisual(currentCatState);
             }
         });
@@ -2131,7 +2173,7 @@
             clearTimeout(toastTimer);
             toastTimer = setTimeout(() => {
                 toastMsg.style.opacity = '0';
-            }, 2400);
+            }, 2600);
         }
 
         /**
@@ -2341,6 +2383,10 @@
         }, { once: true });
 
         let songMetaState = {};
+        if (EMBEDDED_SNAPSHOT && EMBEDDED_SNAPSHOT.songMeta) {
+            songMetaState = { ...EMBEDDED_SNAPSHOT.songMeta };
+        }
+
         function applySongMetaToUI(meta) {
             if (!meta) return;
             if (meta.title) {
@@ -2364,15 +2410,30 @@
         }
 
         try {
-            songMetaState = JSON.parse(localStorage.getItem('loveGiftSongMeta_v1') || '{}');
+            songMetaState = { ...songMetaState, ...JSON.parse(localStorage.getItem('loveGiftSongMeta_v1') || '{}') };
             applySongMetaToUI(songMetaState);
         } catch (e) {}
 
-        idbGet('loveGiftSongMeta_v1').then(res => {
+        async function loadSongMetaFromRemoteOrIDB() {
+            const res = await idbGet('loveGiftSongMeta_v1');
             if (res) {
                 songMetaState = { ...songMetaState, ...res };
                 applySongMetaToUI(songMetaState);
             }
+
+            // Carica anche dal server/GitHub se presente album/song_meta.json
+            try {
+                const resp = await fetch('album/song_meta.json?t=' + Date.now(), { cache: 'no-store' });
+                if (resp.ok) {
+                    const remoteMeta = await resp.json();
+                    if (remoteMeta) {
+                        songMetaState = { ...remoteMeta, ...songMetaState };
+                        applySongMetaToUI(songMetaState);
+                        idbSet('loveGiftSongMeta_v1', songMetaState);
+                    }
+                }
+            } catch (e) {}
+
             if (!songMetaState.cover && DEFAULT_COVER_IMAGE) {
                 songCoverImg.src = DEFAULT_COVER_IMAGE;
                 songCoverImg.classList.remove('hidden');
@@ -2382,7 +2443,8 @@
                     defaultCoverArt.classList.remove('hidden');
                 };
             }
-        });
+        }
+        loadSongMetaFromRemoteOrIDB();
 
         function persistSongMeta(patch) {
             songMetaState = { ...songMetaState, ...patch };
@@ -2390,6 +2452,9 @@
             try {
                 localStorage.setItem('loveGiftSongMeta_v1', JSON.stringify(songMetaState));
             } catch (e) {}
+            if (ghConfig && ghConfig.token && ghConfig.owner && ghConfig.repo) {
+                enqueueGitHubTask(() => syncSongMetaToGitHub());
+            }
         }
 
         openSongEditBtn.addEventListener('click', () => songEditModal.classList.remove('hidden'));
@@ -2693,7 +2758,18 @@
                 return;
             }
 
-            // Controlla IndexedDB + localStorage
+            if (EMBEDDED_SNAPSHOT && EMBEDDED_SNAPSHOT.letter && typeof EMBEDDED_SNAPSHOT.letter.text === 'string') {
+                letterTextarea.value = EMBEDDED_SNAPSHOT.letter.text;
+                if (EMBEDDED_SNAPSHOT.letter.font && FONT_CLASSES.includes(EMBEDDED_SNAPSHOT.letter.font)) {
+                    letterFontSelect.value = EMBEDDED_SNAPSHOT.letter.font;
+                    applyLetterFont(EMBEDDED_SNAPSHOT.letter.font);
+                }
+                if (EMBEDDED_SNAPSHOT.letter.size) {
+                    letterFontSize = EMBEDDED_SNAPSHOT.letter.size;
+                    applyLetterSize(letterFontSize);
+                }
+            }
+
             const idbSaved = await idbGet(LETTER_STORAGE_KEY);
             const localSaved = idbSaved || readLocalFallbackLetterState();
 
@@ -2711,13 +2787,13 @@
                 }
             }
 
-            // Controlla anche eventuali file letter.json / lettera.txt su GitHub se localmente è vuoto
-            if (!letterTextarea.value.trim()) {
-                try {
-                    const respJson = await fetch('album/lettera.json?t=' + Date.now(), { cache: 'no-store' });
-                    if (respJson.ok) {
-                        const data = await respJson.json();
-                        if (data && typeof data.text === 'string' && data.text.trim()) {
+            // Controlla anche eventuali file album/lettera.json o lettera.txt sul server/GitHub!
+            try {
+                const respJson = await fetch('album/lettera.json?t=' + Date.now(), { cache: 'no-store' });
+                if (respJson.ok) {
+                    const data = await respJson.json();
+                    if (data && typeof data.text === 'string' && data.text.trim()) {
+                        if (!letterTextarea.value.trim()) {
                             letterTextarea.value = data.text;
                             if (data.font && FONT_CLASSES.includes(data.font)) {
                                 letterFontSelect.value = data.font;
@@ -2728,11 +2804,13 @@
                                 applyLetterSize(letterFontSize);
                             }
                             saveLetterState(false);
-                            return;
                         }
+                        return;
                     }
-                } catch (e) {}
+                }
+            } catch (e) {}
 
+            if (!letterTextarea.value.trim()) {
                 const txtCandidates = ['lettera.txt', './lettera.txt', 'Lettera.txt', 'LETTERA.TXT'];
                 for (const url of txtCandidates) {
                     try {
@@ -2780,6 +2858,7 @@
         const ghTokenInput = document.getElementById('ghTokenInput');
         const saveAlbumGitHubConfigBtn = document.getElementById('saveAlbumGitHubConfigBtn');
         const syncAlbumNowBtn = document.getElementById('syncAlbumNowBtn');
+        const exportStandaloneHtmlBtn = document.getElementById('exportStandaloneHtmlBtn');
 
         const albumPhotoDetailModal = document.getElementById('albumPhotoDetailModal');
         const closeAlbumPhotoDetailBtn = document.getElementById('closeAlbumPhotoDetailBtn');
@@ -2867,7 +2946,6 @@
                     tx.onerror = (e) => reject(e.target.error);
                 });
             } catch (e) {}
-            // Salva anche nel DB unificato come ulteriore sicurezza
             await idbSet('albumDataBackup', dataObj);
         }
 
@@ -2912,17 +2990,12 @@
             return null;
         }
 
-        // Salvataggio sincrono in localStorage:
-        // MANTIENE i dataURL delle foto finché entrano nello spazio di localStorage (circa 4.5MB)!
-        // Così anche se IndexedDB dovesse fallire o essere lento, le foto e le dediche non spariscono MAI!
         function saveAlbumLocalStorageBackup() {
             try {
                 const fullJson = JSON.stringify(albumData);
                 localStorage.setItem(ALBUM_STORAGE_KEY, fullJson);
                 return;
             } catch (e) {
-                // Se supera la quota di ~5MB di localStorage, salva comunque tutte le pagine e dediche
-                // mantenendo i dataURL delle foto più recenti fino al limite disponibile
                 try {
                     const partialCopy = {
                         pages: albumData.pages.map((pg, idx) => ({
@@ -2939,7 +3012,6 @@
                             })
                         }))
                     };
-                    // Riduci progressivamente i dataURL più vecchi solo se serve spazio
                     for (let p = 0; p < partialCopy.pages.length; p++) {
                         for (let s = 0; s < partialCopy.pages[p].slots.length; s++) {
                             const slot = partialCopy.pages[p].slots[s];
@@ -3004,13 +3076,15 @@
         function updateAlbumStatusUI(state, text) {
             albumStatusText.textContent = text;
             if (state === 'ok') {
-                albumStatusDot.className = 'inline-block w-2 h-2 rounded-full bg-emerald-500';
+                albumStatusDot.className = 'inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0';
             } else if (state === 'syncing') {
-                albumStatusDot.className = 'inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping';
+                albumStatusDot.className = 'inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping shrink-0';
+            } else if (state === 'warn') {
+                albumStatusDot.className = 'inline-block w-2 h-2 rounded-full bg-amber-500 shrink-0';
             } else if (state === 'error') {
-                albumStatusDot.className = 'inline-block w-2 h-2 rounded-full bg-rose-500';
+                albumStatusDot.className = 'inline-block w-2 h-2 rounded-full bg-rose-500 shrink-0';
             } else {
-                albumStatusDot.className = 'inline-block w-2 h-2 rounded-full bg-emerald-500';
+                albumStatusDot.className = 'inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0';
             }
         }
 
@@ -3161,6 +3235,22 @@
             return null;
         }
 
+        function refreshAlbumStatusBadge() {
+            const stats = countTotalPhotosAndCaptions(albumData);
+            const hasLocalOnlyPhotos = albumData.pages.some(pg =>
+                (pg.slots || []).some(sl => sl && sl.src && sl.src.startsWith('data:image/') && !sl.synced)
+            );
+            if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
+                updateAlbumStatusUI('ok', `Online per tutti ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
+            } else if (hasLocalOnlyPhotos) {
+                updateAlbumStatusUI('warn', `Solo su questo tel • Tocca "Condividi" (${stats.photos} foto)`);
+            } else if (stats.photos > 0) {
+                updateAlbumStatusUI('ok', `Visibile a tutti ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
+            } else {
+                updateAlbumStatusUI('ok', `Pronto • Aggiungi foto e tocca Condividi`);
+            }
+        }
+
         async function initAlbumData() {
             let loadedLocal = await loadAlbumFromIDB();
             if (!loadedLocal) {
@@ -3177,9 +3267,16 @@
                 } catch (e) {}
             }
 
-            if (loadedLocal) {
+            if (EMBEDDED_SNAPSHOT && EMBEDDED_SNAPSHOT.album) {
+                const embNorm = normalizeAlbumStructure(EMBEDDED_SNAPSHOT.album);
+                if (loadedLocal) {
+                    albumData = mergeAlbumWithRemote(normalizeAlbumStructure(loadedLocal), embNorm);
+                } else {
+                    albumData = embNorm;
+                }
+                await saveAlbumLocally();
+            } else if (loadedLocal) {
                 albumData = normalizeAlbumStructure(loadedLocal);
-                // Assicura che anche IndexedDB sia allineato con il backup localStorage
                 await saveAlbumToIDB(albumData);
             }
 
@@ -3192,25 +3289,15 @@
                 await saveAlbumLocally();
                 renderAlbumPage();
 
-                const stats = countTotalPhotosAndCaptions(albumData);
                 if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
-                    updateAlbumStatusUI('ok', `Salvato ovunque ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
                     const hasUnsynced = albumData.pages.some(pg => (pg.slots || []).some(sl => sl && sl.src && sl.src.startsWith('data:image/') && !sl.synced));
                     if (hasUnsynced) {
                         enqueueGitHubTask(() => syncManifestToGitHub());
                     }
-                } else {
-                    updateAlbumStatusUI('ok', `Salvato sul dispositivo ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
                 }
-                return;
             }
 
-            const stats = countTotalPhotosAndCaptions(albumData);
-            if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
-                updateAlbumStatusUI('ok', `Auto-Save attivo ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
-            } else {
-                updateAlbumStatusUI('ok', `Salvato sul dispositivo ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
-            }
+            refreshAlbumStatusBadge();
         }
 
         function renderAlbumPage(flipDirection = null) {
@@ -3403,6 +3490,7 @@
             }
             await saveAlbumLocally();
             renderAlbumPage('prev');
+            refreshAlbumStatusBadge();
             showToast(`Pagina "${removedPage.title || ''}" eliminata`);
             enqueueGitHubTask(() => syncManifestToGitHub());
         });
@@ -3434,7 +3522,6 @@
             enqueueGitHubTask(() => syncManifestToGitHub());
         });
 
-        // Ora il pulsante "+ Aggiungi foto" apre direttamente la galleria per aggiungere subito una o più foto!
         albumAddSlotBtn.addEventListener('click', () => {
             triggerUploadForSlot(currentAlbumPageIdx, -1);
         });
@@ -3513,9 +3600,7 @@
 
                 await saveAlbumLocally();
                 renderAlbumPage();
-
-                const stats = countTotalPhotosAndCaptions(albumData);
-                updateAlbumStatusUI('ok', `Salvato sul dispositivo ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
+                refreshAlbumStatusBadge();
 
                 if (page.slots.length >= 3) {
                     albumPhotosGrid.scrollTo({ top: albumPhotosGrid.scrollHeight, behavior: 'smooth' });
@@ -3527,10 +3612,7 @@
                     }
                     enqueueGitHubTask(() => syncManifestToGitHub());
                 } else {
-                    const msg = newlyAddedPhotos.length > 1
-                        ? `${newlyAddedPhotos.length} foto aggiunte e salvate!`
-                        : "Foto aggiunta e salvata!";
-                    showToast(msg);
+                    showToast("Foto salvata! Per farla vedere anche agli altri telefoni tocca 'Condividi'.");
                 }
             } catch (err) {
                 console.error("Errore caricamento foto:", err);
@@ -3562,13 +3644,11 @@
             return targetPhoto;
         }
 
-        // Salvataggio ISTANTANEO ad ogni carattere digitato nella dedica (anche se si esce subito dal sito!)
         let captionSaveDebounce = null;
         albumDetailCaptionInput.addEventListener('input', () => {
             const targetPhoto = getSelectedPhotoObject();
             if (!targetPhoto) return;
             targetPhoto.caption = albumDetailCaptionInput.value;
-            // Salva subito sincrono in localStorage + asincrono in IndexedDB
             saveAlbumLocalStorageBackup();
             saveAlbumToIDB(albumData);
             renderAlbumPage();
@@ -3586,8 +3666,7 @@
                 targetPhoto.caption = trimmed;
                 await saveAlbumLocally();
                 renderAlbumPage();
-                const stats = countTotalPhotosAndCaptions(albumData);
-                updateAlbumStatusUI('ok', `Salvato ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
+                refreshAlbumStatusBadge();
                 if (showNotification) {
                     showToast("Dedica salvata sotto la foto!");
                 }
@@ -3620,6 +3699,7 @@
                 page.slots.splice(slotIdx, 1);
                 await saveAlbumLocally();
                 renderAlbumPage();
+                refreshAlbumStatusBadge();
                 albumPhotoDetailModal.classList.add('hidden');
                 selectedPhotoDetail = null;
                 showToast("Foto eliminata dall'album");
@@ -3629,7 +3709,7 @@
 
         /**
          * ============================================================================
-         * 6B. MOTORE DI SALVATAGGIO AUTOMATICO SU GITHUB
+         * 6B. CONDIVISIONE SU TUTTI I TELEFONI: GITHUB AUTO-SAVE + EXPORT HTML
          * ============================================================================
          */
         openAlbumGitHubModalBtn.addEventListener('click', () => {
@@ -3658,11 +3738,12 @@
             albumGitHubModal.classList.add('hidden');
 
             if (ghConfig.owner && ghConfig.repo && ghConfig.token) {
-                updateAlbumStatusUI('ok', 'Auto-Save GitHub attivo ✓');
-                showToast("Collegato a GitHub! Sincronizzo foto, dediche e lettera...");
+                updateAlbumStatusUI('syncing', 'Sincronizzazione su GitHub...');
+                showToast("Collegato a GitHub! Pubblico foto, dediche e lettera...");
                 enqueueGitHubTask(() => syncAllLocalPhotosToGitHub());
             } else {
-                updateAlbumStatusUI('ok', 'Salvato sul dispositivo ✓');
+                refreshAlbumStatusBadge();
+                showToast("Inserisci Username, Repository e Token GitHub!");
             }
         });
 
@@ -3678,6 +3759,63 @@
             } catch (e) {}
             albumGitHubModal.classList.add('hidden');
             enqueueGitHubTask(() => syncAllLocalPhotosToGitHub());
+        });
+
+        // Esporta un file index.html autonomo con TUTTE le foto dell'album, dediche, lettera, Polaroid e gattini incorporati!
+        exportStandaloneHtmlBtn.addEventListener('click', async () => {
+            try {
+                flushAllStateBeforeExit();
+                const snapshot = {
+                    album: albumData,
+                    letter: {
+                        text: letterTextarea.value,
+                        font: letterFontSelect.value,
+                        size: letterFontSize
+                    },
+                    songMeta: songMetaState,
+                    customCatImages: customCatImages
+                };
+                const safeJson = JSON.stringify(snapshot).replace(/<\/script/gi, '<\\/script');
+                const docClone = document.documentElement.cloneNode(true);
+
+                // Ripristina le classi iniziali delle pagine del libro nel file esportato
+                const s1 = docClone.querySelector('#screen1');
+                const s2 = docClone.querySelector('#screen2');
+                const s3 = docClone.querySelector('#screen3');
+                if (s1) s1.className = 'book-page page-active flex flex-col items-center justify-center px-6 text-center';
+                if (s2) s2.className = 'book-page page-hidden flex flex-col items-center justify-center px-5 py-8 overflow-hidden';
+                if (s3) s3.className = 'book-page page-hidden overflow-hidden';
+                const sw = docClone.querySelector('#spatialWorld');
+                if (sw) sw.style.transform = 'translate3d(0vw, 0vh, 0)';
+
+                // Chiudi eventuali modali aperti nel clone
+                ['songEditModal', 'customModal', 'albumGitHubModal', 'albumPhotoDetailModal'].forEach(id => {
+                    const m = docClone.querySelector('#' + id);
+                    if (m && !m.classList.contains('hidden')) m.classList.add('hidden');
+                });
+
+                const embScript = docClone.querySelector('#embeddedGiftData');
+                if (embScript) {
+                    embScript.textContent = safeJson;
+                }
+
+                const fullHtml = '<!DOCTYPE html>\n' + docClone.outerHTML;
+                const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'index.html';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 4000);
+
+                albumGitHubModal.classList.add('hidden');
+                showToast("index.html scaricato con tutte le foto e dediche incluse!");
+            } catch (err) {
+                console.error(err);
+                showToast("Errore durante l'esportazione del file.");
+            }
         });
 
         function utf8ToBase64(str) {
@@ -3738,7 +3876,7 @@
         async function uploadSinglePhotoToGitHub(photoObj, dataUrl) {
             if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
             try {
-                updateAlbumStatusUI('syncing', 'Salvataggio foto su GitHub...');
+                updateAlbumStatusUI('syncing', 'Pubblicazione foto su GitHub...');
                 const base64Img = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
                 await githubPutFile(photoObj.path, base64Img, `Aggiunta foto album (${photoObj.id})`);
                 photoObj.synced = true;
@@ -3753,7 +3891,7 @@
         async function syncManifestToGitHub() {
             if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
             try {
-                updateAlbumStatusUI('syncing', 'Salvataggio su GitHub...');
+                updateAlbumStatusUI('syncing', 'Pubblicazione su GitHub...');
 
                 for (let pIdx = 0; pIdx < albumData.pages.length; pIdx++) {
                     const page = albumData.pages[pIdx];
@@ -3789,8 +3927,7 @@
                 const jsonBase64 = utf8ToBase64(JSON.stringify(cleanManifest, null, 2));
                 await githubPutFile('album/album.json', jsonBase64, 'Aggiornamento album fotografico e dediche');
 
-                const stats = countTotalPhotosAndCaptions(albumData);
-                updateAlbumStatusUI('ok', `Salvato ovunque ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
+                refreshAlbumStatusBadge();
             } catch (err) {
                 console.error(err);
                 updateAlbumStatusUI('error', 'Errore sync GitHub');
@@ -3810,13 +3947,20 @@
             } catch (e) {}
         }
 
+        async function syncSongMetaToGitHub() {
+            if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
+            try {
+                await githubPutFile('album/song_meta.json', utf8ToBase64(JSON.stringify(songMetaState, null, 2)), 'Aggiornamento Polaroid e canzone');
+            } catch (e) {}
+        }
+
         async function syncAllLocalPhotosToGitHub() {
             if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) {
                 showToast("Inserisci prima Username, Repository e Token GitHub!");
                 return;
             }
             try {
-                updateAlbumStatusUI('syncing', 'Sincronizzazione completa su GitHub...');
+                updateAlbumStatusUI('syncing', 'Pubblicazione completa su GitHub...');
                 for (let pIdx = 0; pIdx < albumData.pages.length; pIdx++) {
                     const page = albumData.pages[pIdx];
                     for (let sIdx = 0; sIdx < (page.slots || []).length; sIdx++) {
@@ -3833,9 +3977,11 @@
                 }
                 await syncManifestToGitHub();
                 await syncLetterToGitHub();
+                await syncSongMetaToGitHub();
                 renderAlbumPage();
+                refreshAlbumStatusBadge();
                 const stats = countTotalPhotosAndCaptions(albumData);
-                showToast(`Sincronizzate ${stats.photos} foto e ${stats.captions} dediche su GitHub!`);
+                showToast(`Pubblicate ${stats.photos} foto e ${stats.captions} dediche per tutti!`);
             } catch (err) {
                 console.error(err);
                 updateAlbumStatusUI('error', 'Errore sincronizzazione');
@@ -3843,7 +3989,6 @@
             }
         }
 
-        // Salva immediatamente qualsiasi modifica pendente (foto, dediche, lettera) prima di uscire dal sito
         function flushAllStateBeforeExit() {
             const activePhoto = getSelectedPhotoObject();
             if (activePhoto && albumDetailCaptionInput) {
