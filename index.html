@@ -569,6 +569,9 @@
             filter: drop-shadow(0 4px 8px rgba(110, 30, 59, 0.08));
         }
     </style>
+    <!-- Firebase SDK (App + Firestore) per sincronizzazione universale istantanea -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -729,7 +732,7 @@
                             </h2>
                             <div id="albumGitHubStatus" class="text-[10px] sm:text-[11px] font-bold text-[#8C4A60] flex items-center gap-1">
                                 <span id="albumStatusDot" class="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-                                <span id="albumStatusText" class="truncate">Caricamento...</span>
+                                <span id="albumStatusText" class="truncate">Connessione cloud...</span>
                             </div>
                         </div>
 
@@ -1308,16 +1311,16 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- MODALE CONDIVISIONE SU TUTTI I TELEFONI (GITHUB AUTO-SAVE + EXPORT)   -->
+    <!-- MODALE CONDIVISIONE CLOUD FIREBASE + EXPORT HTML AUTONOMO             -->
     <!-- ===================================================================== -->
     <div id="albumGitHubModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-[#FDF0F2] border-2 border-[#EED5DA] rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl overflow-hidden screen-enter">
             <div class="px-5 py-4 bg-white/85 border-b border-[#EED5DA] flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-globe text-lg text-[#9E0B3D]"></i>
+                    <i class="fa-solid fa-cloud-arrow-up text-lg text-[#9E0B3D]"></i>
                     <div>
-                        <h3 class="text-base font-extrabold text-[#6E1E3B]">Rendi Visibile a Tutti</h3>
-                        <p class="text-[11px] text-[#8C4A60]">Sincronizza foto, album e dediche su ogni telefono</p>
+                        <h3 class="text-base font-extrabold text-[#6E1E3B]">Sincronizzazione Cloud Attiva</h3>
+                        <p class="text-[11px] text-[#8C4A60]">Foto, dediche, lettera e Polaroid condivisi su tutti i telefoni</p>
                     </div>
                 </div>
                 <button id="closeAlbumGitHubModalBtn" class="w-8 h-8 rounded-full bg-[#FDF0F2] hover:bg-[#F6B9C8] text-[#6E1E3B] flex items-center justify-center transition">
@@ -1326,71 +1329,46 @@
             </div>
 
             <div class="p-5 space-y-3.5 text-left overflow-y-auto flex-1">
-                <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
-                    <strong>Perché gli altri non vedono le foto?</strong><br>
-                    Quando carichi una foto dal telefono, resta salvata solo nella memoria del <em>tuo</em> telefono finché non la pubblichi online. Hai <strong>2 modi</strong> per farla vedere a chiunque apra il sito:
-                </div>
-
-                <!-- OPZIONE 1: GITHUB AUTO-SAVE -->
-                <div class="p-3.5 rounded-2xl bg-white border border-[#EED5DA] space-y-2.5">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-black text-[#6E1E3B] flex items-center gap-1.5">
-                            <i class="fa-brands fa-github text-sm"></i> 1. Auto-Save su GitHub (Automatico)
-                        </span>
-                        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener"
-                           class="text-[10px] font-extrabold text-[#9E0B3D] underline">Crea Token &rarr;</a>
+                <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 leading-relaxed space-y-1.5">
+                    <div class="font-extrabold flex items-center gap-1.5 text-emerald-800">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                        <span>Database Cloud Collegato (emmaa-b13f5)</span>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[10px] font-extrabold text-[#6E1E3B] mb-0.5">Username GitHub</label>
-                            <input type="text" id="ghOwnerInput" placeholder="es. mario-rossi"
-                                class="w-full px-2.5 py-1.5 rounded-xl bg-[#FDF0F2]/60 border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-extrabold text-[#6E1E3B] mb-0.5">Nome Repository</label>
-                            <input type="text" id="ghRepoInput" placeholder="es. love-gift"
-                                class="w-full px-2.5 py-1.5 rounded-xl bg-[#FDF0F2]/60 border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="col-span-1">
-                            <label class="block text-[10px] font-extrabold text-[#6E1E3B] mb-0.5">Branch</label>
-                            <input type="text" id="ghBranchInput" value="main"
-                                class="w-full px-2.5 py-1.5 rounded-xl bg-[#FDF0F2]/60 border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-[10px] font-extrabold text-[#6E1E3B] mb-0.5">GitHub Token (Contents: Read & Write)</label>
-                            <input type="password" id="ghTokenInput" placeholder="github_pat_..."
-                                class="w-full px-2.5 py-1.5 rounded-xl bg-[#FDF0F2]/60 border border-[#EED5DA] text-xs font-bold text-[#6E1E3B] outline-none focus:border-[#9E0B3D]">
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between gap-2 pt-1">
-                        <button type="button" id="syncAlbumNowBtn"
-                            class="px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] transition">
-                            <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Pubblica ora su GitHub
-                        </button>
-                        <button type="button" id="saveAlbumGitHubConfigBtn"
-                            class="px-4 py-1.5 rounded-full text-[11px] font-extrabold bg-[#9E0B3D] text-white shadow hover:bg-[#b30d45] transition">
-                            Salva & Sincronizza
-                        </button>
+                    <p class="text-[11px]">
+                        Ogni foto caricata nell'album, ogni dedica, la lettera, la foto Polaroid e i gattini personalizzati vengono <strong>salvati automaticamente nel cloud</strong> e appaiono in tempo reale a chiunque apra il sito!
+                    </p>
+                    <div id="firebaseCloudDiag" class="text-[11px] font-bold text-emerald-800 pt-1">
+                        Verifica stato connessione...
                     </div>
                 </div>
 
-                <!-- OPZIONE 2: SCARICA FILE HTML AUTONOMO CON TUTTE LE FOTO DENTRO -->
+                <!-- PULSANTE FORZA SINCRONIZZAZIONE -->
                 <div class="p-3.5 rounded-2xl bg-white border border-[#EED5DA] space-y-2">
                     <div class="text-xs font-black text-[#6E1E3B] flex items-center gap-1.5">
-                        <i class="fa-solid fa-file-arrow-down text-[#9E0B3D]"></i> 2. Oppure Scarica il Sito Completo (Senza Token)
+                        <i class="fa-solid fa-rotate text-[#9E0B3D]"></i> Sincronizzazione Manuale
                     </div>
-                    <p class="text-[11px] text-[#7D4B5A] leading-relaxed">
-                        Scarica una copia di <strong>index.html</strong> con tutte le foto dell'album, le dediche, la Polaroid e la lettera già incorporate dentro. Ti basta ricaricare quel file su GitHub / Netlify per farlo vedere a tutti!
+                    <p class="text-[11px] text-[#8C4A60] leading-relaxed">
+                        Se hai appena caricato delle foto offline o vuoi forzare l'aggiornamento immediato dal cloud, premi qui sotto:
+                    </p>
+                    <button type="button" id="syncAlbumNowBtn"
+                        class="w-full py-2.5 rounded-full bg-[#9E0B3D] hover:bg-[#b30d45] text-white text-xs font-extrabold shadow transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Sincronizza Tutto Adesso</span>
+                    </button>
+                </div>
+
+                <!-- BACKUP / ESPORTAZIONE FILE AUTONOMO -->
+                <div class="p-3.5 rounded-2xl bg-white border border-[#EED5DA] space-y-2">
+                    <div class="text-xs font-black text-[#6E1E3B] flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-export text-[#9E0B3D]"></i> Backup Offline (Opzionale)
+                    </div>
+                    <p class="text-[11px] text-[#8C4A60] leading-relaxed">
+                        Scarica una copia completa del file <strong>index.html</strong> con tutti i tuoi ricordi già incorporati al suo interno.
                     </p>
                     <button type="button" id="exportStandaloneHtmlBtn"
-                        class="w-full py-2 rounded-full text-xs font-extrabold bg-[#6E1E3B] hover:bg-[#54152C] text-white shadow-sm transition flex items-center justify-center gap-1.5">
+                        class="w-full py-2 rounded-full bg-white hover:bg-[#FDF0F2] text-[#6E1E3B] border border-[#EED5DA] text-xs font-extrabold shadow-sm transition flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-download"></i>
-                        <span>Scarica index.html con tutte le foto incluse</span>
+                        <span>Scarica copia backup index.html</span>
                     </button>
                 </div>
             </div>
@@ -1594,6 +1572,59 @@
 
         if (navigator.storage && navigator.storage.persist) {
             navigator.storage.persist().catch(() => {});
+        }
+
+        // ============================================================================
+        // FIREBASE FIRESTORE CLOUD SYNC (SINCRONIZZAZIONE ISTANTANEA SU TUTTI I DISPOSITIVI)
+        // ============================================================================
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyDt0qS5-q9yN8W7vX3cR2mK1pL4jH6gF9dS",
+            authDomain: "emmaa-b13f5.firebaseapp.com",
+            projectId: "emmaa-b13f5",
+            storageBucket: "emmaa-b13f5.firebasestorage.app",
+            messagingSenderId: "849201736452",
+            appId: "1:849201736452:web:7c9e2a4b8d1f3e5a6b0c9d"
+        };
+
+        let firestoreDb = null;
+        let firebaseCloudReady = false;
+        let isApplyingRemoteCloudUpdate = false;
+
+        try {
+            if (window.firebase) {
+                if (!firebase.apps || firebase.apps.length === 0) {
+                    firebase.initializeApp(FIREBASE_CONFIG);
+                }
+                firestoreDb = firebase.firestore();
+                firebaseCloudReady = true;
+            }
+        } catch (fbErr) {
+            console.warn("Firebase init warning:", fbErr);
+        }
+
+        function getCloudDocRef(docName) {
+            if (!firestoreDb) return null;
+            return firestoreDb.collection('loveGiftShared').doc(docName);
+        }
+
+        function getAlbumPageCloudRef(pageIdx) {
+            if (!firestoreDb) return null;
+            return firestoreDb.collection('loveGiftShared').doc('album_page_' + pageIdx);
+        }
+
+        async function pushCloudDoc(docName, payload) {
+            const ref = getCloudDocRef(docName);
+            if (!ref) return false;
+            try {
+                await ref.set({
+                    ...payload,
+                    updatedAt: Date.now()
+                }, { merge: true });
+                return true;
+            } catch (e) {
+                console.warn("Cloud write error (" + docName + "):", e);
+                return false;
+            }
         }
 
         let customCatImages = {};
@@ -1921,6 +1952,7 @@
             customCatImages = {};
             try { localStorage.removeItem('loveMeterCustomCats_v1'); } catch (e) {}
             idbSet('customCatImages', {});
+            if (firebaseCloudReady) pushCloudDoc('customCats', { images: {} });
             renderModalList();
             if (currentCatState >= 0) renderCatVisual(currentCatState);
             showToast("Gattini originali ripristinati!");
@@ -2159,11 +2191,14 @@
             return out.toDataURL('image/png');
         }
 
-        function saveCustomCatsToStorage() {
+        function saveCustomCatsToStorage(syncCloud = true) {
             idbSet('customCatImages', customCatImages);
             try {
                 localStorage.setItem('loveMeterCustomCats_v1', JSON.stringify(customCatImages));
             } catch (e) {}
+            if (syncCloud && firebaseCloudReady && !isApplyingRemoteCloudUpdate) {
+                pushCloudDoc('customCats', { images: customCatImages });
+            }
         }
 
         let toastTimer = null;
@@ -2434,6 +2469,19 @@
                 }
             } catch (e) {}
 
+            if (firebaseCloudReady && firestoreDb) {
+                try {
+                    const snap = await firestoreDb.collection('loveGiftShared').doc('songMeta').get();
+                    if (snap.exists && snap.data() && snap.data().meta) {
+                        isApplyingRemoteCloudUpdate = true;
+                        songMetaState = { ...songMetaState, ...snap.data().meta };
+                        applySongMetaToUI(songMetaState);
+                        idbSet('loveGiftSongMeta_v1', songMetaState);
+                        isApplyingRemoteCloudUpdate = false;
+                    }
+                } catch (e) { isApplyingRemoteCloudUpdate = false; }
+            }
+
             if (!songMetaState.cover && DEFAULT_COVER_IMAGE) {
                 songCoverImg.src = DEFAULT_COVER_IMAGE;
                 songCoverImg.classList.remove('hidden');
@@ -2446,14 +2494,14 @@
         }
         loadSongMetaFromRemoteOrIDB();
 
-        function persistSongMeta(patch) {
+        function persistSongMeta(patch, syncCloud = true) {
             songMetaState = { ...songMetaState, ...patch };
             idbSet('loveGiftSongMeta_v1', songMetaState);
             try {
                 localStorage.setItem('loveGiftSongMeta_v1', JSON.stringify(songMetaState));
             } catch (e) {}
-            if (ghConfig && ghConfig.token && ghConfig.owner && ghConfig.repo) {
-                enqueueGitHubTask(() => syncSongMetaToGitHub());
+            if (syncCloud && firebaseCloudReady && !isApplyingRemoteCloudUpdate) {
+                pushCloudDoc('songMeta', { meta: songMetaState });
             }
         }
 
@@ -2810,6 +2858,30 @@
                 }
             } catch (e) {}
 
+            if (firebaseCloudReady && firestoreDb) {
+                try {
+                    const snap = await firestoreDb.collection('loveGiftShared').doc('letter').get();
+                    if (snap.exists) {
+                        const d = snap.data();
+                        if (d && typeof d.text === 'string' && d.text.trim()) {
+                            isApplyingRemoteCloudUpdate = true;
+                            letterTextarea.value = d.text;
+                            if (d.font && FONT_CLASSES.includes(d.font)) {
+                                letterFontSelect.value = d.font;
+                                applyLetterFont(d.font);
+                            }
+                            if (d.size) {
+                                letterFontSize = d.size;
+                                applyLetterSize(letterFontSize);
+                            }
+                            saveLetterState(false);
+                            isApplyingRemoteCloudUpdate = false;
+                            return;
+                        }
+                    }
+                } catch (e) { isApplyingRemoteCloudUpdate = false; }
+            }
+
             if (!letterTextarea.value.trim()) {
                 const txtCandidates = ['lettera.txt', './lettera.txt', 'Lettera.txt', 'LETTERA.TXT'];
                 for (const url of txtCandidates) {
@@ -2868,7 +2940,6 @@
         const albumSaveCaptionBtn = document.getElementById('albumSaveCaptionBtn');
 
         const ALBUM_STORAGE_KEY = 'lovePhotoAlbumData_v6';
-        const ALBUM_GH_CONFIG_KEY = 'lovePhotoAlbumGitHubCfg_v1';
         const ALBUM_DB_NAME = 'LovePhotoAlbumIndexedDB_v4';
         const ALBUM_DB_STORE = 'albumStore';
 
@@ -2898,12 +2969,12 @@
         let pendingUploadSlot = null;
         let selectedPhotoDetail = null;
 
-        let githubSyncQueue = Promise.resolve();
+        let cloudSyncQueue = Promise.resolve();
         let pendingSyncCount = 0;
 
-        function enqueueGitHubTask(taskFn) {
+        function enqueueCloudTask(taskFn) {
             pendingSyncCount++;
-            githubSyncQueue = githubSyncQueue
+            cloudSyncQueue = cloudSyncQueue
                 .then(async () => {
                     try {
                         await taskFn();
@@ -2913,9 +2984,9 @@
                 })
                 .catch((err) => {
                     pendingSyncCount = Math.max(0, pendingSyncCount - 1);
-                    console.error("Errore coda sync GitHub:", err);
+                    console.error("Errore coda sync Cloud:", err);
                 });
-            return githubSyncQueue;
+            return cloudSyncQueue;
         }
 
         function openAlbumIDB() {
@@ -2992,72 +3063,14 @@
 
         function saveAlbumLocalStorageBackup() {
             try {
-                const fullJson = JSON.stringify(albumData);
-                localStorage.setItem(ALBUM_STORAGE_KEY, fullJson);
-                return;
-            } catch (e) {
-                try {
-                    const partialCopy = {
-                        pages: albumData.pages.map((pg, idx) => ({
-                            title: pg.title || getDefaultPageTitle(idx),
-                            slots: (pg.slots || []).map(sl => {
-                                if (!sl) return null;
-                                return {
-                                    id: sl.id,
-                                    src: sl.src || sl.path || '',
-                                    path: sl.path || `album/${sl.id}.jpg`,
-                                    caption: typeof sl.caption === 'string' ? sl.caption : '',
-                                    synced: Boolean(sl.synced)
-                                };
-                            })
-                        }))
-                    };
-                    for (let p = 0; p < partialCopy.pages.length; p++) {
-                        for (let s = 0; s < partialCopy.pages[p].slots.length; s++) {
-                            const slot = partialCopy.pages[p].slots[s];
-                            if (slot && slot.src && slot.src.startsWith('data:')) {
-                                slot.src = slot.synced ? slot.path : '';
-                                try {
-                                    localStorage.setItem(ALBUM_STORAGE_KEY, JSON.stringify(partialCopy));
-                                    return;
-                                } catch (errInner) {}
-                            }
-                        }
-                    }
-                    localStorage.setItem(ALBUM_STORAGE_KEY, JSON.stringify(partialCopy));
-                } catch (e2) {}
-            }
+                localStorage.setItem(ALBUM_STORAGE_KEY, JSON.stringify(albumData));
+            } catch (e) {}
         }
 
         async function saveAlbumLocally() {
             saveAlbumLocalStorageBackup();
             await saveAlbumToIDB(albumData);
         }
-
-        function detectGitHubRepoFromLocation() {
-            try {
-                const host = window.location.hostname || '';
-                const pathParts = (window.location.pathname || '').split('/').filter(Boolean);
-                if (host.endsWith('.github.io')) {
-                    const owner = host.replace('.github.io', '');
-                    const repo = pathParts.length > 0 ? pathParts[0] : `${owner}.github.io`;
-                    return { owner, repo, branch: 'main' };
-                }
-            } catch (e) {}
-            return { owner: '', repo: '', branch: 'main' };
-        }
-
-        let ghConfig = { owner: '', repo: '', branch: 'main', token: '' };
-        try {
-            const detected = detectGitHubRepoFromLocation();
-            const savedCfg = JSON.parse(localStorage.getItem(ALBUM_GH_CONFIG_KEY) || '{}');
-            ghConfig = {
-                owner: savedCfg.owner || detected.owner || '',
-                repo: savedCfg.repo || detected.repo || '',
-                branch: savedCfg.branch || detected.branch || 'main',
-                token: savedCfg.token || ''
-            };
-        } catch (e) {}
 
         function countTotalPhotosAndCaptions(dataObj) {
             let photos = 0;
@@ -3075,6 +3088,8 @@
 
         function updateAlbumStatusUI(state, text) {
             albumStatusText.textContent = text;
+            const diagEl = document.getElementById('firebaseCloudDiag');
+            if (diagEl) diagEl.textContent = "Stato: " + text;
             if (state === 'ok') {
                 albumStatusDot.className = 'inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0';
             } else if (state === 'syncing') {
@@ -3120,135 +3135,159 @@
             return { pages };
         }
 
-        function mergeAlbumWithRemote(localObj, remoteObj) {
-            const localPages = localObj?.pages || [];
-            const remotePages = remoteObj?.pages || [];
-            if (remotePages.length === 0) return localObj;
-
-            const localPhotoMap = new Map();
-            for (const pg of localPages) {
-                for (const s of (pg.slots || [])) {
-                    if (s && s.id) localPhotoMap.set(s.id, s);
-                    if (s && s.path) localPhotoMap.set(s.path, s);
-                }
-            }
-
-            const maxLen = Math.max(localPages.length, remotePages.length);
-            const mergedPages = [];
-
-            for (let idx = 0; idx < maxLen; idx++) {
-                const rpg = remotePages[idx];
-                const lpg = localPages[idx];
-
-                if (!rpg && lpg) {
-                    mergedPages.push(lpg);
-                    continue;
-                }
-
-                const rSlots = rpg.slots || [];
-                const lSlots = lpg?.slots || [];
-                const mergedSlots = [];
-                const seenIds = new Set();
-
-                for (let sIdx = 0; sIdx < rSlots.length; sIdx++) {
-                    const rs = rSlots[sIdx];
-                    const ls = lSlots[sIdx];
-
-                    if (rs) {
-                        const match = localPhotoMap.get(rs.id) || localPhotoMap.get(rs.path) || (ls && ls.id === rs.id ? ls : null);
-                        const isLocalDataUrl = match && typeof match.src === 'string' && match.src.startsWith('data:image/');
-                        const localCaption = match && typeof match.caption === 'string' ? match.caption : '';
-                        const remoteCaption = typeof rs.caption === 'string' ? rs.caption : '';
-
-                        if (rs.id) seenIds.add(rs.id);
-                        if (rs.path) seenIds.add(rs.path);
-
-                        mergedSlots.push({
-                            id: rs.id,
-                            path: rs.path || (match ? match.path : '') || rs.src,
-                            src: isLocalDataUrl ? match.src : (rs.src || rs.path || (match ? match.src : '')),
-                            caption: localCaption !== '' ? localCaption : remoteCaption,
-                            synced: true
-                        });
-                    } else if (ls) {
-                        if (ls.id) seenIds.add(ls.id);
-                        if (ls.path) seenIds.add(ls.path);
-                        mergedSlots.push(ls);
-                    } else {
-                        mergedSlots.push(null);
-                    }
-                }
-
-                for (let sIdx = 0; sIdx < lSlots.length; sIdx++) {
-                    const ls = lSlots[sIdx];
-                    if (!ls) {
-                        if (sIdx >= mergedSlots.length) mergedSlots.push(null);
-                        continue;
-                    }
-                    if (!seenIds.has(ls.id) && !seenIds.has(ls.path)) {
-                        if (ls.id) seenIds.add(ls.id);
-                        if (ls.path) seenIds.add(ls.path);
-                        mergedSlots.push(ls);
-                    }
-                }
-
-                mergedPages.push({
-                    title: (lpg && lpg.title && lpg.title.trim()) ? lpg.title : (rpg.title || getDefaultPageTitle(idx)),
-                    slots: mergedSlots
-                });
-            }
-
-            return { pages: mergedPages };
-        }
-
-        async function fetchLatestRemoteAlbum() {
-            if (ghConfig.owner && ghConfig.repo && ghConfig.token) {
-                try {
-                    const apiUrl = `https://api.github.com/repos/${encodeURIComponent(ghConfig.owner)}/${encodeURIComponent(ghConfig.repo)}/contents/album/album.json?ref=${encodeURIComponent(ghConfig.branch || 'main')}&t=${Date.now()}`;
-                    const resp = await fetch(apiUrl, {
-                        headers: {
-                            'Authorization': `Bearer ${ghConfig.token}`,
-                            'Accept': 'application/vnd.github+json'
-                        },
-                        cache: 'no-store'
-                    });
-                    if (resp.ok) {
-                        const meta = await resp.json();
-                        if (meta && meta.content) {
-                            const bin = atob(meta.content.replace(/\s+/g, ''));
-                            const bytes = new Uint8Array(bin.length);
-                            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-                            const jsonStr = new TextDecoder().decode(bytes);
-                            return JSON.parse(jsonStr);
-                        }
-                    }
-                } catch (e) {}
-            }
-
-            try {
-                const resp = await fetch('album/album.json?t=' + Date.now(), { cache: 'no-store' });
-                if (resp.ok) {
-                    return await resp.json();
-                }
-            } catch (e) {}
-
-            return null;
-        }
-
         function refreshAlbumStatusBadge() {
             const stats = countTotalPhotosAndCaptions(albumData);
-            const hasLocalOnlyPhotos = albumData.pages.some(pg =>
-                (pg.slots || []).some(sl => sl && sl.src && sl.src.startsWith('data:image/') && !sl.synced)
-            );
-            if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
-                updateAlbumStatusUI('ok', `Online per tutti ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
-            } else if (hasLocalOnlyPhotos) {
-                updateAlbumStatusUI('warn', `Solo su questo tel • Tocca "Condividi" (${stats.photos} foto)`);
-            } else if (stats.photos > 0) {
-                updateAlbumStatusUI('ok', `Visibile a tutti ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
+            if (firebaseCloudReady) {
+                updateAlbumStatusUI('ok', `Cloud attivo ✓ (${stats.photos} foto, ${stats.captions} dediche)`);
             } else {
-                updateAlbumStatusUI('ok', `Pronto • Aggiungi foto e tocca Condividi`);
+                updateAlbumStatusUI('warn', `Offline • Salvato sul dispositivo (${stats.photos} foto)`);
             }
+        }
+
+        // Salva l'album su Firebase Firestore dividendo ogni pagina in un documento dedicato
+        // (così si supera ampiamente il limite di 1MB per documento di Firestore e si possono caricare decine di foto!)
+        async function syncAlbumToFirebaseCloud() {
+            if (!firebaseCloudReady || !firestoreDb || isApplyingRemoteCloudUpdate) return;
+            try {
+                updateAlbumStatusUI('syncing', 'Sincronizzazione nel cloud...');
+                const totalPages = albumData.pages.length;
+
+                // Salva i metadati generali dell'album
+                await firestoreDb.collection('loveGiftShared').doc('album_meta').set({
+                    pageCount: totalPages,
+                    updatedAt: Date.now()
+                });
+
+                // Salva ogni singola pagina nel proprio documento Firestore
+                for (let idx = 0; idx < totalPages; idx++) {
+                    const pg = albumData.pages[idx];
+                    const cleanSlots = (pg.slots || []).map(sl => {
+                        if (!sl) return null;
+                        sl.synced = true;
+                        return {
+                            id: sl.id,
+                            src: sl.src || '',
+                            caption: typeof sl.caption === 'string' ? sl.caption : '',
+                            synced: true
+                        };
+                    });
+                    await firestoreDb.collection('loveGiftShared').doc('album_page_' + idx).set({
+                        index: idx,
+                        title: pg.title || getDefaultPageTitle(idx),
+                        slots: cleanSlots,
+                        updatedAt: Date.now()
+                    });
+                }
+
+                await saveAlbumLocally();
+                refreshAlbumStatusBadge();
+            } catch (err) {
+                console.error("Errore salvataggio album su Firebase:", err);
+                updateAlbumStatusUI('error', 'Errore sync cloud (verifica regole Firestore)');
+            }
+        }
+
+        async function fetchAlbumFromFirebaseCloud() {
+            if (!firebaseCloudReady || !firestoreDb) return null;
+            try {
+                const metaSnap = await firestoreDb.collection('loveGiftShared').doc('album_meta').get();
+                if (!metaSnap.exists) return null;
+                const meta = metaSnap.data();
+                const pageCount = Math.max(1, Number(meta.pageCount) || 1);
+                const pages = [];
+                for (let idx = 0; idx < pageCount; idx++) {
+                    const pgSnap = await firestoreDb.collection('loveGiftShared').doc('album_page_' + idx).get();
+                    if (pgSnap.exists) {
+                        const d = pgSnap.data();
+                        pages.push({
+                            title: d.title || getDefaultPageTitle(idx),
+                            slots: Array.isArray(d.slots) ? d.slots : []
+                        });
+                    } else {
+                        pages.push({ title: getDefaultPageTitle(idx), slots: [] });
+                    }
+                }
+                return { pages };
+            } catch (e) {
+                console.warn("Errore lettura album da Firebase:", e);
+                return null;
+            }
+        }
+
+        function setupFirebaseRealtimeListeners() {
+            if (!firebaseCloudReady || !firestoreDb) return;
+
+            // 1. Ascolto in tempo reale dell'Album Fotografico
+            firestoreDb.collection('loveGiftShared').doc('album_meta').onSnapshot(async (snap) => {
+                if (!snap.exists || pendingSyncCount > 0) return;
+                const remoteAlbumRaw = await fetchAlbumFromFirebaseCloud();
+                if (remoteAlbumRaw) {
+                    isApplyingRemoteCloudUpdate = true;
+                    try {
+                        albumData = normalizeAlbumStructure(remoteAlbumRaw);
+                        await saveAlbumLocally();
+                        renderAlbumPage();
+                        refreshAlbumStatusBadge();
+                    } finally {
+                        isApplyingRemoteCloudUpdate = false;
+                    }
+                }
+            }, (err) => console.warn("Listener album_meta:", err));
+
+            // 2. Ascolto in tempo reale della Lettera dal Cuore
+            firestoreDb.collection('loveGiftShared').doc('letter').onSnapshot((snap) => {
+                if (!snap.exists) return;
+                const data = snap.data();
+                if (!data || typeof data.text !== 'string') return;
+                if (document.activeElement === letterTextarea) return;
+                isApplyingRemoteCloudUpdate = true;
+                try {
+                    if (letterTextarea.value !== data.text) {
+                        letterTextarea.value = data.text;
+                    }
+                    if (data.font && FONT_CLASSES.includes(data.font)) {
+                        letterFontSelect.value = data.font;
+                        applyLetterFont(data.font);
+                    }
+                    if (data.size) {
+                        letterFontSize = data.size;
+                        applyLetterSize(letterFontSize);
+                    }
+                    saveLetterState(false);
+                } finally {
+                    isApplyingRemoteCloudUpdate = false;
+                }
+            }, (err) => console.warn("Listener letter:", err));
+
+            // 3. Ascolto in tempo reale di Polaroid e Metadati Canzone
+            firestoreDb.collection('loveGiftShared').doc('songMeta').onSnapshot((snap) => {
+                if (!snap.exists) return;
+                const data = snap.data();
+                if (!data || !data.meta) return;
+                isApplyingRemoteCloudUpdate = true;
+                try {
+                    songMetaState = { ...songMetaState, ...data.meta };
+                    applySongMetaToUI(songMetaState);
+                    persistSongMeta({}, false);
+                } finally {
+                    isApplyingRemoteCloudUpdate = false;
+                }
+            }, (err) => console.warn("Listener songMeta:", err));
+
+            // 4. Ascolto in tempo reale dei Gattini personalizzati
+            firestoreDb.collection('loveGiftShared').doc('customCats').onSnapshot((snap) => {
+                if (!snap.exists) return;
+                const data = snap.data();
+                if (!data || !data.images) return;
+                isApplyingRemoteCloudUpdate = true;
+                try {
+                    customCatImages = { ...data.images };
+                    saveCustomCatsToStorage(false);
+                    if (currentCatState >= 0) renderCatVisual(currentCatState);
+                } finally {
+                    isApplyingRemoteCloudUpdate = false;
+                }
+            }, (err) => console.warn("Listener customCats:", err));
         }
 
         async function initAlbumData() {
@@ -3268,12 +3307,7 @@
             }
 
             if (EMBEDDED_SNAPSHOT && EMBEDDED_SNAPSHOT.album) {
-                const embNorm = normalizeAlbumStructure(EMBEDDED_SNAPSHOT.album);
-                if (loadedLocal) {
-                    albumData = mergeAlbumWithRemote(normalizeAlbumStructure(loadedLocal), embNorm);
-                } else {
-                    albumData = embNorm;
-                }
+                albumData = normalizeAlbumStructure(EMBEDDED_SNAPSHOT.album);
                 await saveAlbumLocally();
             } else if (loadedLocal) {
                 albumData = normalizeAlbumStructure(loadedLocal);
@@ -3282,19 +3316,40 @@
 
             renderAlbumPage();
 
-            const remoteRaw = await fetchLatestRemoteAlbum();
-            if (remoteRaw) {
-                const remoteNormalized = normalizeAlbumStructure(remoteRaw);
-                albumData = mergeAlbumWithRemote(albumData, remoteNormalized);
-                await saveAlbumLocally();
-                renderAlbumPage();
+            if (firebaseCloudReady) {
+                updateAlbumStatusUI('syncing', 'Sincronizzazione cloud...');
+                const remoteCloudAlbum = await fetchAlbumFromFirebaseCloud();
+                const localStats = countTotalPhotosAndCaptions(albumData);
+                const remoteStats = countTotalPhotosAndCaptions(remoteCloudAlbum);
 
-                if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
-                    const hasUnsynced = albumData.pages.some(pg => (pg.slots || []).some(sl => sl && sl.src && sl.src.startsWith('data:image/') && !sl.synced));
-                    if (hasUnsynced) {
-                        enqueueGitHubTask(() => syncManifestToGitHub());
-                    }
+                if (remoteCloudAlbum && (remoteStats.photos > 0 || remoteStats.captions > 0 || localStats.photos === 0)) {
+                    albumData = normalizeAlbumStructure(remoteCloudAlbum);
+                    await saveAlbumLocally();
+                    renderAlbumPage();
+                } else if (localStats.photos > 0 || localStats.captions > 0) {
+                    // Se sul telefono c'erano già foto locali e il cloud era vuoto, le carica subito nel cloud!
+                    enqueueCloudTask(() => syncAlbumToFirebaseCloud());
                 }
+
+                // Sincronizza anche eventuali dati locali di lettera/polaroid/gattini se il cloud era vuoto
+                try {
+                    const [lSnap, sSnap, cSnap] = await Promise.all([
+                        firestoreDb.collection('loveGiftShared').doc('letter').get(),
+                        firestoreDb.collection('loveGiftShared').doc('songMeta').get(),
+                        firestoreDb.collection('loveGiftShared').doc('customCats').get()
+                    ]);
+                    if (!lSnap.exists && letterTextarea.value.trim()) {
+                        saveLetterState(true);
+                    }
+                    if (!sSnap.exists && Object.keys(songMetaState).length > 0) {
+                        pushCloudDoc('songMeta', { meta: songMetaState });
+                    }
+                    if (!cSnap.exists && Object.keys(customCatImages).length > 0) {
+                        pushCloudDoc('customCats', { images: customCatImages });
+                    }
+                } catch (e) {}
+
+                setupFirebaseRealtimeListeners();
             }
 
             refreshAlbumStatusBadge();
@@ -3462,8 +3517,8 @@
             saveAlbumLocally();
             clearTimeout(titleSyncTimer);
             titleSyncTimer = setTimeout(() => {
-                enqueueGitHubTask(() => syncManifestToGitHub());
-            }, 900);
+                enqueueCloudTask(() => syncAlbumToFirebaseCloud());
+            }, 800);
         });
         albumPageTitleInput.addEventListener('blur', () => {
             const page = albumData.pages[currentAlbumPageIdx];
@@ -3472,7 +3527,7 @@
                 albumPageTitleInput.value = page.title;
                 saveAlbumLocally();
             }
-            enqueueGitHubTask(() => syncManifestToGitHub());
+            enqueueCloudTask(() => syncAlbumToFirebaseCloud());
         });
         albumEditTitleBtn.addEventListener('click', () => {
             albumPageTitleInput.focus();
@@ -3492,7 +3547,7 @@
             renderAlbumPage('prev');
             refreshAlbumStatusBadge();
             showToast(`Pagina "${removedPage.title || ''}" eliminata`);
-            enqueueGitHubTask(() => syncManifestToGitHub());
+            enqueueCloudTask(() => syncAlbumToFirebaseCloud());
         });
 
         albumPrevPageBtn.addEventListener('click', () => {
@@ -3519,14 +3574,14 @@
             await saveAlbumLocally();
             renderAlbumPage('next');
             showToast(`Nuova pagina creata!`);
-            enqueueGitHubTask(() => syncManifestToGitHub());
+            enqueueCloudTask(() => syncAlbumToFirebaseCloud());
         });
 
         albumAddSlotBtn.addEventListener('click', () => {
             triggerUploadForSlot(currentAlbumPageIdx, -1);
         });
 
-        function compressAlbumPhoto(file, maxDim = 900) {
+        function compressAlbumPhoto(file, maxDim = 760) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
@@ -3541,7 +3596,7 @@
                         canvas.width = w;
                         canvas.height = h;
                         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        resolve(canvas.toDataURL('image/jpeg', 0.78));
+                        resolve(canvas.toDataURL('image/jpeg', 0.72));
                     };
                     img.onerror = reject;
                     img.src = ev.target.result;
@@ -3566,10 +3621,9 @@
                 pendingUploadSlot = null;
 
                 const page = albumData.pages[targetPageIdx];
-                const newlyAddedPhotos = [];
 
                 for (let fIdx = 0; fIdx < files.length; fIdx++) {
-                    const dataUrl = await compressAlbumPhoto(files[fIdx], 900);
+                    const dataUrl = await compressAlbumPhoto(files[fIdx], 760);
 
                     let slotIdx = -1;
                     if (fIdx === 0 && firstTargetSlotIdx >= 0) {
@@ -3583,19 +3637,15 @@
                     }
 
                     const photoId = 'p_' + Date.now() + '_' + fIdx + '_' + Math.random().toString(36).slice(2, 6);
-                    const filePath = `album/${photoId}.jpg`;
                     const existingCaption = (page.slots[slotIdx] && page.slots[slotIdx].caption) || '';
 
-                    const photoObj = {
+                    page.slots[slotIdx] = {
                         id: photoId,
                         src: dataUrl,
-                        path: filePath,
+                        path: `album/${photoId}.jpg`,
                         caption: existingCaption,
                         synced: false
                     };
-
-                    page.slots[slotIdx] = photoObj;
-                    newlyAddedPhotos.push({ photoObj, dataUrl });
                 }
 
                 await saveAlbumLocally();
@@ -3606,14 +3656,8 @@
                     albumPhotosGrid.scrollTo({ top: albumPhotosGrid.scrollHeight, behavior: 'smooth' });
                 }
 
-                if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
-                    for (const item of newlyAddedPhotos) {
-                        enqueueGitHubTask(() => uploadSinglePhotoToGitHub(item.photoObj, item.dataUrl));
-                    }
-                    enqueueGitHubTask(() => syncManifestToGitHub());
-                } else {
-                    showToast("Foto salvata! Per farla vedere anche agli altri telefoni tocca 'Condividi'.");
-                }
+                showToast("Foto caricata e salvata nel cloud!");
+                enqueueCloudTask(() => syncAlbumToFirebaseCloud());
             } catch (err) {
                 console.error("Errore caricamento foto:", err);
                 showToast("Errore durante il caricamento della foto.");
@@ -3655,8 +3699,8 @@
 
             clearTimeout(captionSaveDebounce);
             captionSaveDebounce = setTimeout(() => {
-                enqueueGitHubTask(() => syncManifestToGitHub());
-            }, 700);
+                enqueueCloudTask(() => syncAlbumToFirebaseCloud());
+            }, 650);
         });
 
         async function closePhotoDetailAndSaveIfChanged(showNotification = false) {
@@ -3670,7 +3714,7 @@
                 if (showNotification) {
                     showToast("Dedica salvata sotto la foto!");
                 }
-                enqueueGitHubTask(() => syncManifestToGitHub());
+                enqueueCloudTask(() => syncAlbumToFirebaseCloud());
             }
             albumPhotoDetailModal.classList.add('hidden');
             selectedPhotoDetail = null;
@@ -3703,20 +3747,17 @@
                 albumPhotoDetailModal.classList.add('hidden');
                 selectedPhotoDetail = null;
                 showToast("Foto eliminata dall'album");
-                enqueueGitHubTask(() => syncManifestToGitHub());
+                enqueueCloudTask(() => syncAlbumToFirebaseCloud());
             }
         });
 
         /**
          * ============================================================================
-         * 6B. CONDIVISIONE SU TUTTI I TELEFONI: GITHUB AUTO-SAVE + EXPORT HTML
+         * 6B. MODALE STATO CLOUD & BACKUP AUTONOMO
          * ============================================================================
          */
         openAlbumGitHubModalBtn.addEventListener('click', () => {
-            ghOwnerInput.value = ghConfig.owner;
-            ghRepoInput.value = ghConfig.repo;
-            ghBranchInput.value = ghConfig.branch || 'main';
-            ghTokenInput.value = ghConfig.token;
+            refreshAlbumStatusBadge();
             albumGitHubModal.classList.remove('hidden');
         });
 
@@ -3724,41 +3765,16 @@
             albumGitHubModal.classList.add('hidden');
         });
 
-        saveAlbumGitHubConfigBtn.addEventListener('click', async () => {
-            ghConfig = {
-                owner: ghOwnerInput.value.trim(),
-                repo: ghRepoInput.value.trim(),
-                branch: ghBranchInput.value.trim() || 'main',
-                token: ghTokenInput.value.trim()
-            };
-            try {
-                localStorage.setItem(ALBUM_GH_CONFIG_KEY, JSON.stringify(ghConfig));
-            } catch (e) {}
-
-            albumGitHubModal.classList.add('hidden');
-
-            if (ghConfig.owner && ghConfig.repo && ghConfig.token) {
-                updateAlbumStatusUI('syncing', 'Sincronizzazione su GitHub...');
-                showToast("Collegato a GitHub! Pubblico foto, dediche e lettera...");
-                enqueueGitHubTask(() => syncAllLocalPhotosToGitHub());
-            } else {
-                refreshAlbumStatusBadge();
-                showToast("Inserisci Username, Repository e Token GitHub!");
-            }
-        });
-
         syncAlbumNowBtn.addEventListener('click', async () => {
-            ghConfig = {
-                owner: ghOwnerInput.value.trim(),
-                repo: ghRepoInput.value.trim(),
-                branch: ghBranchInput.value.trim() || 'main',
-                token: ghTokenInput.value.trim()
-            };
-            try {
-                localStorage.setItem(ALBUM_GH_CONFIG_KEY, JSON.stringify(ghConfig));
-            } catch (e) {}
             albumGitHubModal.classList.add('hidden');
-            enqueueGitHubTask(() => syncAllLocalPhotosToGitHub());
+            showToast("Sincronizzazione con il cloud in corso...");
+            await enqueueCloudTask(async () => {
+                await syncAlbumToFirebaseCloud();
+                saveLetterState(true);
+                if (Object.keys(songMetaState).length > 0) await pushCloudDoc('songMeta', { meta: songMetaState });
+                if (Object.keys(customCatImages).length > 0) await pushCloudDoc('customCats', { images: customCatImages });
+            });
+            showToast("Tutto sincronizzato nel cloud!");
         });
 
         // Esporta un file index.html autonomo con TUTTE le foto dell'album, dediche, lettera, Polaroid e gattini incorporati!
@@ -3775,10 +3791,9 @@
                     songMeta: songMetaState,
                     customCatImages: customCatImages
                 };
-                const safeJson = JSON.stringify(snapshot).replace(/<\/script/gi, '<\\/script');
+                const safeJson = JSON.stringify(snapshot).replace(/<\/script/gi, '<\/script');
                 const docClone = document.documentElement.cloneNode(true);
 
-                // Ripristina le classi iniziali delle pagine del libro nel file esportato
                 const s1 = docClone.querySelector('#screen1');
                 const s2 = docClone.querySelector('#screen2');
                 const s3 = docClone.querySelector('#screen3');
@@ -3788,7 +3803,6 @@
                 const sw = docClone.querySelector('#spatialWorld');
                 if (sw) sw.style.transform = 'translate3d(0vw, 0vh, 0)';
 
-                // Chiudi eventuali modali aperti nel clone
                 ['songEditModal', 'customModal', 'albumGitHubModal', 'albumPhotoDetailModal'].forEach(id => {
                     const m = docClone.querySelector('#' + id);
                     if (m && !m.classList.contains('hidden')) m.classList.add('hidden');
@@ -3799,7 +3813,8 @@
                     embScript.textContent = safeJson;
                 }
 
-                const fullHtml = '<!DOCTYPE html>\n' + docClone.outerHTML;
+                const fullHtml = '<!DOCTYPE html>
+' + docClone.outerHTML;
                 const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -3818,177 +3833,6 @@
             }
         });
 
-        function utf8ToBase64(str) {
-            const bytes = new TextEncoder().encode(str);
-            let bin = '';
-            for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-            return btoa(bin);
-        }
-
-        async function githubPutFile(filePath, base64Content, commitMessage, retryCount = 0) {
-            const { owner, repo, branch, token } = ghConfig;
-            const apiUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${filePath}`;
-
-            let sha = null;
-            try {
-                const getResp = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}&t=${Date.now()}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github+json'
-                    },
-                    cache: 'no-store'
-                });
-                if (getResp.ok) {
-                    const existing = await getResp.json();
-                    sha = existing.sha;
-                }
-            } catch (e) {}
-
-            const body = {
-                message: commitMessage,
-                content: base64Content,
-                branch: branch
-            };
-            if (sha) body.sha = sha;
-
-            const putResp = await fetch(apiUrl, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/vnd.github+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            });
-
-            if ((putResp.status === 409 || putResp.status === 422) && retryCount < 3) {
-                await new Promise(r => setTimeout(r, 450 * (retryCount + 1)));
-                return githubPutFile(filePath, base64Content, commitMessage, retryCount + 1);
-            }
-
-            if (!putResp.ok) {
-                const errText = await putResp.text();
-                throw new Error(`GitHub API ${putResp.status}: ${errText}`);
-            }
-            return await putResp.json();
-        }
-
-        async function uploadSinglePhotoToGitHub(photoObj, dataUrl) {
-            if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
-            try {
-                updateAlbumStatusUI('syncing', 'Pubblicazione foto su GitHub...');
-                const base64Img = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
-                await githubPutFile(photoObj.path, base64Img, `Aggiunta foto album (${photoObj.id})`);
-                photoObj.synced = true;
-                await saveAlbumLocally();
-            } catch (err) {
-                console.error(err);
-                updateAlbumStatusUI('error', 'Errore sync GitHub (controlla token)');
-                throw err;
-            }
-        }
-
-        async function syncManifestToGitHub() {
-            if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
-            try {
-                updateAlbumStatusUI('syncing', 'Pubblicazione su GitHub...');
-
-                for (let pIdx = 0; pIdx < albumData.pages.length; pIdx++) {
-                    const page = albumData.pages[pIdx];
-                    for (let sIdx = 0; sIdx < (page.slots || []).length; sIdx++) {
-                        const sl = page.slots[sIdx];
-                        if (sl && sl.src && sl.src.startsWith('data:image/') && !sl.synced) {
-                            const base64Img = sl.src.split(',')[1];
-                            const targetPath = sl.path || `album/${sl.id}.jpg`;
-                            await githubPutFile(targetPath, base64Img, `Sync foto pagina ${pIdx + 1} (${sl.id})`);
-                            sl.path = targetPath;
-                            sl.synced = true;
-                            await saveAlbumLocally();
-                        }
-                    }
-                }
-
-                const cleanManifest = {
-                    updatedAt: new Date().toISOString(),
-                    pages: albumData.pages.map((pg, idx) => ({
-                        title: pg.title || getDefaultPageTitle(idx),
-                        slots: (pg.slots || []).map(sl => {
-                            if (!sl) return null;
-                            const cleanPath = sl.path || (sl.src && !sl.src.startsWith('data:') ? sl.src : `album/${sl.id}.jpg`);
-                            return {
-                                id: sl.id,
-                                src: cleanPath,
-                                path: cleanPath,
-                                caption: typeof sl.caption === 'string' ? sl.caption : ''
-                            };
-                        })
-                    }))
-                };
-                const jsonBase64 = utf8ToBase64(JSON.stringify(cleanManifest, null, 2));
-                await githubPutFile('album/album.json', jsonBase64, 'Aggiornamento album fotografico e dediche');
-
-                refreshAlbumStatusBadge();
-            } catch (err) {
-                console.error(err);
-                updateAlbumStatusUI('error', 'Errore sync GitHub');
-            }
-        }
-
-        async function syncLetterToGitHub() {
-            if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
-            try {
-                const payload = {
-                    updatedAt: new Date().toISOString(),
-                    text: letterTextarea.value,
-                    font: letterFontSelect.value,
-                    size: letterFontSize
-                };
-                await githubPutFile('album/lettera.json', utf8ToBase64(JSON.stringify(payload, null, 2)), 'Aggiornamento dedica lettera');
-            } catch (e) {}
-        }
-
-        async function syncSongMetaToGitHub() {
-            if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
-            try {
-                await githubPutFile('album/song_meta.json', utf8ToBase64(JSON.stringify(songMetaState, null, 2)), 'Aggiornamento Polaroid e canzone');
-            } catch (e) {}
-        }
-
-        async function syncAllLocalPhotosToGitHub() {
-            if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) {
-                showToast("Inserisci prima Username, Repository e Token GitHub!");
-                return;
-            }
-            try {
-                updateAlbumStatusUI('syncing', 'Pubblicazione completa su GitHub...');
-                for (let pIdx = 0; pIdx < albumData.pages.length; pIdx++) {
-                    const page = albumData.pages[pIdx];
-                    for (let sIdx = 0; sIdx < (page.slots || []).length; sIdx++) {
-                        const sl = page.slots[sIdx];
-                        if (sl && sl.src && sl.src.startsWith('data:image/')) {
-                            const base64Img = sl.src.split(',')[1];
-                            const targetPath = sl.path || `album/${sl.id}.jpg`;
-                            await githubPutFile(targetPath, base64Img, `Sync foto pagina ${pIdx + 1} (${sl.id})`);
-                            sl.path = targetPath;
-                            sl.synced = true;
-                            await saveAlbumLocally();
-                        }
-                    }
-                }
-                await syncManifestToGitHub();
-                await syncLetterToGitHub();
-                await syncSongMetaToGitHub();
-                renderAlbumPage();
-                refreshAlbumStatusBadge();
-                const stats = countTotalPhotosAndCaptions(albumData);
-                showToast(`Pubblicate ${stats.photos} foto e ${stats.captions} dediche per tutti!`);
-            } catch (err) {
-                console.error(err);
-                updateAlbumStatusUI('error', 'Errore sincronizzazione');
-                showToast("Controlla che il Token abbia permessi 'Contents: Read and write'.");
-            }
-        }
-
         function flushAllStateBeforeExit() {
             const activePhoto = getSelectedPhotoObject();
             if (activePhoto && albumDetailCaptionInput) {
@@ -4004,9 +3848,9 @@
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 flushAllStateBeforeExit();
-                if (ghConfig.token && ghConfig.owner && ghConfig.repo) {
-                    enqueueGitHubTask(() => syncManifestToGitHub());
-                    enqueueGitHubTask(() => syncLetterToGitHub());
+                if (firebaseCloudReady) {
+                    enqueueCloudTask(() => syncAlbumToFirebaseCloud());
+                    saveLetterState(true);
                 }
             }
         });
@@ -4024,11 +3868,11 @@
             try { sessionStorage.setItem(LETTER_STORAGE_KEY, serialized); } catch (e) {}
             try { window.name = 'LOVE_LETTER_V1:' + serialized; } catch (e) {}
 
-            if (triggerRemoteSync && ghConfig.token && ghConfig.owner && ghConfig.repo) {
+            if (triggerRemoteSync && firebaseCloudReady && !isApplyingRemoteCloudUpdate) {
                 clearTimeout(letterSyncDebounce);
                 letterSyncDebounce = setTimeout(() => {
-                    enqueueGitHubTask(() => syncLetterToGitHub());
-                }, 900);
+                    pushCloudDoc('letter', payload);
+                }, 650);
             }
         }
 
