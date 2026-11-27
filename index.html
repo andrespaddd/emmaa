@@ -1365,7 +1365,7 @@
                             </div>
                         </div>
 
-                        <div class="music-widget-card relative z-20 -mt-7 self-end mr-1 sm:mr-2 w-[275px] sm:w-[305px] rounded-2xl p-3 flex flex-col gap-2">
+                        <div class="music-widget-card relative z-20 mt-4 sm:mt-5 self-center w-[280px] sm:w-[310px] rounded-2xl p-3 flex flex-col gap-2">
                             <div class="flex items-center gap-3">
                                 <label for="songCoverInput" title="Cambia copertina"
                                     class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#1F1A1C] overflow-hidden shrink-0 shadow-sm cursor-pointer group">
@@ -3220,34 +3220,29 @@
             return null;
         }
 
+        async function fetchGitHubLetterTxt() {
+            const txtCandidates = ['lettera.txt', './lettera.txt', 'Lettera.txt', 'LETTERA.TXT'];
+            for (const url of txtCandidates) {
+                try {
+                    const resp = await fetch(url + '?v=' + Date.now(), { cache: 'no-store' });
+                    if (resp.ok) {
+                        const txt = await resp.text();
+                        const cleaned = txt.replace(/^\uFEFF/, '');
+                        const lower = cleaned.trim().toLowerCase();
+                        if (
+                            cleaned.trim().length > 0 &&
+                            !lower.startsWith('<!doctype') &&
+                            !lower.startsWith('<html')
+                        ) {
+                            return cleaned;
+                        }
+                    }
+                } catch (e) {}
+            }
+            return null;
+        }
+
         async function loadLetterFromGitHubOrStorage() {
-            const fromHash = decodeLetterFromHash();
-            if (fromHash && typeof fromHash.text === 'string') {
-                letterTextarea.value = fromHash.text;
-                if (fromHash.font && FONT_CLASSES.includes(fromHash.font)) {
-                    letterFontSelect.value = fromHash.font;
-                    applyLetterFont(fromHash.font);
-                }
-                if (fromHash.size) {
-                    letterFontSize = fromHash.size;
-                    applyLetterSize(letterFontSize);
-                }
-                saveLetterState(false);
-                return;
-            }
-
-            if (EMBEDDED_SNAPSHOT && EMBEDDED_SNAPSHOT.letter && typeof EMBEDDED_SNAPSHOT.letter.text === 'string') {
-                letterTextarea.value = EMBEDDED_SNAPSHOT.letter.text;
-                if (EMBEDDED_SNAPSHOT.letter.font && FONT_CLASSES.includes(EMBEDDED_SNAPSHOT.letter.font)) {
-                    letterFontSelect.value = EMBEDDED_SNAPSHOT.letter.font;
-                    applyLetterFont(EMBEDDED_SNAPSHOT.letter.font);
-                }
-                if (EMBEDDED_SNAPSHOT.letter.size) {
-                    letterFontSize = EMBEDDED_SNAPSHOT.letter.size;
-                    applyLetterSize(letterFontSize);
-                }
-            }
-
             const idbSaved = await idbGet(LETTER_STORAGE_KEY);
             const localSaved = idbSaved || readLocalFallbackLetterState();
 
@@ -3265,24 +3260,58 @@
                 }
             }
 
-            // Controlla anche eventuali file album/lettera.json o lettera.txt sul server/GitHub!
+            const fromHash = decodeLetterFromHash();
+            if (fromHash && typeof fromHash.text === 'string' && fromHash.text.trim()) {
+                letterTextarea.value = fromHash.text;
+                if (fromHash.font && FONT_CLASSES.includes(fromHash.font)) {
+                    letterFontSelect.value = fromHash.font;
+                    applyLetterFont(fromHash.font);
+                }
+                if (fromHash.size) {
+                    letterFontSize = fromHash.size;
+                    applyLetterSize(letterFontSize);
+                }
+                saveLetterState(false);
+                return;
+            }
+
+            // Priorità al file lettera.txt su GitHub
+            const githubTxt = await fetchGitHubLetterTxt();
+            if (githubTxt !== null) {
+                letterTextarea.value = githubTxt;
+                saveLetterState(false);
+                return;
+            }
+
+            if (EMBEDDED_SNAPSHOT && EMBEDDED_SNAPSHOT.letter && typeof EMBEDDED_SNAPSHOT.letter.text === 'string' && EMBEDDED_SNAPSHOT.letter.text.trim()) {
+                letterTextarea.value = EMBEDDED_SNAPSHOT.letter.text;
+                if (EMBEDDED_SNAPSHOT.letter.font && FONT_CLASSES.includes(EMBEDDED_SNAPSHOT.letter.font)) {
+                    letterFontSelect.value = EMBEDDED_SNAPSHOT.letter.font;
+                    applyLetterFont(EMBEDDED_SNAPSHOT.letter.font);
+                }
+                if (EMBEDDED_SNAPSHOT.letter.size) {
+                    letterFontSize = EMBEDDED_SNAPSHOT.letter.size;
+                    applyLetterSize(letterFontSize);
+                }
+                saveLetterState(false);
+                return;
+            }
+
             try {
-                const respJson = await fetch('album/lettera.json?t=' + Date.now(), { cache: 'no-store' });
+                const respJson = await fetch('album/lettera.json?v=' + Date.now(), { cache: 'no-store' });
                 if (respJson.ok) {
                     const data = await respJson.json();
                     if (data && typeof data.text === 'string' && data.text.trim()) {
-                        if (!letterTextarea.value.trim()) {
-                            letterTextarea.value = data.text;
-                            if (data.font && FONT_CLASSES.includes(data.font)) {
-                                letterFontSelect.value = data.font;
-                                applyLetterFont(data.font);
-                            }
-                            if (data.size) {
-                                letterFontSize = data.size;
-                                applyLetterSize(letterFontSize);
-                            }
-                            saveLetterState(false);
+                        letterTextarea.value = data.text;
+                        if (data.font && FONT_CLASSES.includes(data.font)) {
+                            letterFontSelect.value = data.font;
+                            applyLetterFont(data.font);
                         }
+                        if (data.size) {
+                            letterFontSize = data.size;
+                            applyLetterSize(letterFontSize);
+                        }
+                        saveLetterState(false);
                         return;
                     }
                 }
@@ -3310,23 +3339,6 @@
                         }
                     }
                 } catch (e) { isApplyingRemoteCloudUpdate = false; }
-            }
-
-            if (!letterTextarea.value.trim()) {
-                const txtCandidates = ['lettera.txt', './lettera.txt', 'Lettera.txt', 'LETTERA.TXT'];
-                for (const url of txtCandidates) {
-                    try {
-                        const resp = await fetch(url + '?t=' + Date.now(), { cache: 'no-store' });
-                        if (resp.ok) {
-                            const txt = await resp.text();
-                            if (txt && txt.trim().length > 0 && !txt.trim().startsWith('<!DOCTYPE')) {
-                                letterTextarea.value = txt;
-                                saveLetterState(false);
-                                return;
-                            }
-                        }
-                    } catch (e) {}
-                }
             }
         }
 
@@ -3369,7 +3381,8 @@
         const albumDeletePhotoBtn = document.getElementById('albumDeletePhotoBtn');
         const albumSaveCaptionBtn = document.getElementById('albumSaveCaptionBtn');
 
-        const ALBUM_STORAGE_KEY = 'lovePhotoAlbumData_v6';
+        const ALBUM_STORAGE_KEY = 'lovePhotoAlbumData_v10';
+        const ALBUM_META_LS_KEY = 'lovePhotoAlbumMeta_v10';
         const ALBUM_DB_NAME = 'LovePhotoAlbumIndexedDB_v4';
         const ALBUM_DB_STORE = 'albumStore';
 
@@ -3493,8 +3506,46 @@
 
         function saveAlbumLocalStorageBackup() {
             try {
+                const compactMeta = {
+                    pages: (albumData.pages || []).map(pg => ({
+                        title: pg.title || '',
+                        slots: (pg.slots || []).map(s => s ? ({
+                            id: s.id,
+                            caption: typeof s.caption === 'string' ? s.caption : ''
+                        }) : null)
+                    }))
+                };
+                localStorage.setItem(ALBUM_META_LS_KEY, JSON.stringify(compactMeta));
+            } catch (e) {}
+            try {
                 localStorage.setItem(ALBUM_STORAGE_KEY, JSON.stringify(albumData));
             } catch (e) {}
+        }
+
+        function mergeLocalCaptionsIntoAlbum(targetAlbum) {
+            try {
+                const rawMeta = localStorage.getItem(ALBUM_META_LS_KEY);
+                if (!rawMeta) return targetAlbum;
+                const meta = JSON.parse(rawMeta);
+                if (!meta || !Array.isArray(meta.pages)) return targetAlbum;
+                const captionById = new Map();
+                meta.pages.forEach(pg => {
+                    (pg.slots || []).forEach(s => {
+                        if (s && s.id && typeof s.caption === 'string' && s.caption.trim()) {
+                            captionById.set(s.id, s.caption);
+                        }
+                    });
+                });
+                if (captionById.size === 0) return targetAlbum;
+                (targetAlbum.pages || []).forEach(pg => {
+                    (pg.slots || []).forEach(s => {
+                        if (s && s.id && (!s.caption || !s.caption.trim()) && captionById.has(s.id)) {
+                            s.caption = captionById.get(s.id);
+                        }
+                    });
+                });
+            } catch (e) {}
+            return targetAlbum;
         }
 
         async function saveAlbumLocally() {
@@ -3729,6 +3780,7 @@
             if (!loadedLocal) {
                 try {
                     const rawLS = localStorage.getItem(ALBUM_STORAGE_KEY)
+                        || localStorage.getItem('lovePhotoAlbumData_v6')
                         || localStorage.getItem('lovePhotoAlbumData_v5')
                         || localStorage.getItem('lovePhotoAlbumData_v4')
                         || localStorage.getItem('lovePhotoAlbumData_v2');
@@ -3737,11 +3789,11 @@
             }
 
             if (EMBEDDED_SNAPSHOT && EMBEDDED_SNAPSHOT.album) {
-                albumData = normalizeAlbumStructure(EMBEDDED_SNAPSHOT.album);
+                albumData = mergeLocalCaptionsIntoAlbum(normalizeAlbumStructure(EMBEDDED_SNAPSHOT.album));
                 await saveAlbumLocally();
             } else if (loadedLocal) {
-                albumData = normalizeAlbumStructure(loadedLocal);
-                await saveAlbumToIDB(albumData);
+                albumData = mergeLocalCaptionsIntoAlbum(normalizeAlbumStructure(loadedLocal));
+                await saveAlbumLocally();
             }
 
             renderAlbumPage();
@@ -4150,12 +4202,14 @@
         function getSelectedPhotoObject() {
             if (!selectedPhotoDetail) return null;
             const { pageIdx, slotIdx, photoId } = selectedPhotoDetail;
-            const page = albumData.pages[pageIdx];
-            let targetPhoto = page?.slots?.[slotIdx];
-            if (!targetPhoto || (photoId && targetPhoto.id !== photoId)) {
-                targetPhoto = (page?.slots || []).find(s => s && s.id === photoId) || null;
+            if (photoId) {
+                for (let p = 0; p < albumData.pages.length; p++) {
+                    const found = (albumData.pages[p]?.slots || []).find(s => s && s.id === photoId);
+                    if (found) return found;
+                }
             }
-            return targetPhoto;
+            const page = albumData.pages[pageIdx];
+            return page?.slots?.[slotIdx] || null;
         }
 
         let captionSaveDebounce = null;
@@ -4165,15 +4219,26 @@
             targetPhoto.caption = albumDetailCaptionInput.value;
             saveAlbumLocalStorageBackup();
             saveAlbumToIDB(albumData);
-            renderAlbumPage();
 
             clearTimeout(captionSaveDebounce);
             captionSaveDebounce = setTimeout(() => {
+                renderAlbumPage();
+                refreshAlbumStatusBadge();
                 enqueueCloudTask(() => syncAlbumToFirebaseCloud());
-            }, 650);
+            }, 450);
+        });
+
+        albumDetailCaptionInput.addEventListener('blur', async () => {
+            const targetPhoto = getSelectedPhotoObject();
+            if (!targetPhoto) return;
+            targetPhoto.caption = albumDetailCaptionInput.value.trim();
+            await saveAlbumLocally();
+            renderAlbumPage();
+            refreshAlbumStatusBadge();
         });
 
         async function closePhotoDetailAndSaveIfChanged(showNotification = false) {
+            clearTimeout(captionSaveDebounce);
             const targetPhoto = getSelectedPhotoObject();
             if (targetPhoto) {
                 const trimmed = albumDetailCaptionInput.value.trim();
@@ -4536,6 +4601,10 @@
                 });
             }, { passive: true });
         })();
+
+        // Avvio inizializzazione persistenza lettera e album fotografico
+        loadLetterFromGitHubOrStorage();
+        initAlbumData();
     </script>
 </body>
 </html>
