@@ -1669,7 +1669,33 @@
          * 2. TRANSIZIONI A LIBRO 3D (PAGINA 1 -> PAGINA 2 -> PAGINA 3)
          * ============================================================================
          */
+        function showBookPageImmediately(pageNum) {
+            const pages = [
+                { num: 1, el: screen1 },
+                { num: 2, el: screen2 },
+                { num: 3, el: screen3 }
+            ];
+            pages.forEach(({ num, el }) => {
+                if (!el) return;
+                el.classList.remove('page-active', 'page-turned', 'page-underneath', 'page-hidden');
+                if (num === pageNum) {
+                    el.classList.add('page-active');
+                } else {
+                    el.classList.add('page-hidden');
+                }
+            });
+            currentBookPage = pageNum;
+            if (typeof openCustomModalBtn !== 'undefined' && openCustomModalBtn) {
+                openCustomModalBtn.classList.toggle('hidden', pageNum !== 2);
+            }
+        }
+
         function turnBookPage(fromEl, toEl, nextPageNum) {
+            if (!fromEl || !toEl) {
+                showBookPageImmediately(nextPageNum);
+                return;
+            }
+
             toEl.classList.remove('page-hidden', 'page-turned', 'page-active');
             toEl.classList.add('page-underneath');
             void toEl.offsetWidth;
@@ -1687,18 +1713,35 @@
                 fromEl.classList.remove('page-turned');
                 currentBookPage = nextPageNum;
 
-                if (nextPageNum === 2) {
-                    openCustomModalBtn.classList.remove('hidden');
-                } else {
-                    openCustomModalBtn.classList.add('hidden');
+                if (typeof openCustomModalBtn !== 'undefined' && openCustomModalBtn) {
+                    if (nextPageNum === 2) {
+                        openCustomModalBtn.classList.remove('hidden');
+                    } else {
+                        openCustomModalBtn.classList.add('hidden');
+                    }
                 }
             }, 960);
+
+            // Fallback di sicurezza per garantire il passaggio anche se un'animazione o listener viene interrotto
+            setTimeout(() => {
+                if (currentBookPage !== nextPageNum) {
+                    showBookPageImmediately(nextPageNum);
+                }
+            }, 1050);
         }
 
-        startBtn.addEventListener('click', () => {
-            updateLoveMeter(0);
-            turnBookPage(screen1, screen2, 2);
-        });
+        if (startBtn) {
+            startBtn.addEventListener('click', (e) => {
+                if (e) e.preventDefault();
+                try {
+                    if (loveSlider) loveSlider.value = 0;
+                    if (typeof updateLoveMeter === 'function') updateLoveMeter(0);
+                } catch (err) {
+                    console.warn('Errore updateLoveMeter su startBtn:', err);
+                }
+                turnBookPage(screen1, screen2, 2);
+            });
+        }
 
         finalNextBtn.addEventListener('click', () => {
             currentGiftZone = 'hub';
@@ -3813,7 +3856,8 @@
                     embScript.textContent = safeJson;
                 }
 
-                const fullHtml = '<!DOCTYPE html>\n' + docClone.outerHTML;
+                const fullHtml = '<!DOCTYPE html>
+' + docClone.outerHTML;
                 const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
