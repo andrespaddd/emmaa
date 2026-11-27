@@ -167,7 +167,7 @@
 
 
         /* ===================================================================== */
-        /* STILI SPECIFICI PER ALBUM FOTOGRAFICO A LIBRO (TERZO REGALO - TOP)    */
+        /* STILI SPECIFICI PER QUADERNO / ALBUM FOTOGRAFICO REALISTICO (TOP)     */
         /* ===================================================================== */
         .album-bg {
             background-color: #FCE6EE;
@@ -178,79 +178,153 @@
                 linear-gradient(160deg, #FBD9E6 0%, #FDF0F5 50%, #F8CFE0 100%);
         }
 
-        .album-book-shell {
-            background: linear-gradient(135deg, #D95B7F 0%, #B8355B 55%, #961E42 100%);
+        /* Copertina esterna rigida del quaderno */
+        .notebook-cover-shell {
+            background: linear-gradient(145deg, #C8466C 0%, #9E1E44 55%, #781232 100%);
             box-shadow:
-                0 22px 45px rgba(110, 30, 59, 0.28),
-                0 6px 14px rgba(110, 30, 59, 0.16),
-                inset 0 1px 1px rgba(255, 255, 255, 0.35);
-            perspective: 1600px;
+                0 24px 48px rgba(92, 20, 44, 0.34),
+                0 8px 18px rgba(92, 20, 44, 0.18),
+                inset 0 1px 1px rgba(255, 255, 255, 0.38);
+            border: 1.5px solid #8A173A;
+            perspective: 1800px;
         }
 
-        .album-spine-shadow {
-            background: linear-gradient(90deg,
-                rgba(90, 20, 42, 0.22) 0%,
-                rgba(90, 20, 42, 0.06) 8%,
-                rgba(255, 255, 255, 0.35) 14%,
-                rgba(255, 255, 255, 0) 24%
-            );
-        }
-
-        .album-paper-sheet {
-            background-color: #FFFDF9;
+        /* Sotto-pagina destra che si intravede sotto al foglio che sfoglia */
+        .notebook-under-sheet {
+            background-color: #FAF4EC;
             background-image:
-                radial-gradient(rgba(214, 152, 172, 0.14) 1px, transparent 0);
-            background-size: 18px 18px;
+                repeating-linear-gradient(
+                    to bottom,
+                    transparent 0px,
+                    transparent 23px,
+                    rgba(198, 152, 168, 0.22) 24px
+                );
             box-shadow:
-                inset 0 0 28px rgba(232, 195, 206, 0.35),
-                2px 4px 14px rgba(110, 30, 59, 0.12);
+                inset 12px 0 22px rgba(92, 20, 44, 0.16),
+                2px 3px 10px rgba(92, 20, 44, 0.12);
+        }
+
+        /* Foglio principale del quaderno */
+        .album-paper-sheet {
+            background-color: #FFFDF8;
+            background-image:
+                linear-gradient(90deg, transparent 34px, rgba(226, 120, 148, 0.28) 35px, transparent 36px),
+                repeating-linear-gradient(
+                    to bottom,
+                    transparent 0px,
+                    transparent 23px,
+                    rgba(198, 152, 168, 0.24) 24px
+                );
+            box-shadow:
+                inset 14px 0 24px rgba(110, 30, 59, 0.12),
+                inset -2px 0 6px rgba(110, 30, 59, 0.05),
+                3px 5px 16px rgba(92, 20, 44, 0.18);
             transform-origin: left center;
-            transition: transform 0.65s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s ease;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            will-change: transform, box-shadow;
         }
 
-        .album-paper-sheet.flip-next {
-            animation: albumFlipNext 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+        /* Spirale metallica del quaderno sul lato sinistro */
+        .notebook-spiral-ring {
+            position: relative;
+            width: 24px;
+            height: 11px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #F3F4F6 0%, #9CA3AF 45%, #4B5563 85%, #D1D5DB 100%);
+            box-shadow:
+                0 2px 3px rgba(0, 0, 0, 0.35),
+                inset 0 1px 1px rgba(255, 255, 255, 0.85);
+        }
+        .notebook-spiral-ring::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 1px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #5B1229;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.65);
         }
 
-        .album-paper-sheet.flip-prev {
-            animation: albumFlipPrev 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+        /* Animazione realistica pagina di quaderno che sfoglia */
+        .album-paper-sheet.page-turn-next {
+            animation: realisticNotebookTurnNext 0.72s cubic-bezier(0.25, 0.85, 0.32, 1) forwards;
+        }
+        .album-paper-sheet.page-turn-prev {
+            animation: realisticNotebookTurnPrev 0.72s cubic-bezier(0.25, 0.85, 0.32, 1) forwards;
         }
 
-        @keyframes albumFlipNext {
-            0% { transform: perspective(1400px) rotateY(14deg) scale(0.97); opacity: 0.65; }
-            100% { transform: perspective(1400px) rotateY(0deg) scale(1); opacity: 1; }
+        @keyframes realisticNotebookTurnNext {
+            0% {
+                transform: perspective(1800px) rotateY(0deg) skewY(0deg);
+                box-shadow: inset 14px 0 24px rgba(110, 30, 59, 0.12), 3px 5px 16px rgba(92, 20, 44, 0.18);
+            }
+            38% {
+                transform: perspective(1800px) rotateY(-88deg) skewY(-3deg) scaleX(0.96);
+                box-shadow: inset 35px 0 45px rgba(92, 20, 44, 0.28), -22px 12px 32px rgba(92, 20, 44, 0.32);
+                filter: brightness(0.93);
+            }
+            42% {
+                transform: perspective(1800px) rotateY(76deg) skewY(2.5deg) scaleX(0.97);
+                box-shadow: inset 24px 0 36px rgba(92, 20, 44, 0.22), 18px 10px 28px rgba(92, 20, 44, 0.25);
+                filter: brightness(0.96);
+            }
+            100% {
+                transform: perspective(1800px) rotateY(0deg) skewY(0deg) scaleX(1);
+                box-shadow: inset 14px 0 24px rgba(110, 30, 59, 0.12), 3px 5px 16px rgba(92, 20, 44, 0.18);
+                filter: brightness(1);
+            }
         }
 
-        @keyframes albumFlipPrev {
-            0% { transform: perspective(1400px) rotateY(-14deg) scale(0.97); opacity: 0.65; }
-            100% { transform: perspective(1400px) rotateY(0deg) scale(1); opacity: 1; }
+        @keyframes realisticNotebookTurnPrev {
+            0% {
+                transform: perspective(1800px) rotateY(0deg) skewY(0deg);
+                box-shadow: inset 14px 0 24px rgba(110, 30, 59, 0.12), 3px 5px 16px rgba(92, 20, 44, 0.18);
+            }
+            38% {
+                transform: perspective(1800px) rotateY(76deg) skewY(2.5deg) scaleX(0.97);
+                box-shadow: inset 24px 0 36px rgba(92, 20, 44, 0.22), 18px 10px 28px rgba(92, 20, 44, 0.25);
+                filter: brightness(0.96);
+            }
+            42% {
+                transform: perspective(1800px) rotateY(-88deg) skewY(-3deg) scaleX(0.96);
+                box-shadow: inset 35px 0 45px rgba(92, 20, 44, 0.28), -22px 12px 32px rgba(92, 20, 44, 0.32);
+                filter: brightness(0.93);
+            }
+            100% {
+                transform: perspective(1800px) rotateY(0deg) skewY(0deg) scaleX(1);
+                box-shadow: inset 14px 0 24px rgba(110, 30, 59, 0.12), 3px 5px 16px rgba(92, 20, 44, 0.18);
+                filter: brightness(1);
+            }
         }
 
         .album-photo-frame {
             background: #FFFFFF;
-            padding: 6px 6px 20px 6px;
-            border-radius: 4px;
-            box-shadow: 0 6px 16px rgba(110, 30, 59, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
-            border: 1px solid #F3E2E7;
-            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease;
+            padding: 4px 4px 14px 4px;
+            border-radius: 3px;
+            box-shadow: 0 4px 12px rgba(110, 30, 59, 0.16), 0 1px 2px rgba(0, 0, 0, 0.08);
+            border: 1px solid #F1DCE2;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
             position: relative;
         }
 
         .album-photo-frame:hover {
-            transform: scale(1.03) rotate(0deg) !important;
-            box-shadow: 0 12px 24px rgba(158, 11, 61, 0.22);
-            z-index: 20;
+            transform: scale(1.04) rotate(0deg) !important;
+            box-shadow: 0 10px 20px rgba(158, 11, 61, 0.24);
+            z-index: 25;
         }
 
         .album-tape {
             position: absolute;
-            top: -7px;
+            top: -5px;
             left: 50%;
             transform: translateX(-50%) rotate(-2deg);
-            width: 44px;
-            height: 13px;
-            background: rgba(246, 172, 196, 0.65);
-            border-radius: 2px;
+            width: 30px;
+            height: 9px;
+            background: rgba(244, 162, 188, 0.72);
+            border-radius: 1.5px;
             pointer-events: none;
             z-index: 5;
         }
@@ -570,26 +644,68 @@
         }
     
         /* ===================================================================== */
-        /* EFFETTI 3D TATTILI (REGALI, POLAROID, ALBUM, LETTERA, PARALLASSE)   */
+        /* EFFETTI 3D TATTILI (PACCHI REGALO, POLAROID, PALLA DI CARTA LETTERA)  */
         /* ===================================================================== */
+        .gift-box-card {
+            position: relative;
+            border-radius: 22px;
+            padding: 10px 6px 8px;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1.5px solid rgba(255, 255, 255, 0.85);
+            box-shadow: 0 10px 24px rgba(158, 11, 61, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(6px);
+            transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.32s ease, background 0.25s ease;
+        }
+        .gift-box-card:hover {
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 16px 32px rgba(158, 11, 61, 0.20);
+        }
         .gift-box-btn svg {
             transform-style: preserve-3d;
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: visible;
         }
-        .gift-lid-3d {
-            transform-origin: 60px 52px;
-            transform-box: fill-box;
-            transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+        .gift-glow-core {
+            opacity: 0;
+            transform: scale(0.4);
+            transform-origin: 60px 66px;
+            transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .gift-lid-group {
+            transform-origin: 60px 56px;
+            transition: transform 0.62s cubic-bezier(0.22, 1.28, 0.36, 1), opacity 0.45s ease;
+        }
+        .gift-box-body-group {
+            transform-origin: 60px 95px;
+            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes giftWiggleAnticipate {
+            0% { transform: scale(1) rotate(0deg); }
+            22% { transform: scale(0.94, 1.05) rotate(-4deg); }
+            48% { transform: scale(1.06, 0.94) rotate(4deg); }
+            72% { transform: scale(1.04) rotate(-2deg); }
+            100% { transform: scale(1.08) rotate(0deg); }
         }
         .gift-box-btn.gift-opening-3d {
-            animation: none !important;
-            transform: scale(1.16) translateY(-10px);
+            animation: giftWiggleAnticipate 0.38s ease-out forwards !important;
             z-index: 30;
         }
-        .gift-box-btn.gift-opening-3d .gift-lid-3d {
-            transform: perspective(500px) rotateX(-68deg) translateY(-14px);
+        .gift-box-btn.gift-opening-3d .gift-box-card {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 20px 42px rgba(212, 47, 88, 0.34), 0 0 28px rgba(255, 214, 102, 0.65);
+        }
+        .gift-box-btn.gift-opening-3d .gift-glow-core {
+            opacity: 1;
+            transform: scale(1.35) translateY(-10px);
+        }
+        .gift-box-btn.gift-opening-3d .gift-lid-group {
+            transform: translateY(-34px) translateX(10px) rotate(18deg) scale(1.05);
+            opacity: 0.92;
+        }
+        .gift-box-btn.gift-opening-3d .gift-box-body-group {
+            transform: scaleY(0.95) translateY(2px);
         }
 
+        /* Polaroid 3D */
         .polaroid-3d-stage {
             perspective: 1100px;
             transform-style: preserve-3d;
@@ -614,7 +730,7 @@
             transform: rotateY(180deg);
             background: linear-gradient(160deg, #FFFDF9 0%, #FCE8EF 100%);
             border-radius: 4px;
-            padding: 18px 16px;
+            padding: 20px 18px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -622,59 +738,46 @@
             text-align: center;
         }
 
-        .album-book-shell {
-            transform-style: preserve-3d;
+        /* ===================================================================== */
+        /* LETTERA PIEGATA A PALLA -> APERTURA FLUIDA SU FOGLIO A RIGHE           */
+        /* ===================================================================== */
+        @keyframes paperBallFloat {
+            0%, 100% { transform: translateY(0px) rotate(-2deg) scale(1); }
+            50% { transform: translateY(-8px) rotate(2.5deg) scale(1.03); }
         }
-        .album-paper-sheet {
-            transform-style: preserve-3d;
-            backface-visibility: hidden;
+        .paper-ball-stage {
+            transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .album-paper-sheet.flip-next-3d {
-            animation: albumPageTurn3DNext 0.68s cubic-bezier(0.22, 1, 0.36, 1);
+        .paper-ball-stage.is-hidden-ball {
+            opacity: 0;
+            transform: scale(1.45) rotate(16deg);
+            pointer-events: none;
         }
-        .album-paper-sheet.flip-prev-3d {
-            animation: albumPageTurn3DPrev 0.68s cubic-bezier(0.22, 1, 0.36, 1);
+        .paper-ball-btn {
+            animation: paperBallFloat 3.2s ease-in-out infinite;
+            filter: drop-shadow(0 18px 28px rgba(110, 30, 59, 0.24));
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        @keyframes albumPageTurn3DNext {
-            0% {
-                transform: perspective(1500px) rotateY(72deg) scale(0.95);
-                box-shadow: -18px 8px 28px rgba(110, 30, 59, 0.25);
-            }
-            100% {
-                transform: perspective(1500px) rotateY(0deg) scale(1);
-            }
+        .paper-ball-btn:hover {
+            transform: scale(1.08) rotate(4deg);
         }
-        @keyframes albumPageTurn3DPrev {
-            0% {
-                transform: perspective(1500px) rotateY(-72deg) scale(0.95);
-                box-shadow: 18px 8px 28px rgba(110, 30, 59, 0.25);
-            }
-            100% {
-                transform: perspective(1500px) rotateY(0deg) scale(1);
-            }
+        .paper-ball-btn:active {
+            transform: scale(0.94);
         }
 
-        .letter-3d-wrap {
-            perspective: 1300px;
-            transform-style: preserve-3d;
+        .letter-sheet-stage {
+            opacity: 0;
+            transform: scale(0.22) rotate(-14deg);
+            pointer-events: none;
+            transition:
+                opacity 0.55s ease,
+                transform 0.85s cubic-bezier(0.19, 1, 0.22, 1);
+            will-change: transform, opacity;
         }
-        .notebook-paper.letter-unfold-3d {
-            transform-origin: top center;
-            animation: letterUnfold3D 0.78s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        @keyframes letterUnfold3D {
-            0% {
-                transform: perspective(1300px) rotateX(-78deg) translateY(-28px) scale(0.92);
-                opacity: 0.25;
-            }
-            65% {
-                transform: perspective(1300px) rotateX(10deg) translateY(4px) scale(1.01);
-                opacity: 1;
-            }
-            100% {
-                transform: perspective(1300px) rotateX(0deg) translateY(0px) scale(1);
-                opacity: 1;
-            }
+        .letter-sheet-stage.is-unfolded {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+            pointer-events: auto;
         }
 
         .parallax-3d-layer {
@@ -838,11 +941,11 @@
                         </g>
                     </svg>
 
-                    <!-- Barra superiore: Titolo Album + Stato Sync + Condividi / Auto-Save -->
-                    <div class="relative z-20 w-full max-w-[385px] sm:max-w-[440px] flex items-center justify-between gap-2 mb-2 px-1">
+                    <!-- Barra superiore: Titolo Quaderno + Stato Sync + Azioni -->
+                    <div class="relative z-20 w-full max-w-[390px] sm:max-w-[445px] flex items-center justify-between gap-2 mb-2 px-1">
                         <div class="min-w-0">
-                            <h2 class="text-[1.3rem] sm:text-[1.6rem] font-black text-[#B32851] leading-tight tracking-tight truncate">
-                                Our Photo Album
+                            <h2 class="text-[1.28rem] sm:text-[1.55rem] font-black text-[#B32851] leading-tight tracking-tight truncate">
+                                Il Nostro Quaderno
                             </h2>
                             <div id="albumGitHubStatus" class="text-[10px] sm:text-[11px] font-bold text-[#8C4A60] flex items-center gap-1">
                                 <span id="albumStatusDot" class="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
@@ -856,7 +959,7 @@
                                 <i class="fa-solid fa-trash-can text-xs"></i>
                                 <span class="hidden sm:inline">Elimina</span>
                             </button>
-                            <button type="button" id="openAlbumGitHubModalBtn" title="Condividi su altri telefoni / GitHub Auto-Save"
+                            <button type="button" id="openAlbumGitHubModalBtn" title="Condividi su altri telefoni"
                                 class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#9E0B3D] hover:bg-[#b30d45] text-white text-[11px] font-extrabold shadow-sm transition active:scale-95">
                                 <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
                                 <span>Condividi</span>
@@ -864,16 +967,35 @@
                         </div>
                     </div>
 
-                    <!-- LIBRO ALBUM FOTOGRAFICO -->
-                    <div class="album-book-shell relative z-20 w-full max-w-[365px] sm:max-w-[425px] h-[64vh] max-h-[515px] min-h-[395px] rounded-r-[22px] rounded-l-[10px] p-2.5 pl-3.5 sm:p-3 sm:pl-4 flex flex-col">
+                    <!-- QUADERNO FOTOGRAFICO REALISTICO CON SPIRALE E MAX 6 FOTO PER PAGINA -->
+                    <div class="notebook-cover-shell relative z-20 w-full max-w-[375px] sm:max-w-[435px] h-[66vh] max-h-[535px] min-h-[415px] rounded-r-[22px] rounded-l-[12px] p-2.5 pl-5 sm:p-3 sm:pl-6 flex flex-col">
                         
-                        <div class="absolute -top-1.5 right-7 w-5 h-9 bg-[#FAD2DC] shadow-sm z-30 pointer-events-none"
+                        <!-- Segnalibro in raso rosa -->
+                        <div class="absolute -top-1.5 right-7 w-5 h-9 bg-[#FAD2DC] shadow-sm z-40 pointer-events-none"
                              style="clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);"></div>
 
-                        <div id="albumPageSheet" class="album-paper-sheet relative w-full h-full rounded-r-[16px] rounded-l-[6px] p-3.5 sm:p-4 flex flex-col justify-between overflow-hidden">
-                            <div class="album-spine-shadow absolute inset-y-0 left-0 w-10 pointer-events-none z-10"></div>
+                        <!-- Anelli metallici della spirale del quaderno sul dorso sinistro -->
+                        <div class="absolute left-1.5 top-6 bottom-6 flex flex-col justify-between pointer-events-none z-40">
+                            <span class="notebook-spiral-ring"></span>
+                            <span class="notebook-spiral-ring"></span>
+                            <span class="notebook-spiral-ring"></span>
+                            <span class="notebook-spiral-ring"></span>
+                            <span class="notebook-spiral-ring"></span>
+                            <span class="notebook-spiral-ring"></span>
+                            <span class="notebook-spiral-ring"></span>
+                            <span class="notebook-spiral-ring"></span>
+                            <span class="notebook-spiral-ring"></span>
+                            <span class="notebook-spiral-ring"></span>
+                        </div>
 
-                            <div class="relative z-20 flex items-center justify-between gap-2 border-b border-[#F2DCE2] pb-1.5 mb-2 pl-2">
+                        <!-- Foglio sottostante (visibile durante lo sfogliamento) -->
+                        <div class="notebook-under-sheet absolute inset-y-2.5 right-2.5 left-5 sm:inset-y-3 sm:right-3 sm:left-6 rounded-r-[16px] rounded-l-[4px] pointer-events-none z-10"></div>
+
+                        <!-- Foglio attivo del quaderno che sfoglia -->
+                        <div id="albumPageSheet" class="album-paper-sheet relative z-20 w-full h-full rounded-r-[16px] rounded-l-[4px] p-3 pl-7 sm:p-3.5 sm:pl-8 flex flex-col justify-between overflow-hidden">
+                            
+                            <!-- Intestazione pagina quaderno -->
+                            <div class="relative z-20 flex items-center justify-between gap-2 border-b border-[#EED5DE] pb-1.5 mb-1.5">
                                 <div class="flex items-center gap-1.5 flex-1 min-w-0">
                                     <input type="text" id="albumPageTitleInput" aria-label="Titolo pagina"
                                         class="w-full bg-transparent hover:bg-[#FDF0F2]/80 focus:bg-white px-1.5 py-0.5 rounded-lg font-caveat text-lg sm:text-xl font-bold text-[#9E0B3D] outline-none focus:ring-1 focus:ring-[#E89EB5] truncate"
@@ -884,26 +1006,28 @@
                                     </button>
                                 </div>
                                 <span id="albumPageBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#FCE4EC] text-[#9E0B3D] shrink-0">
-                                    0 foto
+                                    0 / 6 foto
                                 </span>
                             </div>
 
-                            <div id="albumPhotosGrid" class="relative z-20 flex-1 w-full overflow-hidden flex items-center justify-center pl-1.5"></div>
+                            <!-- Griglia fissa max 6 foto per pagina -->
+                            <div id="albumPhotosGrid" class="relative z-20 flex-1 w-full overflow-hidden flex items-center justify-center"></div>
 
                             <input type="file" id="albumPhotoUploadInput" accept="image/*" multiple class="hidden">
 
-                            <div class="relative z-20 flex items-center justify-between gap-2 pt-2 mt-1.5 border-t border-[#F2DCE2] pl-2">
-                                <button type="button" id="albumAddSlotBtn" title="Aggiungi una o più foto"
+                            <!-- Barra inferiore pagina quaderno -->
+                            <div class="relative z-20 flex items-center justify-between gap-2 pt-1.5 mt-1 border-t border-[#EED5DE]">
+                                <button type="button" id="albumAddSlotBtn" title="Aggiungi foto (max 6 per pagina)"
                                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#9E0B3D] hover:bg-[#b30d45] text-white text-[11px] font-extrabold shadow-sm cursor-pointer transition active:scale-95">
                                     <i class="fa-solid fa-plus"></i>
                                     <span>Aggiungi foto</span>
                                 </button>
 
                                 <span id="albumPageCounter" class="text-[11px] font-black text-[#8C4A60]">
-                                    1 / 1
+                                    Pag. 1 / 1
                                 </span>
 
-                                <button type="button" id="albumNewPageBtn" title="Crea una nuova pagina vuota"
+                                <button type="button" id="albumNewPageBtn" title="Crea una nuova pagina di quaderno"
                                     class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] text-[11px] font-extrabold transition active:scale-95">
                                     <i class="fa-solid fa-file-circle-plus"></i>
                                     <span>Nuova pag.</span>
@@ -912,18 +1036,19 @@
                         </div>
                     </div>
 
-                    <div class="relative z-20 w-full max-w-[365px] sm:max-w-[425px] flex items-center justify-between mt-3 px-2">
+                    <!-- Controlli sfogliamento pagine quaderno -->
+                    <div class="relative z-20 w-full max-w-[375px] sm:max-w-[435px] flex items-center justify-between mt-2.5 px-2">
                         <button type="button" id="albumPrevPageBtn"
-                            class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/90 hover:bg-white disabled:opacity-40 text-[#6E1E3B] text-xs font-extrabold shadow-sm border border-[#F3C5D5] transition active:scale-95">
+                            class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/95 hover:bg-white disabled:opacity-40 text-[#6E1E3B] text-xs font-extrabold shadow-sm border border-[#F3C5D5] transition active:scale-95">
                             <i class="fa-solid fa-chevron-left text-[10px]"></i>
-                            <span>Indietro</span>
+                            <span>Sfoglia indietro</span>
                         </button>
 
-                        <div id="albumPageDots" class="flex items-center gap-1.5 max-w-[140px] overflow-hidden"></div>
+                        <div id="albumPageDots" class="flex items-center gap-1.5 max-w-[130px] overflow-hidden"></div>
 
                         <button type="button" id="albumNextPageBtn"
-                            class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/90 hover:bg-white disabled:opacity-40 text-[#6E1E3B] text-xs font-extrabold shadow-sm border border-[#F3C5D5] transition active:scale-95">
-                            <span>Avanti</span>
+                            class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/95 hover:bg-white disabled:opacity-40 text-[#6E1E3B] text-xs font-extrabold shadow-sm border border-[#F3C5D5] transition active:scale-95">
+                            <span>Sfoglia avanti</span>
                             <i class="fa-solid fa-chevron-right text-[10px]"></i>
                         </button>
                     </div>
@@ -933,82 +1058,166 @@
                 <!-- HUB CENTRALE (0, 0): "You passed the love test" + 3 Regali      -->
                 <!-- =============================================================== -->
                 <div id="giftPanelHub" class="spatial-panel panel-hub">
-                    <div class="w-full max-w-[430px] flex flex-col items-center text-center">
+                    <div class="w-full max-w-[440px] flex flex-col items-center text-center">
                         <h2 class="text-[1.7rem] sm:text-[2rem] font-black text-[#B32851] tracking-tight mb-1.5">
                             You passed the love test
                         </h2>
-                        <p class="text-[0.85rem] sm:text-[0.95rem] font-extrabold text-[#6E1E3B] mb-9">
+                        <p class="text-[0.85rem] sm:text-[0.95rem] font-extrabold text-[#6E1E3B] mb-8">
                             Your surprises are waiting for you
                         </p>
 
-                        <div class="w-full flex items-center justify-center gap-3 sm:gap-5 px-1">
-                            <button type="button" data-gift-dir="top" aria-label="Primo regalo" class="gift-box-btn gift-anim-1 flex-1 max-w-[132px]">
-                                <svg viewBox="0 0 120 135" class="w-full h-auto overflow-visible">
-                                    <ellipse cx="60" cy="126" rx="34" ry="5.5" fill="#6E1E3B" opacity="0.12"/>
-                                    <polygon points="22,64 60,76 60,122 22,109" fill="#9BC9DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="98,64 60,76 60,122 98,109" fill="#B6DCEF" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="36,68.5 46,71.6 46,117.3 36,114" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.6"/>
-                                    <polygon points="74,71.6 84,68.5 84,114 74,117.3" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.6"/>
-                                    <g class="gift-lid-3d"><polygon points="18,52 60,40 102,52 60,64" fill="#CBE7F5" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="18,52 60,64 60,76 18,64" fill="#A6D1E6" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="102,52 60,64 60,76 102,64" fill="#BCE0F2" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="34,56.8 76,44.6 85,47.2 44,59.8" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
-                                    <polygon points="34,56.8 44,59.8 44,71.5 34,68.5" fill="#EFAEC0" stroke="#7A5B6B" stroke-width="1.5"/>
-                                    <polygon points="85,56.8 75,59.8 75,71.5 85,68.5" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
-                                    <path d="M56 49 C44 58 34 65 31 69 L39 71 L43 66 L47 72 C51 66 56 56 59 51" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
-                                    <path d="M64 49 C76 58 86 65 89 69 L81 71 L77 66 L73 72 C69 66 64 56 61 51" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
-                                    <path d="M57 46 C42 30 22 25 22 41 C22 52 44 51 57 48 Z" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <path d="M55 46 C44 37 32 36 32 42 C32 47 45 48 55 47 Z" fill="#E59EB1"/>
-                                    <path d="M63 46 C78 30 98 25 98 41 C98 52 76 51 63 48 Z" fill="#F9D5DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <path d="M65 46 C76 37 88 36 88 42 C88 47 75 48 65 47 Z" fill="#EDA9BC"/>
-                                    <rect x="54" y="42" width="12" height="10" rx="4" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="2"/></g>
-                                </svg>
+                        <div class="w-full flex items-center justify-center gap-2.5 sm:gap-4 px-1">
+                            <button type="button" data-gift-dir="top" aria-label="Primo regalo - Quaderno ricordi" class="gift-box-btn gift-anim-1 flex-1 max-w-[136px] focus:outline-none">
+                                <div class="gift-box-card flex flex-col items-center">
+                                    <svg viewBox="0 0 120 138" class="w-full h-auto overflow-visible">
+                                        <defs>
+                                            <radialGradient id="giftGlow_1" cx="50%" cy="50%" r="50%">
+                                                <stop offset="0%" stop-color="#FFF5B8" stop-opacity="1"/>
+                                                <stop offset="55%" stop-color="#FF9EBB" stop-opacity="0.75"/>
+                                                <stop offset="100%" stop-color="#FF9EBB" stop-opacity="0"/>
+                                            </radialGradient>
+                                        </defs>
+                                        <!-- Ombra morbida a terra -->
+                                        <ellipse cx="60" cy="127" rx="35" ry="6" fill="#6E1E3B" opacity="0.14"/>
+                                        <!-- Bagliore magico che esce all'apertura -->
+                                        <circle cx="60" cy="64" r="34" fill="url(#giftGlow_1)" class="gift-glow-core"/>
+                                        <!-- Corpo inferiore del pacco -->
+                                        <g class="gift-box-body-group">
+                                            <!-- Interno scuro scatola (visibile quando si alza il coperchio) -->
+                                            <polygon points="22,64 60,52 98,64 60,76" fill="#5D2A3C" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                            <!-- Lato sinistro scatola -->
+                                            <polygon points="22,64 60,76 60,122 22,109" fill="#F7A8C1" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <!-- Lato destro scatola -->
+                                            <polygon points="98,64 60,76 60,122 98,109" fill="#FBC4D6" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <!-- Nastro verticale sinistro -->
+                                            <polygon points="36,68.5 46,71.6 46,117.3 36,114" fill="#B82952" stroke="#7A5B6B" stroke-width="1.6"/>
+                                            <!-- Nastro verticale destro -->
+                                            <polygon points="74,71.6 84,68.5 84,114 74,117.3" fill="#D9436E" stroke="#7A5B6B" stroke-width="1.6"/>
+                                        </g>
+                                        <!-- Coperchio con fiocco che si solleva all'apertura -->
+                                        <g class="gift-lid-group">
+                                            <polygon points="18,52 60,40 102,52 60,64" fill="#FDE0EA" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <polygon points="18,52 60,64 60,75 18,63" fill="#F497B6" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <polygon points="102,52 60,64 60,75 102,63" fill="#F9B4CB" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <!-- Nastri sul coperchio -->
+                                            <polygon points="34,56.8 76,44.6 85,47.2 44,59.8" fill="#D9436E" stroke="#7A5B6B" stroke-width="1.5"/>
+                                            <polygon points="34,56.8 44,59.8 44,70.8 34,67.8" fill="#9E1B41" stroke="#7A5B6B" stroke-width="1.5"/>
+                                            <polygon points="85,56.8 75,59.8 75,70.8 85,67.8" fill="#D9436E" stroke="#7A5B6B" stroke-width="1.5"/>
+                                            <!-- Code del fiocco -->
+                                            <path d="M56 49 C44 58 34 65 31 69 L39 71 L43 66 L47 72 C51 66 56 56 59 51" fill="#B82952" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                            <path d="M64 49 C76 58 86 65 89 69 L81 71 L77 66 L73 72 C69 66 64 56 61 51" fill="#D9436E" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                            <!-- Fiocco centrale -->
+                                            <path d="M57 46 C42 30 22 25 22 41 C22 52 44 51 57 48 Z" fill="#D9436E" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <path d="M55 46 C44 37 32 36 32 42 C32 47 45 48 55 47 Z" fill="#9E1B41"/>
+                                            <path d="M63 46 C78 30 98 25 98 41 C98 52 76 51 63 48 Z" fill="#FDE2E9" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <path d="M65 46 C76 37 88 36 88 42 C88 47 75 48 65 47 Z" fill="#B82952"/>
+                                            <rect x="54" y="42" width="12" height="10" rx="4" fill="#B82952" stroke="#7A5B6B" stroke-width="2"/>
+                                        </g>
+                                    </svg>
+                                    <span class="mt-1 text-[10px] font-extrabold text-[#8E2446] tracking-wide uppercase">Ricordi</span>
+                                </div>
                             </button>
 
-                            <button type="button" data-gift-dir="right" aria-label="Secondo regalo" class="gift-box-btn gift-anim-2 flex-1 max-w-[132px]">
-                                <svg viewBox="0 0 120 135" class="w-full h-auto overflow-visible">
-                                    <ellipse cx="60" cy="126" rx="34" ry="5.5" fill="#6E1E3B" opacity="0.12"/>
-                                    <polygon points="22,64 60,76 60,122 22,109" fill="#9BC9DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="98,64 60,76 60,122 98,109" fill="#B6DCEF" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="36,68.5 46,71.6 46,117.3 36,114" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.6"/>
-                                    <polygon points="74,71.6 84,68.5 84,114 74,117.3" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.6"/>
-                                    <g class="gift-lid-3d"><polygon points="18,52 60,40 102,52 60,64" fill="#CBE7F5" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="18,52 60,64 60,76 18,64" fill="#A6D1E6" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="102,52 60,64 60,76 102,64" fill="#BCE0F2" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="34,56.8 76,44.6 85,47.2 44,59.8" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
-                                    <polygon points="34,56.8 44,59.8 44,71.5 34,68.5" fill="#EFAEC0" stroke="#7A5B6B" stroke-width="1.5"/>
-                                    <polygon points="85,56.8 75,59.8 75,71.5 85,68.5" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
-                                    <path d="M56 49 C44 58 34 65 31 69 L39 71 L43 66 L47 72 C51 66 56 56 59 51" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
-                                    <path d="M64 49 C76 58 86 65 89 69 L81 71 L77 66 L73 72 C69 66 64 56 61 51" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
-                                    <path d="M57 46 C42 30 22 25 22 41 C22 52 44 51 57 48 Z" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <path d="M55 46 C44 37 32 36 32 42 C32 47 45 48 55 47 Z" fill="#E59EB1"/>
-                                    <path d="M63 46 C78 30 98 25 98 41 C98 52 76 51 63 48 Z" fill="#F9D5DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <path d="M65 46 C76 37 88 36 88 42 C88 47 75 48 65 47 Z" fill="#EDA9BC"/>
-                                    <rect x="54" y="42" width="12" height="10" rx="4" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="2"/></g>
-                                </svg>
+                            <button type="button" data-gift-dir="right" aria-label="Secondo regalo - Polaroid e Canzone" class="gift-box-btn gift-anim-2 flex-1 max-w-[136px] focus:outline-none">
+                                <div class="gift-box-card flex flex-col items-center">
+                                    <svg viewBox="0 0 120 138" class="w-full h-auto overflow-visible">
+                                        <defs>
+                                            <radialGradient id="giftGlow_2" cx="50%" cy="50%" r="50%">
+                                                <stop offset="0%" stop-color="#FFF5B8" stop-opacity="1"/>
+                                                <stop offset="55%" stop-color="#FF9EBB" stop-opacity="0.75"/>
+                                                <stop offset="100%" stop-color="#FF9EBB" stop-opacity="0"/>
+                                            </radialGradient>
+                                        </defs>
+                                        <!-- Ombra morbida a terra -->
+                                        <ellipse cx="60" cy="127" rx="35" ry="6" fill="#6E1E3B" opacity="0.14"/>
+                                        <!-- Bagliore magico che esce all'apertura -->
+                                        <circle cx="60" cy="64" r="34" fill="url(#giftGlow_2)" class="gift-glow-core"/>
+                                        <!-- Corpo inferiore del pacco -->
+                                        <g class="gift-box-body-group">
+                                            <!-- Interno scuro scatola (visibile quando si alza il coperchio) -->
+                                            <polygon points="22,64 60,52 98,64 60,76" fill="#5D2A3C" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                            <!-- Lato sinistro scatola -->
+                                            <polygon points="22,64 60,76 60,122 22,109" fill="#9BC9DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <!-- Lato destro scatola -->
+                                            <polygon points="98,64 60,76 60,122 98,109" fill="#B6DCEF" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <!-- Nastro verticale sinistro -->
+                                            <polygon points="36,68.5 46,71.6 46,117.3 36,114" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.6"/>
+                                            <!-- Nastro verticale destro -->
+                                            <polygon points="74,71.6 84,68.5 84,114 74,117.3" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.6"/>
+                                        </g>
+                                        <!-- Coperchio con fiocco che si solleva all'apertura -->
+                                        <g class="gift-lid-group">
+                                            <polygon points="18,52 60,40 102,52 60,64" fill="#CBE7F5" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <polygon points="18,52 60,64 60,75 18,63" fill="#A6D1E6" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <polygon points="102,52 60,64 60,75 102,63" fill="#BCE0F2" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <!-- Nastri sul coperchio -->
+                                            <polygon points="34,56.8 76,44.6 85,47.2 44,59.8" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
+                                            <polygon points="34,56.8 44,59.8 44,70.8 34,67.8" fill="#E59EB1" stroke="#7A5B6B" stroke-width="1.5"/>
+                                            <polygon points="85,56.8 75,59.8 75,70.8 85,67.8" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
+                                            <!-- Code del fiocco -->
+                                            <path d="M56 49 C44 58 34 65 31 69 L39 71 L43 66 L47 72 C51 66 56 56 59 51" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                            <path d="M64 49 C76 58 86 65 89 69 L81 71 L77 66 L73 72 C69 66 64 56 61 51" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                            <!-- Fiocco centrale -->
+                                            <path d="M57 46 C42 30 22 25 22 41 C22 52 44 51 57 48 Z" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <path d="M55 46 C44 37 32 36 32 42 C32 47 45 48 55 47 Z" fill="#E59EB1"/>
+                                            <path d="M63 46 C78 30 98 25 98 41 C98 52 76 51 63 48 Z" fill="#FDE2E9" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <path d="M65 46 C76 37 88 36 88 42 C88 47 75 48 65 47 Z" fill="#F2B8C6"/>
+                                            <rect x="54" y="42" width="12" height="10" rx="4" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="2"/>
+                                        </g>
+                                    </svg>
+                                    <span class="mt-1 text-[10px] font-extrabold text-[#8E2446] tracking-wide uppercase">Noi &amp; Musica</span>
+                                </div>
                             </button>
 
-                            <button type="button" data-gift-dir="bottom" aria-label="Terzo regalo" class="gift-box-btn gift-anim-3 flex-1 max-w-[132px]">
-                                <svg viewBox="0 0 120 135" class="w-full h-auto overflow-visible">
-                                    <ellipse cx="60" cy="126" rx="34" ry="5.5" fill="#6E1E3B" opacity="0.12"/>
-                                    <polygon points="22,64 60,76 60,122 22,109" fill="#9BC9DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="98,64 60,76 60,122 98,109" fill="#B6DCEF" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="36,68.5 46,71.6 46,117.3 36,114" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.6"/>
-                                    <polygon points="74,71.6 84,68.5 84,114 74,117.3" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.6"/>
-                                    <g class="gift-lid-3d"><polygon points="18,52 60,40 102,52 60,64" fill="#CBE7F5" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="18,52 60,64 60,76 18,64" fill="#A6D1E6" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="102,52 60,64 60,76 102,64" fill="#BCE0F2" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <polygon points="34,56.8 76,44.6 85,47.2 44,59.8" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
-                                    <polygon points="34,56.8 44,59.8 44,71.5 34,68.5" fill="#EFAEC0" stroke="#7A5B6B" stroke-width="1.5"/>
-                                    <polygon points="85,56.8 75,59.8 75,71.5 85,68.5" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.5"/>
-                                    <path d="M56 49 C44 58 34 65 31 69 L39 71 L43 66 L47 72 C51 66 56 56 59 51" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
-                                    <path d="M64 49 C76 58 86 65 89 69 L81 71 L77 66 L73 72 C69 66 64 56 61 51" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
-                                    <path d="M57 46 C42 30 22 25 22 41 C22 52 44 51 57 48 Z" fill="#F6C8D3" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <path d="M55 46 C44 37 32 36 32 42 C32 47 45 48 55 47 Z" fill="#E59EB1"/>
-                                    <path d="M63 46 C78 30 98 25 98 41 C98 52 76 51 63 48 Z" fill="#F9D5DE" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
-                                    <path d="M65 46 C76 37 88 36 88 42 C88 47 75 48 65 47 Z" fill="#EDA9BC"/>
-                                    <rect x="54" y="42" width="12" height="10" rx="4" fill="#F2B8C6" stroke="#7A5B6B" stroke-width="2"/></g>
-                                </svg>
+                            <button type="button" data-gift-dir="bottom" aria-label="Terzo regalo - Pensierino" class="gift-box-btn gift-anim-3 flex-1 max-w-[136px] focus:outline-none">
+                                <div class="gift-box-card flex flex-col items-center">
+                                    <svg viewBox="0 0 120 138" class="w-full h-auto overflow-visible">
+                                        <defs>
+                                            <radialGradient id="giftGlow_3" cx="50%" cy="50%" r="50%">
+                                                <stop offset="0%" stop-color="#FFF5B8" stop-opacity="1"/>
+                                                <stop offset="55%" stop-color="#FF9EBB" stop-opacity="0.75"/>
+                                                <stop offset="100%" stop-color="#FF9EBB" stop-opacity="0"/>
+                                            </radialGradient>
+                                        </defs>
+                                        <!-- Ombra morbida a terra -->
+                                        <ellipse cx="60" cy="127" rx="35" ry="6" fill="#6E1E3B" opacity="0.14"/>
+                                        <!-- Bagliore magico che esce all'apertura -->
+                                        <circle cx="60" cy="64" r="34" fill="url(#giftGlow_3)" class="gift-glow-core"/>
+                                        <!-- Corpo inferiore del pacco -->
+                                        <g class="gift-box-body-group">
+                                            <!-- Interno scuro scatola (visibile quando si alza il coperchio) -->
+                                            <polygon points="22,64 60,52 98,64 60,76" fill="#5D2A3C" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                            <!-- Lato sinistro scatola -->
+                                            <polygon points="22,64 60,76 60,122 22,109" fill="#D6B8F2" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <!-- Lato destro scatola -->
+                                            <polygon points="98,64 60,76 60,122 98,109" fill="#E5D1F8" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <!-- Nastro verticale sinistro -->
+                                            <polygon points="36,68.5 46,71.6 46,117.3 36,114" fill="#E86B93" stroke="#7A5B6B" stroke-width="1.6"/>
+                                            <!-- Nastro verticale destro -->
+                                            <polygon points="74,71.6 84,68.5 84,114 74,117.3" fill="#F595B4" stroke="#7A5B6B" stroke-width="1.6"/>
+                                        </g>
+                                        <!-- Coperchio con fiocco che si solleva all'apertura -->
+                                        <g class="gift-lid-group">
+                                            <polygon points="18,52 60,40 102,52 60,64" fill="#F2E7FC" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <polygon points="18,52 60,64 60,75 18,63" fill="#C7A3EC" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <polygon points="102,52 60,64 60,75 102,63" fill="#DEC2F6" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <!-- Nastri sul coperchio -->
+                                            <polygon points="34,56.8 76,44.6 85,47.2 44,59.8" fill="#F595B4" stroke="#7A5B6B" stroke-width="1.5"/>
+                                            <polygon points="34,56.8 44,59.8 44,70.8 34,67.8" fill="#C94B74" stroke="#7A5B6B" stroke-width="1.5"/>
+                                            <polygon points="85,56.8 75,59.8 75,70.8 85,67.8" fill="#F595B4" stroke="#7A5B6B" stroke-width="1.5"/>
+                                            <!-- Code del fiocco -->
+                                            <path d="M56 49 C44 58 34 65 31 69 L39 71 L43 66 L47 72 C51 66 56 56 59 51" fill="#E86B93" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                            <path d="M64 49 C76 58 86 65 89 69 L81 71 L77 66 L73 72 C69 66 64 56 61 51" fill="#F595B4" stroke="#7A5B6B" stroke-width="1.8" stroke-linejoin="round"/>
+                                            <!-- Fiocco centrale -->
+                                            <path d="M57 46 C42 30 22 25 22 41 C22 52 44 51 57 48 Z" fill="#F595B4" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <path d="M55 46 C44 37 32 36 32 42 C32 47 45 48 55 47 Z" fill="#C94B74"/>
+                                            <path d="M63 46 C78 30 98 25 98 41 C98 52 76 51 63 48 Z" fill="#FDE2E9" stroke="#7A5B6B" stroke-width="2" stroke-linejoin="round"/>
+                                            <path d="M65 46 C76 37 88 36 88 42 C88 47 75 48 65 47 Z" fill="#E86B93"/>
+                                            <rect x="54" y="42" width="12" height="10" rx="4" fill="#E86B93" stroke="#7A5B6B" stroke-width="2"/>
+                                        </g>
+                                    </svg>
+                                    <span class="mt-1 text-[10px] font-extrabold text-[#8E2446] tracking-wide uppercase">Pensierino</span>
+                                </div>
                             </button>
                         </div>
                     </div>
@@ -1113,47 +1322,47 @@
                     </svg>
 
                     <div class="relative z-10 w-full max-w-[345px] sm:max-w-[390px] flex flex-col items-center">
-                        <div class="polaroid-3d-stage relative w-[265px] sm:w-[300px] flex items-center justify-center">
-                        <div id="polaroidCard3D" class="polaroid-card relative w-full p-3.5 pb-12 sm:p-4 sm:pb-14 rounded-[4px]">
-                            <div class="polaroid-face w-full">
-                            <div class="absolute -top-9 -right-7 w-20 h-20 pointer-events-none anim-butterfly z-20">
-                                <svg viewBox="0 0 100 100" class="w-full h-full overflow-visible">
-                                    <path d="M44 52 Q32 34 24 30" fill="none" stroke="#5A2334" stroke-width="1.5" stroke-linecap="round"/>
-                                    <path d="M47 50 Q38 30 33 24" fill="none" stroke="#5A2334" stroke-width="1.5" stroke-linecap="round"/>
-                                    <path d="M48 56 C64 42 88 46 84 64 C80 78 58 74 48 62 Z" fill="#F9B4C6" stroke="#C45C78" stroke-width="1.4"/>
-                                    <path d="M46 53 C56 24 84 12 88 32 C92 50 66 58 48 56 Z" fill="#F27A9B" stroke="#B84766" stroke-width="1.4"/>
-                                    <path d="M52 48 Q70 32 82 32 M52 52 Q72 44 82 44" fill="none" stroke="#FAD2DC" stroke-width="1" opacity="0.7"/>
-                                    <ellipse cx="46" cy="57" rx="2.5" ry="11" transform="rotate(-32 46 57)" fill="#5A2334"/>
-                                </svg>
-                            </div>
-
-                            <label for="polaroidPhotoInput" title="Clicca per inserire la tua foto"
-                                class="group relative block w-full aspect-[4/4.3] bg-white border border-[#F2E6E9] overflow-hidden cursor-pointer">
-                                <img id="polaroidPhotoImg" src="" alt="La nostra foto" class="hidden w-full h-full object-cover">
-                                <div id="polaroidEmptyOverlay" class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-[#FDF0F2]/50 text-[#8E3552]">
-                                    <i class="fa-solid fa-camera text-xl mb-1"></i>
-                                    <span class="text-[11px] font-bold">Aggiungi foto</span>
-                                </div>
-                            </label>
-                            <input type="file" id="polaroidPhotoInput" accept="image/*" class="hidden">
-                            </div>
-                            <div class="polaroid-back-face">
-                                <i class="fa-solid fa-heart text-[#D42F58] text-xl mb-2"></i>
-                                <p id="polaroidBackNoteText" class="font-caveat text-xl font-bold text-[#6E1E3B] leading-snug mb-3 px-2">
-                                    Ogni momento con te è il mio preferito ♥
-                                </p>
-                                <input type="text" id="polaroidBackNoteInput" maxlength="90" placeholder="Scrivi una frase sul retro..."
-                                    class="w-full px-2.5 py-1.5 rounded-lg bg-white/90 border border-[#EED5DA] font-caveat text-base font-bold text-[#6E1E3B] text-center outline-none focus:border-[#9E0B3D] select-text mb-2">
-                                <button type="button" id="polaroidFlipBtn"
-                                    class="px-3.5 py-1 rounded-full bg-[#9E0B3D] text-white text-[11px] font-extrabold shadow-sm hover:bg-[#b30d45] transition">
-                                    Gira davanti ↻
-                                </button>
-                            </div>
-                            <button type="button" id="polaroidFlipFrontBtn" title="Gira Polaroid in 3D"
-                                class="polaroid-face absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-full bg-[#FDF0F2] hover:bg-[#F9D5DE] text-[#9E0B3D] text-[10px] font-extrabold border border-[#EED5DA] shadow-sm transition">
-                                <i class="fa-solid fa-rotate mr-1"></i>Retro
+                        <div class="polaroid-3d-stage relative z-30 w-[265px] sm:w-[300px] flex items-center justify-center">
+                            <!-- Pulsante gira sempre visibile in primo piano sopra la foto e lontano dalla barra musicale -->
+                            <button type="button" id="polaroidFlipFrontBtn" title="Gira Polaroid"
+                                class="absolute top-2.5 left-2.5 z-40 px-3 py-1 rounded-full bg-white/95 hover:bg-[#FCE4EC] text-[#9E0B3D] text-[11px] font-extrabold border border-[#EED5DA] shadow-md transition active:scale-95">
+                                <i class="fa-solid fa-rotate mr-1"></i><span id="polaroidFlipBtnLabel">Gira</span>
                             </button>
-                        </div>
+
+                            <div id="polaroidCard3D" class="polaroid-card relative w-full p-3.5 pb-12 sm:p-4 sm:pb-14 rounded-[4px]">
+                                <div class="polaroid-face w-full">
+                                    <div class="absolute -top-9 -right-7 w-20 h-20 pointer-events-none anim-butterfly z-20">
+                                        <svg viewBox="0 0 100 100" class="w-full h-full overflow-visible">
+                                            <path d="M44 52 Q32 34 24 30" fill="none" stroke="#5A2334" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M47 50 Q38 30 33 24" fill="none" stroke="#5A2334" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M48 56 C64 42 88 46 84 64 C80 78 58 74 48 62 Z" fill="#F9B4C6" stroke="#C45C78" stroke-width="1.4"/>
+                                            <path d="M46 53 C56 24 84 12 88 32 C92 50 66 58 48 56 Z" fill="#F27A9B" stroke="#B84766" stroke-width="1.4"/>
+                                            <path d="M52 48 Q70 32 82 32 M52 52 Q72 44 82 44" fill="none" stroke="#FAD2DC" stroke-width="1" opacity="0.7"/>
+                                            <ellipse cx="46" cy="57" rx="2.5" ry="11" transform="rotate(-32 46 57)" fill="#5A2334"/>
+                                        </svg>
+                                    </div>
+
+                                    <label for="polaroidPhotoInput" title="Clicca per inserire la tua foto"
+                                        class="group relative block w-full aspect-[4/4.3] bg-white border border-[#F2E6E9] overflow-hidden cursor-pointer">
+                                        <img id="polaroidPhotoImg" src="" alt="La nostra foto" class="hidden w-full h-full object-cover">
+                                        <div id="polaroidEmptyOverlay" class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-[#FDF0F2]/50 text-[#8E3552]">
+                                            <i class="fa-solid fa-camera text-xl mb-1"></i>
+                                            <span class="text-[11px] font-bold">Aggiungi foto</span>
+                                        </div>
+                                    </label>
+                                    <input type="file" id="polaroidPhotoInput" accept="image/*" class="hidden">
+                                </div>
+                                <div class="polaroid-back-face">
+                                    <i class="fa-solid fa-heart text-[#D42F58] text-2xl mb-3"></i>
+                                    <p id="polaroidBackNoteText" class="font-caveat text-2xl font-bold text-[#6E1E3B] leading-snug mb-4 px-2">
+                                        Ogni momento con te è il mio preferito ♥
+                                    </p>
+                                    <button type="button" id="polaroidFlipBtn"
+                                        class="px-4 py-1.5 rounded-full bg-[#9E0B3D] text-white text-xs font-extrabold shadow-sm hover:bg-[#b30d45] transition active:scale-95">
+                                        Gira davanti ↻
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="music-widget-card relative z-20 -mt-7 self-end mr-1 sm:mr-2 w-[275px] sm:w-[305px] rounded-2xl p-3 flex flex-col gap-2">
@@ -1247,43 +1456,86 @@
                         </g>
                     </svg>
 
-                    <div class="relative z-30 w-full max-w-[350px] sm:max-w-[400px] h-full max-h-[670px] flex flex-col items-center justify-center py-2">
+                    <!-- FASE 1: FOGLIO PIEGATO A PALLA AL CENTRO -->
+                    <div id="paperBallStage" class="paper-ball-stage absolute inset-0 z-40 flex flex-col items-center justify-center px-6 text-center">
+                        <button type="button" id="openCrumpledPaperBtn" aria-label="Apri il foglio piegato"
+                            class="paper-ball-btn group relative w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center cursor-pointer focus:outline-none">
+                            <svg viewBox="0 0 220 220" class="w-full h-full overflow-visible">
+                                <defs>
+                                    <radialGradient id="paperBallGrad" cx="38%" cy="32%" r="65%">
+                                        <stop offset="0%" stop-color="#FFFDF9"/>
+                                        <stop offset="55%" stop-color="#F7ECE0"/>
+                                        <stop offset="100%" stop-color="#DFC8B4"/>
+                                    </radialGradient>
+                                    <linearGradient id="creaseShade" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#E7D3C0" stop-opacity="0.85"/>
+                                        <stop offset="100%" stop-color="#C8AE97" stop-opacity="0.45"/>
+                                    </linearGradient>
+                                </defs>
+                                <!-- Ombra morbida sotto la palla di carta -->
+                                <ellipse cx="110" cy="196" rx="58" ry="11" fill="#6E1E3B" opacity="0.16"/>
+
+                                <!-- Sagoma poligonale organica del foglio appallottolato -->
+                                <polygon points="108,24 148,34 178,62 192,102 182,144 152,174 112,186 70,176 40,148 28,108 38,66 68,36"
+                                    fill="url(#paperBallGrad)" stroke="#C7AC95" stroke-width="2.2" stroke-linejoin="round"/>
+
+                                <!-- Sfaccettature e pieghe 3D della carta stropicciata -->
+                                <polygon points="108,24 148,34 126,74 86,66" fill="#FFFFFF" opacity="0.65"/>
+                                <polygon points="148,34 178,62 146,94 126,74" fill="url(#creaseShade)"/>
+                                <polygon points="178,62 192,102 154,122 146,94" fill="#F3E4D5"/>
+                                <polygon points="192,102 182,144 142,148 154,122" fill="url(#creaseShade)"/>
+                                <polygon points="182,144 152,174 122,152 142,148" fill="#E3CEBA"/>
+                                <polygon points="152,174 112,186 98,146 122,152" fill="#CFAF96" opacity="0.65"/>
+                                <polygon points="112,186 70,176 82,138 98,146" fill="#EAD6C3"/>
+                                <polygon points="70,176 40,148 72,118 82,138" fill="url(#creaseShade)"/>
+                                <polygon points="40,148 28,108 66,96 72,118" fill="#FBF3EA"/>
+                                <polygon points="28,108 38,66 76,78 66,96" fill="#E6D0BC"/>
+                                <polygon points="38,66 68,36 86,66 76,78" fill="#FFFFFF" opacity="0.72"/>
+
+                                <!-- Piega centrale profonda -->
+                                <polygon points="86,66 126,74 146,94 154,122 122,152 82,138 66,96"
+                                    fill="#F9EFE4" stroke="#BFA28B" stroke-width="1.5" stroke-linejoin="round"/>
+
+                                <!-- Linee di piegatura nette -->
+                                <polyline points="68,36 86,66 76,78 38,66" fill="none" stroke="#B5967E" stroke-width="1.4" stroke-linecap="round"/>
+                                <polyline points="148,34 126,74 146,94 178,62" fill="none" stroke="#B5967E" stroke-width="1.4" stroke-linecap="round"/>
+                                <polyline points="126,74 106,108 154,122" fill="none" stroke="#AD8D74" stroke-width="1.6" stroke-linecap="round"/>
+                                <polyline points="86,66 106,108 82,138 70,176" fill="none" stroke="#AD8D74" stroke-width="1.6" stroke-linecap="round"/>
+                                <polyline points="106,108 122,152 152,174" fill="none" stroke="#B5967E" stroke-width="1.4" stroke-linecap="round"/>
+
+                                <!-- Righe sottili della carta del quaderno intraviste sulle pieghe -->
+                                <line x1="92" y1="84" x2="128" y2="90" stroke="#D99EB2" stroke-width="1.2" opacity="0.55"/>
+                                <line x1="88" y1="96" x2="134" y2="104" stroke="#D99EB2" stroke-width="1.2" opacity="0.55"/>
+                                <line x1="94" y1="118" x2="132" y2="126" stroke="#D99EB2" stroke-width="1.2" opacity="0.55"/>
+                            </svg>
+                        </button>
+
+                        <p class="mt-4 font-caveat text-2xl sm:text-[1.75rem] font-bold text-[#8E1E44] drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)] max-w-[300px] leading-snug">
+                            questo è un pensierino che avevo da dirti
+                        </p>
+                        <span class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 text-[#9E0B3D] text-[11px] font-extrabold shadow-sm border border-[#F3C5D5]">
+                            <i class="fa-solid fa-hand-pointer text-[10px]"></i>
+                            Tocca il foglio per aprirlo
+                        </span>
+                    </div>
+
+                    <!-- FASE 2: FOGLIO APERTO CON TUTTO IL TESTO DELLA LETTERA (NON MODIFICABILE) -->
+                    <div id="letterSheetStage" class="letter-sheet-stage relative z-30 w-full max-w-[350px] sm:max-w-[400px] h-full max-h-[660px] flex flex-col items-center justify-center py-2">
                         
-                        <h2 class="text-[1.55rem] sm:text-[1.95rem] font-black text-[#D42F58] tracking-tight mb-2.5 text-center drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)]">
+                        <h2 class="text-[1.55rem] sm:text-[1.95rem] font-black text-[#D42F58] tracking-tight mb-3 text-center drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)]">
                             A Letter From My Heart
                         </h2>
 
-                        <div id="letterToolbar" class="w-full max-w-[305px] sm:max-w-[340px] mb-3 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#F3C5D5] shadow-sm flex items-center justify-between gap-2 text-xs">
-                            <div class="flex items-center gap-1.5">
-                                <i class="fa-solid fa-font text-[#D42F58] text-[11px]"></i>
-                                <select id="letterFontSelect" aria-label="Scegli font lettera"
-                                    class="bg-transparent font-bold text-[#6E1E3B] text-xs outline-none cursor-pointer">
-                                    <option value="font-caveat">Corsivo Dolce</option>
-                                    <option value="font-script">Elegante</option>
-                                    <option value="font-quicksand">Tondeggiante</option>
-                                    <option value="font-playfair">Classico</option>
-                                    <option value="font-sans">Pulito</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" id="letterSizeDown" title="Riduci testo"
-                                    class="w-6 h-6 rounded-full bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] font-black flex items-center justify-center transition">
-                                    A-
-                                </button>
-                                <span id="letterSizeLabel" class="text-[11px] font-extrabold text-[#6E1E3B] w-7 text-center">20</span>
-                                <button type="button" id="letterSizeUp" title="Ingrandisci testo"
-                                    class="w-6 h-6 rounded-full bg-[#FCE4EC] hover:bg-[#F8BBD0] text-[#9E0B3D] font-black flex items-center justify-center transition">
-                                    A+
-                                </button>
-                                <button type="button" id="letterCopyLinkBtn" title="Salva e copia link con la lettera"
-                                    class="px-2 h-6 rounded-full bg-[#D42F58] hover:bg-[#B82248] text-white text-[10px] font-extrabold flex items-center gap-1 transition active:scale-95">
-                                    <i class="fa-solid fa-link text-[9px]"></i>
-                                    <span>Link</span>
-                                </button>
-                            </div>
-                        </div>
+                        <!-- Elementi nascosti di compatibilità per caricamento automatico del testo salvato -->
+                        <select id="letterFontSelect" class="hidden" aria-hidden="true">
+                            <option value="font-caveat">Corsivo Dolce</option>
+                            <option value="font-script">Elegante</option>
+                            <option value="font-quicksand">Tondeggiante</option>
+                            <option value="font-playfair">Classico</option>
+                            <option value="font-sans">Pulito</option>
+                        </select>
 
-                        <div class="letter-3d-wrap relative w-[300px] sm:w-[340px] flex-1 max-h-[470px] flex items-center justify-center">
+                        <div class="relative w-[305px] sm:w-[348px] flex-1 max-h-[505px] flex items-center justify-center">
                             <div class="washi-tape-top absolute -top-2.5 left-1/2 -translate-x-1/2 w-24 h-5 -rotate-1 rounded-[2px] pointer-events-none z-20"></div>
 
                             <div class="notebook-paper w-full h-full overflow-hidden">
@@ -1299,8 +1551,9 @@
                                 </div>
 
                                 <textarea id="letterTextarea"
-                                    placeholder="Scrivi qui la tua lettera..."
-                                    class="notebook-textarea font-caveat"
+                                    readonly
+                                    aria-label="Lettera dal cuore"
+                                    class="notebook-textarea font-caveat cursor-default select-text"
                                     style="font-size: 20px;"></textarea>
                             </div>
 
@@ -3532,10 +3785,32 @@
             refreshAlbumStatusBadge();
         }
 
-        function renderAlbumPage(flipDirection = null) {
-            if (!albumData.pages || albumData.pages.length === 0) {
-                albumData.pages = [{ title: getDefaultPageTitle(0), slots: [] }];
+        const MAX_PHOTOS_PER_NOTEBOOK_PAGE = 6;
+
+        function enforceMaxSixPerPage() {
+            if (!albumData || !Array.isArray(albumData.pages)) return;
+            const normalized = [];
+            albumData.pages.forEach((pg) => {
+                const title = pg.title || getDefaultPageTitle(normalized.length);
+                const validSlots = Array.isArray(pg.slots) ? pg.slots.filter(s => s && s.src) : [];
+                if (validSlots.length === 0) {
+                    normalized.push({ title, slots: [] });
+                } else {
+                    for (let i = 0; i < validSlots.length; i += MAX_PHOTOS_PER_NOTEBOOK_PAGE) {
+                        const chunk = validSlots.slice(i, i + MAX_PHOTOS_PER_NOTEBOOK_PAGE);
+                        const pageTitle = i === 0 ? title : `${title} (${Math.floor(i / MAX_PHOTOS_PER_NOTEBOOK_PAGE) + 1})`;
+                        normalized.push({ title: pageTitle, slots: chunk });
+                    }
+                }
+            });
+            if (normalized.length === 0) {
+                normalized.push({ title: getDefaultPageTitle(0), slots: [] });
             }
+            albumData.pages = normalized;
+        }
+
+        function renderAlbumPage(flipDirection = null) {
+            enforceMaxSixPerPage();
             if (currentAlbumPageIdx >= albumData.pages.length) {
                 currentAlbumPageIdx = albumData.pages.length - 1;
             }
@@ -3543,18 +3818,18 @@
 
             const page = albumData.pages[currentAlbumPageIdx];
             if (!Array.isArray(page.slots)) page.slots = [];
-            const slots = page.slots;
+            const slots = page.slots.slice(0, MAX_PHOTOS_PER_NOTEBOOK_PAGE);
 
             if (flipDirection) {
-                albumPageSheet.classList.remove('flip-next', 'flip-prev');
+                albumPageSheet.classList.remove('page-turn-next', 'page-turn-prev');
                 void albumPageSheet.offsetWidth;
-                albumPageSheet.classList.add(flipDirection === 'next' ? 'flip-next' : 'flip-prev');
+                albumPageSheet.classList.add(flipDirection === 'next' ? 'page-turn-next' : 'page-turn-prev');
             }
 
             albumPageTitleInput.value = page.title || getDefaultPageTitle(currentAlbumPageIdx);
             const photoCount = slots.filter(Boolean).length;
-            albumPageBadge.textContent = `${photoCount} ${photoCount === 1 ? 'foto' : 'foto'} • ∞`;
-            albumPageCounter.textContent = `${currentAlbumPageIdx + 1} / ${albumData.pages.length}`;
+            albumPageBadge.textContent = `${photoCount} / 6 foto`;
+            albumPageCounter.textContent = `Pag. ${currentAlbumPageIdx + 1} / ${albumData.pages.length}`;
 
             albumPrevPageBtn.disabled = currentAlbumPageIdx === 0;
             albumNextPageBtn.disabled = currentAlbumPageIdx === albumData.pages.length - 1;
@@ -3568,6 +3843,7 @@
                     ? 'w-4 h-2 rounded-full bg-[#9E0B3D] transition-all shrink-0'
                     : 'w-2 h-2 rounded-full bg-[#E5B8C6] hover:bg-[#C96B88] transition-all shrink-0';
                 dot.addEventListener('click', () => {
+                    if (idx === currentAlbumPageIdx) return;
                     const dir = idx > currentAlbumPageIdx ? 'next' : 'prev';
                     currentAlbumPageIdx = idx;
                     renderAlbumPage(dir);
@@ -3578,16 +3854,16 @@
             albumPhotosGrid.innerHTML = '';
 
             if (slots.length === 0) {
-                albumPhotosGrid.className = 'relative z-20 flex-1 w-full overflow-hidden flex items-center justify-center pl-1.5';
+                albumPhotosGrid.className = 'relative z-20 flex-1 w-full overflow-hidden flex items-center justify-center';
                 const emptySlotBtn = document.createElement('button');
                 emptySlotBtn.type = 'button';
-                emptySlotBtn.className = 'w-full h-full max-h-[255px] rounded-2xl border-2 border-dashed border-[#E8B8C7] bg-[#FDF5F8]/75 hover:bg-[#FCE8EF] flex flex-col items-center justify-center text-center p-4 cursor-pointer transition group';
+                emptySlotBtn.className = 'w-full h-full max-h-[250px] rounded-2xl border-2 border-dashed border-[#E4AEC0] bg-white/65 hover:bg-[#FCE8EF]/80 flex flex-col items-center justify-center text-center p-4 cursor-pointer transition group';
                 emptySlotBtn.innerHTML = `
                     <div class="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-[#9E0B3D] mb-2 group-hover:scale-110 transition">
                         <i class="fa-solid fa-camera-retro text-lg"></i>
                     </div>
-                    <div class="text-xs font-extrabold text-[#6E1E3B]">Pagina vuota (foto illimitate)</div>
-                    <div class="text-[11px] text-[#8C4A60] mt-0.5">Tocca qui per aggiungere le tue foto</div>
+                    <div class="text-xs font-extrabold text-[#6E1E3B]">Pagina vuota (max 6 foto)</div>
+                    <div class="text-[11px] text-[#8C4A60] mt-0.5">Tocca qui per incollare le tue foto sul quaderno</div>
                 `;
                 emptySlotBtn.addEventListener('click', () => {
                     triggerUploadForSlot(currentAlbumPageIdx, -1);
@@ -3597,45 +3873,49 @@
             }
 
             const totalSlots = slots.length;
-            const isScrollable = totalSlots >= 3;
-            albumPhotosGrid.className = isScrollable
-                ? 'relative z-20 flex-1 w-full overflow-y-auto overflow-x-hidden pl-1.5 pr-1 py-1'
-                : 'relative z-20 flex-1 w-full overflow-hidden flex items-center justify-center pl-1.5';
+            albumPhotosGrid.className = 'relative z-20 flex-1 w-full overflow-hidden flex items-center justify-center py-0.5';
 
-            const isDiagonal = totalSlots === 2 && (currentAlbumPageIdx % 2 === 1);
-
-            const containerCls = totalSlots === 1
-                ? 'w-full h-full flex items-center justify-center p-2'
-                : totalSlots === 2
-                    ? (isDiagonal ? 'w-full h-full flex flex-col justify-center gap-2.5 px-2' : 'w-full h-full grid grid-cols-2 gap-2.5 items-center px-1')
-                    : 'w-full grid grid-cols-2 gap-2.5 items-start py-1 px-0.5';
+            // Layout pulito senza scroll: 1 foto grande, 2 affiancate, 3-4 griglia 2x2, 5-6 griglia 3x2
+            let containerCls = 'w-full h-full flex items-center justify-center p-1';
+            if (totalSlots === 2) {
+                containerCls = 'w-full h-full grid grid-cols-2 gap-2.5 items-center px-1';
+            } else if (totalSlots === 3 || totalSlots === 4) {
+                containerCls = 'w-full h-full grid grid-cols-2 grid-rows-2 gap-2 items-center justify-items-center px-0.5';
+            } else if (totalSlots >= 5) {
+                containerCls = 'w-full h-full grid grid-cols-3 grid-rows-2 gap-1.5 items-center justify-items-center';
+            }
 
             const cardsHtml = slots.map((slotData, slotIdx) => {
-                const rots = ['-1.6deg', '1.8deg', '-1.2deg', '1.4deg'];
+                const rots = ['-1.8deg', '1.6deg', '-1.2deg', '1.5deg', '-1.4deg', '1.2deg'];
                 const rot = rots[slotIdx % rots.length];
-                let frameCls = 'w-[84%] max-w-[235px]';
-                let aspectCls = 'aspect-[4/4.2]';
+                let frameCls = 'w-[82%] max-w-[225px]';
+                let aspectCls = 'aspect-[4/4.1]';
+                let padBottom = '16px';
 
                 if (totalSlots === 2) {
-                    aspectCls = 'aspect-[4/3.6]';
-                    frameCls = isDiagonal
-                        ? (slotIdx === 0 ? 'self-start w-[66%]' : 'self-end w-[66%] -mt-3')
-                        : 'w-full';
-                } else if (totalSlots >= 3) {
-                    aspectCls = 'aspect-[4/3.8]';
                     frameCls = 'w-full';
+                    aspectCls = 'aspect-[4/3.8]';
+                    padBottom = '15px';
+                } else if (totalSlots === 3 || totalSlots === 4) {
+                    frameCls = 'w-full max-w-[142px]';
+                    aspectCls = 'aspect-[4/3.3]';
+                    padBottom = '12px';
+                } else if (totalSlots >= 5) {
+                    frameCls = 'w-full max-w-[104px]';
+                    aspectCls = 'aspect-square';
+                    padBottom = '10px';
                 }
 
                 if (slotData && slotData.src) {
                     const hasCaption = typeof slotData.caption === 'string' && slotData.caption.trim().length > 0;
-                    const ded = hasCaption ? slotData.caption.trim() : 'Tocca per scrivere una dedica ♥';
+                    const ded = hasCaption ? slotData.caption.trim() : 'Dedica ♥';
                     return `
-                        <div data-open-slot="${slotIdx}" class="album-photo-frame ${frameCls} cursor-pointer" style="transform: rotate(${rot}); padding-bottom: ${totalSlots >= 3 ? '12px' : '16px'};">
-                            ${totalSlots <= 2 ? '<div class="album-tape" style="width: 34px; height: 10px;"></div>' : ''}
+                        <div data-open-slot="${slotIdx}" class="album-photo-frame ${frameCls} cursor-pointer" style="transform: rotate(${rot}); padding-bottom: ${padBottom};">
+                            <div class="album-tape"></div>
                             <div class="w-full ${aspectCls} bg-[#FDF0F2] overflow-hidden rounded-[2px]">
                                 <img src="${slotData.src}" alt="Ricordo" class="w-full h-full object-cover" onerror="this.style.opacity='0.25'">
                             </div>
-                            <div class="font-caveat ${totalSlots === 1 ? 'text-base' : 'text-xs sm:text-sm'} font-bold ${hasCaption ? 'text-[#9E0B3D]' : 'text-[#8C4A60]/75'} text-center truncate mt-1 px-1">
+                            <div class="font-caveat ${totalSlots >= 5 ? 'text-[10px]' : (totalSlots >= 3 ? 'text-[11px]' : 'text-xs sm:text-sm')} font-bold ${hasCaption ? 'text-[#9E0B3D]' : 'text-[#8C4A60]/75'} text-center truncate mt-0.5 px-0.5 leading-tight">
                                 ${escapeHtml(ded)}
                             </div>
                         </div>
@@ -3643,13 +3923,10 @@
                 } else {
                     return `
                         <button type="button" data-fill-slot="${slotIdx}"
-                            class="${frameCls} ${aspectCls} rounded-xl border-2 border-dashed border-[#D9829B] bg-[#FDF5F8]/85 hover:bg-[#FCE4EC] flex flex-col items-center justify-center text-[#9E0B3D] cursor-pointer transition p-2"
+                            class="${frameCls} ${aspectCls} rounded-xl border-2 border-dashed border-[#D9829B] bg-[#FDF5F8]/85 hover:bg-[#FCE4EC] flex flex-col items-center justify-center text-[#9E0B3D] cursor-pointer transition p-1"
                             style="transform: rotate(${rot});">
-                            <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center mb-1">
-                                <i class="fa-solid fa-plus text-xs"></i>
-                            </div>
-                            <span class="text-[10px] font-extrabold">Scomparto ${slotIdx + 1}</span>
-                            <span class="text-[9px] text-[#8C4A60]">Tocca per mettere foto</span>
+                            <i class="fa-solid fa-plus text-xs mb-0.5"></i>
+                            <span class="text-[9px] font-extrabold">Foto ${slotIdx + 1}</span>
                         </button>
                     `;
                 }
@@ -3713,7 +3990,7 @@
 
         albumDeletePageBtn.addEventListener('click', async () => {
             if (albumData.pages.length <= 1) {
-                showToast("Deve restare almeno una pagina nell'album!");
+                showToast("Deve restare almeno una pagina nel quaderno!");
                 return;
             }
             const removedPage = albumData.pages.splice(currentAlbumPageIdx, 1)[0];
@@ -3750,7 +4027,7 @@
             currentAlbumPageIdx = newIdx;
             await saveAlbumLocally();
             renderAlbumPage('next');
-            showToast(`Nuova pagina creata!`);
+            showToast(`Nuova pagina di quaderno creata!`);
             enqueueCloudTask(() => syncAlbumToFirebaseCloud());
         });
 
@@ -3797,13 +4074,30 @@
                 }
                 pendingUploadSlot = null;
 
-                const page = albumData.pages[targetPageIdx];
+                let lastUsedPageIdx = targetPageIdx;
 
                 for (let fIdx = 0; fIdx < files.length; fIdx++) {
                     const dataUrl = await compressAlbumPhoto(files[fIdx], 760);
 
+                    // Trova una pagina con meno di 6 foto, partendo da targetPageIdx
+                    let pIdx = targetPageIdx;
+                    while (
+                        albumData.pages[pIdx] &&
+                        albumData.pages[pIdx].slots.filter(Boolean).length >= MAX_PHOTOS_PER_NOTEBOOK_PAGE &&
+                        !(fIdx === 0 && firstTargetSlotIdx >= 0 && pIdx === targetPageIdx)
+                    ) {
+                        pIdx++;
+                        if (!albumData.pages[pIdx]) {
+                            albumData.pages.push({
+                                title: getDefaultPageTitle(pIdx),
+                                slots: []
+                            });
+                        }
+                    }
+
+                    const page = albumData.pages[pIdx];
                     let slotIdx = -1;
-                    if (fIdx === 0 && firstTargetSlotIdx >= 0) {
+                    if (fIdx === 0 && firstTargetSlotIdx >= 0 && pIdx === targetPageIdx) {
                         slotIdx = firstTargetSlotIdx;
                     } else {
                         slotIdx = page.slots.findIndex(s => s === null);
@@ -3823,17 +4117,16 @@
                         caption: existingCaption,
                         synced: false
                     };
+                    lastUsedPageIdx = pIdx;
                 }
 
+                const changedPage = lastUsedPageIdx !== currentAlbumPageIdx;
+                currentAlbumPageIdx = lastUsedPageIdx;
                 await saveAlbumLocally();
-                renderAlbumPage();
+                renderAlbumPage(changedPage ? 'next' : null);
                 refreshAlbumStatusBadge();
 
-                if (page.slots.length >= 3) {
-                    albumPhotosGrid.scrollTo({ top: albumPhotosGrid.scrollHeight, behavior: 'smooth' });
-                }
-
-                showToast("Foto caricata e salvata nel cloud!");
+                showToast("Foto aggiunta al quaderno (max 6 per pagina)!");
                 enqueueCloudTask(() => syncAlbumToFirebaseCloud());
             } catch (err) {
                 console.error("Errore caricamento foto:", err);
@@ -4061,7 +4354,7 @@
 
         function applyLetterSize(sizePx) {
             letterTextarea.style.fontSize = `${sizePx}px`;
-            letterSizeLabel.textContent = sizePx;
+            if (typeof letterSizeLabel !== 'undefined' && letterSizeLabel) letterSizeLabel.textContent = sizePx;
         }
 
         letterTextarea.addEventListener('input', () => saveLetterState(true));
@@ -4071,13 +4364,13 @@
             saveLetterState(true);
         });
 
-        letterSizeDown.addEventListener('click', () => {
+        if (letterSizeDown) letterSizeDown.addEventListener('click', () => {
             letterFontSize = Math.max(14, letterFontSize - 2);
             applyLetterSize(letterFontSize);
             saveLetterState(true);
         });
 
-        letterSizeUp.addEventListener('click', () => {
+        if (letterSizeUp) letterSizeUp.addEventListener('click', () => {
             letterFontSize = Math.min(34, letterFontSize + 2);
             applyLetterSize(letterFontSize);
             saveLetterState(true);
@@ -4111,11 +4404,11 @@
         
         /**
          * ============================================================================
-         * 7. ANIMAZIONI 3D AGGIUNTIVE (PACCHI, POLAROID 3D, ALBUM 3D, LETTERA, PARALLASSE)
+         * 7. ANIMAZIONI 3D & INTERAZIONI (PACCHI, POLAROID, FOGLIO PIEGATO A PALLA)
          * ============================================================================
          */
         (function init3DEffects() {
-            // A) Apertura 3D del coperchio del pacco regalo prima del movimento camera
+            // A) Apertura realistica dei pacchi regalo con coperchio che si solleva e bagliore
             const giftBtns = document.querySelectorAll('[data-gift-dir]');
             giftBtns.forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -4123,22 +4416,23 @@
                     e.stopImmediatePropagation();
                     btn.dataset.lock3d = '1';
                     btn.classList.add('gift-opening-3d');
-                    if (typeof spawnHeartBurst === 'function') spawnHeartBurst(8);
+                    if (typeof spawnHeartBurst === 'function') spawnHeartBurst(12);
                     const dir = btn.getAttribute('data-gift-dir');
                     setTimeout(() => {
-                        btn.classList.remove('gift-opening-3d');
-                        btn.dataset.lock3d = '0';
                         if (typeof panSpatialCamera === 'function') panSpatialCamera(dir);
-                    }, 420);
+                        setTimeout(() => {
+                            btn.classList.remove('gift-opening-3d');
+                            btn.dataset.lock3d = '0';
+                        }, 550);
+                    }, 520);
                 }, true);
             });
 
-            // B) Polaroid 3D tilt + rotazione 180° sul retro con nota salvata in songMetaState
+            // B) Polaroid 3D con tasto gira in primo piano e frase fissa sul retro
             const polaroidCard3D = document.getElementById('polaroidCard3D');
             const polaroidFlipFrontBtn = document.getElementById('polaroidFlipFrontBtn');
             const polaroidFlipBtn = document.getElementById('polaroidFlipBtn');
-            const polaroidBackNoteInput = document.getElementById('polaroidBackNoteInput');
-            const polaroidBackNoteText = document.getElementById('polaroidBackNoteText');
+            const polaroidFlipBtnLabel = document.getElementById('polaroidFlipBtnLabel');
 
             let polaroidFlipped = false;
             let tiltX = 0, tiltY = 0;
@@ -4146,7 +4440,7 @@
             function applyPolaroidTransform() {
                 if (!polaroidCard3D) return;
                 if (polaroidFlipped) {
-                    polaroidCard3D.style.transform = `rotateY(180deg) rotateX(${(-tiltX * 0.5).toFixed(1)}deg)`;
+                    polaroidCard3D.style.transform = `rotateY(180deg) rotateX(${(-tiltX * 0.4).toFixed(1)}deg)`;
                 } else {
                     polaroidCard3D.style.transform = `rotateZ(1.2deg) rotateX(${tiltX.toFixed(1)}deg) rotateY(${tiltY.toFixed(1)}deg)`;
                 }
@@ -4158,8 +4452,8 @@
                     const rect = polaroidCard3D.getBoundingClientRect();
                     const nx = ((ev.clientX - rect.left) / rect.width) - 0.5;
                     const ny = ((ev.clientY - rect.top) / rect.height) - 0.5;
-                    tiltY = nx * 16;
-                    tiltX = -ny * 16;
+                    tiltY = nx * 14;
+                    tiltX = -ny * 14;
                     applyPolaroidTransform();
                 });
                 polaroidCard3D.addEventListener('pointerleave', () => {
@@ -4174,57 +4468,63 @@
                 if (polaroidCard3D) {
                     polaroidCard3D.classList.toggle('is-flipped', polaroidFlipped);
                 }
+                if (polaroidFlipBtnLabel) {
+                    polaroidFlipBtnLabel.textContent = polaroidFlipped ? 'Foto' : 'Gira';
+                }
                 applyPolaroidTransform();
             }
 
-            if (polaroidFlipFrontBtn) polaroidFlipFrontBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); togglePolaroidFlip(true); });
-            if (polaroidFlipBtn) polaroidFlipBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); togglePolaroidFlip(false); });
-
-            if (polaroidBackNoteInput && polaroidBackNoteText) {
-                try {
-                    if (typeof songMetaState !== 'undefined' && songMetaState.polaroidBackNote) {
-                        polaroidBackNoteInput.value = songMetaState.polaroidBackNote;
-                        polaroidBackNoteText.textContent = songMetaState.polaroidBackNote;
-                    }
-                } catch (e) {}
-
-                polaroidBackNoteInput.addEventListener('input', () => {
-                    const val = polaroidBackNoteInput.value.trim() || 'Ogni momento con te è il mio preferito ♥';
-                    polaroidBackNoteText.textContent = val;
-                    if (typeof persistSongMeta === 'function') {
-                        persistSongMeta({ polaroidBackNote: polaroidBackNoteInput.value });
-                    }
+            if (polaroidFlipFrontBtn) {
+                polaroidFlipFrontBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    togglePolaroidFlip();
+                });
+            }
+            if (polaroidFlipBtn) {
+                polaroidFlipBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    togglePolaroidFlip(false);
                 });
             }
 
-            // C) Sfogliamento 3D reale dell'album fotografico + D) Dispiegamento 3D della lettera
-            const sheetEl = document.getElementById('albumPageSheet');
-            const prevBtn3D = document.getElementById('albumPrevPageBtn');
-            const nextBtn3D = document.getElementById('albumNextPageBtn');
-            const letterPaperEl = document.querySelector('#giftPanelBottom .notebook-paper');
+            // C) Foglio piegato a palla -> apertura fluida della lettera
+            const paperBallStage = document.getElementById('paperBallStage');
+            const letterSheetStage = document.getElementById('letterSheetStage');
+            const openCrumpledPaperBtn = document.getElementById('openCrumpledPaperBtn');
 
-            function triggerAlbum3DFlip(dir) {
-                if (!sheetEl) return;
-                sheetEl.classList.remove('flip-next-3d', 'flip-prev-3d');
-                void sheetEl.offsetWidth;
-                sheetEl.classList.add(dir === 'next' ? 'flip-next-3d' : 'flip-prev-3d');
+            function resetLetterToPaperBall() {
+                if (paperBallStage) paperBallStage.classList.remove('is-hidden-ball');
+                if (letterSheetStage) letterSheetStage.classList.remove('is-unfolded');
             }
 
-            if (prevBtn3D) prevBtn3D.addEventListener('click', () => triggerAlbum3DFlip('prev'), true);
-            if (nextBtn3D) nextBtn3D.addEventListener('click', () => triggerAlbum3DFlip('next'), true);
+            function unfoldCrumpledLetter() {
+                if (!paperBallStage || !letterSheetStage) return;
+                paperBallStage.classList.add('is-hidden-ball');
+                if (typeof spawnHeartBurst === 'function') spawnHeartBurst(10);
+                setTimeout(() => {
+                    letterSheetStage.classList.add('is-unfolded');
+                }, 140);
+            }
 
+            if (openCrumpledPaperBtn) {
+                openCrumpledPaperBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    unfoldCrumpledLetter();
+                });
+            }
+
+            // Ogni volta che si apre il pacco della lettera, mostra prima la palla di carta piegata
             const bottomGiftBtn = document.querySelector('[data-gift-dir="bottom"]');
-            if (bottomGiftBtn && letterPaperEl) {
+            if (bottomGiftBtn) {
                 bottomGiftBtn.addEventListener('click', () => {
-                    setTimeout(() => {
-                        letterPaperEl.classList.remove('letter-unfold-3d');
-                        void letterPaperEl.offsetWidth;
-                        letterPaperEl.classList.add('letter-unfold-3d');
-                    }, 430);
+                    resetLetterToPaperBall();
                 });
             }
 
-            // E) Parallasse 3D sugli sfondi decorativi
+            // D) Parallasse 3D sugli sfondi decorativi
             const parallaxLayers = document.querySelectorAll('.parallax-3d-layer');
             window.addEventListener('pointermove', (ev) => {
                 if (!parallaxLayers.length) return;
@@ -4236,10 +4536,6 @@
                 });
             }, { passive: true });
         })();
-
-        // Avvio inizializzazione persistente
-        initAlbumData();
-        loadLetterFromGitHubOrStorage();
     </script>
 </body>
 </html>
